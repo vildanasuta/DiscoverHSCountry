@@ -11,6 +11,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<ITouristService, TouristService>();
+builder.Services.AddTransient<IAdministratorService, AdministratorService>();
+builder.Services.AddTransient<ITouristAttractionOwnerService, TouristAttractionOwnerService>();
+builder.Services.AddTransient<ICityService, CityService>();
+builder.Services.AddTransient<IEventService, EventService>();
+builder.Services.AddTransient<IEventLocationService, EventLocationService>();
+builder.Services.AddTransient<IEventCategoryService, EventCategoryService>();
 
 
 builder.Services.AddControllers()

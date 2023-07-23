@@ -10,6 +10,5 @@ namespace DiscoverHSCountry.Services
     public interface ITouristService: ICRUDService<Model.Tourist, Model.SearchObjects.TouristSearchObject, Model.Requests.TouristCreateRequest, Model.Requests.TouristUpdateRequest>
     {
         public Task<Database.Tourist> InsertTouristWithUserDetails(TouristCreateRequest touristCreateRequest);
-
     }
 }
