@@ -43,6 +43,17 @@ namespace DiscoverHSCountry.Services
             CreateMap<Model.Requests.EventCategoryCreateRequest, Database.EventCategory>();
             CreateMap<Model.Requests.EventCategoryUpdateRequest, Database.EventCategory>();
 
+            CreateMap<Database.HistoricalEvent, Model.HistoricalEvent>();
+            CreateMap<Model.Requests.HistoricalEventCreateRequest, Database.HistoricalEvent>();
+            CreateMap<Model.Requests.HistoricalEventUpdateRequest, Database.HistoricalEvent>();
+
+            CreateMap<Database.Location, Model.Location>();
+            CreateMap<Model.Requests.LocationCreateRequest, Database.Location>();
+            CreateMap<Model.Requests.LocationUpdateRequest, Database.Location>();
+
+            CreateMap<Database.LocationTouristAttractionOwner, Model.LocationTouristAttractionOwner>();
+            CreateMap<Model.Requests.LocationTouristAttractionOwnerCreateRequest, Database.LocationTouristAttractionOwner>();
+            CreateMap<Model.Requests.LocationTouristAttractionOwnerUpdateRequest, Database.LocationTouristAttractionOwner>();
         }
     }
 }

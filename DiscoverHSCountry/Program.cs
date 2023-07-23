@@ -17,6 +17,9 @@ builder.Services.AddTransient<ICityService, CityService>();
 builder.Services.AddTransient<IEventService, EventService>();
 builder.Services.AddTransient<IEventLocationService, EventLocationService>();
 builder.Services.AddTransient<IEventCategoryService, EventCategoryService>();
+builder.Services.AddTransient<IHistoricalEventService, HistoricalEventService>();
+builder.Services.AddTransient<ILocationService, LocationService>();
+builder.Services.AddTransient<ILocationTouristAttractionOwnerService, LocationTouristAttractionOwnerService>();
 
 
 builder.Services.AddControllers()

@@ -27,6 +27,7 @@ namespace DiscoverHSCountry.Model
 
         public virtual EventCategory? EventCategory { get; set; }
 
+
         public virtual EventLocation? EventLocation { get; set; }
     }
 }
