@@ -20,6 +20,12 @@ namespace DiscoverHSCountry.Model
 
         public int? LocationSubcategoryId { get; set; }
 
+        public string? FacebookUrl { get; set; }
+
+        public string? InstagramUrl { get; set; }
+
+        public string? BookingUrl { get; set; }
+
         public virtual City? City { get; set; }
 
         public virtual ICollection<EventLocation> EventLocations { get; set; } = new List<EventLocation>();
@@ -35,8 +41,6 @@ namespace DiscoverHSCountry.Model
         public virtual ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
 
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
-
-        public virtual ICollection<SocialMediaLocation> SocialMediaLocations { get; set; } = new List<SocialMediaLocation>();
 
         public virtual ICollection<TechnicalIssueTourist> TechnicalIssueTourists { get; set; } = new List<TechnicalIssueTourist>();
 

@@ -31,5 +31,11 @@ namespace DiscoverHSCountry.API.Controllers
                 return StatusCode(500, "An error occurred while creating the tourist.");
             }
         }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public override Task<Tourist> Insert([FromBody] TouristCreateRequest insert)
+        {
+            return base.Insert(insert);
+        }
     }
 }

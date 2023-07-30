@@ -43,10 +43,6 @@ public partial class DiscoverHSCountryContext : DbContext
 
     public virtual DbSet<Service> Services { get; set; }
 
-    public virtual DbSet<SocialMediaLocation> SocialMediaLocations { get; set; }
-
-    public virtual DbSet<SocialMedium> SocialMedia { get; set; }
-
     public virtual DbSet<TechnicalIssueOwner> TechnicalIssueOwners { get; set; }
 
     public virtual DbSet<TechnicalIssueTourist> TechnicalIssueTourists { get; set; }
@@ -358,35 +354,6 @@ public partial class DiscoverHSCountryContext : DbContext
             entity.Property(e => e.ServiceName)
                 .HasMaxLength(100)
                 .HasColumnName("service_name");
-        });
-
-        modelBuilder.Entity<SocialMediaLocation>(entity =>
-        {
-            entity.HasKey(e => e.SocialMediaLocation1).HasName("PK__SocialMe__10E0241E2FAEAE1F");
-
-            entity.ToTable("SocialMedia_Location");
-
-            entity.Property(e => e.SocialMediaLocation1).HasColumnName("social_media_location");
-            entity.Property(e => e.LocationId).HasColumnName("location_id");
-            entity.Property(e => e.SocialMediaId).HasColumnName("social_media_id");
-
-            entity.HasOne(d => d.Location).WithMany(p => p.SocialMediaLocations)
-                .HasForeignKey(d => d.LocationId)
-                .HasConstraintName("FK__SocialMed__locat__0F624AF8");
-
-            entity.HasOne(d => d.SocialMedia).WithMany(p => p.SocialMediaLocations)
-                .HasForeignKey(d => d.SocialMediaId)
-                .HasConstraintName("FK__SocialMed__socia__0E6E26BF");
-        });
-
-        modelBuilder.Entity<SocialMedium>(entity =>
-        {
-            entity.HasKey(e => e.SocialMediaId).HasName("PK__SocialMe__442C523F560D0FFE");
-
-            entity.Property(e => e.SocialMediaId).HasColumnName("social_media_id");
-            entity.Property(e => e.BookingUrl).HasColumnName("booking_url");
-            entity.Property(e => e.FacebookUrl).HasColumnName("facebook_url");
-            entity.Property(e => e.InstagramUrl).HasColumnName("instagram_url");
         });
 
         modelBuilder.Entity<TechnicalIssueOwner>(entity =>
