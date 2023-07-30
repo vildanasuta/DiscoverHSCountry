@@ -20,7 +20,16 @@ builder.Services.AddTransient<IEventCategoryService, EventCategoryService>();
 builder.Services.AddTransient<IHistoricalEventService, HistoricalEventService>();
 builder.Services.AddTransient<ILocationService, LocationService>();
 builder.Services.AddTransient<ILocationTouristAttractionOwnerService, LocationTouristAttractionOwnerService>();
-
+builder.Services.AddTransient<ILocationCategoryService, LocationCategoryService>();
+builder.Services.AddTransient<ILocationImageService, LocationImageService>();
+builder.Services.AddTransient<ILocationSubcategoryService, LocationSubcategoryService>();
+builder.Services.AddTransient<IReservationService, ReservationService>();
+builder.Services.AddTransient<IReviewService, ReviewService>();
+builder.Services.AddTransient<IServiceService, ServiceService>();
+builder.Services.AddTransient<ITechnicalIssueOwnerService, TechnicalIssueOwnerService>();
+builder.Services.AddTransient<ITechnicalIssueTouristService, TechnicalIssueTouristService>();
+builder.Services.AddTransient<IVisitedLocationService, VisitedLocationService>();
+builder.Services.AddTransient<IVisitedLocationImageService, VisitedLocationImageService>();
 
 builder.Services.AddControllers()
             .AddJsonOptions(options =>

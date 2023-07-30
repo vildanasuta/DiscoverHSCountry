@@ -54,6 +54,46 @@ namespace DiscoverHSCountry.Services
             CreateMap<Database.LocationTouristAttractionOwner, Model.LocationTouristAttractionOwner>();
             CreateMap<Model.Requests.LocationTouristAttractionOwnerCreateRequest, Database.LocationTouristAttractionOwner>();
             CreateMap<Model.Requests.LocationTouristAttractionOwnerUpdateRequest, Database.LocationTouristAttractionOwner>();
+
+            CreateMap<Database.LocationCategory, Model.LocationCategory>();
+            CreateMap<Model.Requests.LocationCategoryCreateRequest, Database.LocationCategory>();
+            CreateMap<Model.Requests.LocationCategoryUpdateRequest, Database.LocationCategory>();
+
+            CreateMap<Database.LocationImage, Model.LocationImage>();
+            CreateMap<Model.Requests.LocationImageCreateRequest, Database.LocationImage>();
+            CreateMap<Model.Requests.LocationImageUpdateRequest, Database.LocationImage>();
+
+            CreateMap<Database.LocationSubcategory, Model.LocationSubcategory>();
+            CreateMap<Model.Requests.LocationSubcategoryCreateRequest, Database.LocationSubcategory>();
+            CreateMap<Model.Requests.LocationSubcategoryUpdateRequest, Database.LocationSubcategory>();
+
+            CreateMap<Database.Reservation, Model.Reservation>();
+            CreateMap<Model.Requests.ReservationCreateRequest, Database.Reservation>();
+            CreateMap<Model.Requests.ReservationUpdateRequest, Database.Reservation>();
+
+            CreateMap<Database.Review, Model.Review>();
+            CreateMap<Model.Requests.ReviewCreateRequest, Database.Review>();
+            CreateMap<Model.Requests.ReviewUpdateRequest, Database.Review>();
+
+            CreateMap<Database.Service, Model.Service>();
+            CreateMap<Model.Requests.ServiceCreateRequest, Database.Service>();
+            CreateMap<Model.Requests.ServiceUpdateRequest, Database.Service>();
+
+            CreateMap<Database.TechnicalIssueOwner, Model.TechnicalIssueOwner>();
+            CreateMap<Model.Requests.TechnicalIssueOwnerCreateRequest, Database.TechnicalIssueOwner>();
+            CreateMap<Model.Requests.TechnicalIssueOwnerUpdateRequest, Database.TechnicalIssueOwner>();
+
+            CreateMap<Database.TechnicalIssueTourist, Model.TechnicalIssueTourist>();
+            CreateMap<Model.Requests.TechnicalIssueTouristCreateRequest, Database.TechnicalIssueTourist>();
+            CreateMap<Model.Requests.TechnicalIssueTouristUpdateRequest, Database.TechnicalIssueTourist>();
+
+            CreateMap<Database.VisitedLocation, Model.VisitedLocation>();
+            CreateMap<Model.Requests.VisitedLocationCreateRequest, Database.VisitedLocation>();
+            CreateMap<Model.Requests.VisitedLocationUpdateRequest, Database.VisitedLocation>();
+
+            CreateMap<Database.VisitedLocationImage, Model.VisitedLocationImage>();
+            CreateMap<Model.Requests.VisitedLocationImageCreateRequest, Database.VisitedLocationImage>();
+            CreateMap<Model.Requests.VisitedLocationImageUpdateRequest, Database.VisitedLocationImage>();
         }
     }
 }

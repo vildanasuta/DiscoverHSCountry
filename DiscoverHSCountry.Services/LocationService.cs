@@ -34,12 +34,14 @@ namespace DiscoverHSCountry.Services
                         CoverImage = locationCreateRequest.CoverImage,
                         CityId = locationCreateRequest.CityId,
                         LocationCategoryId = locationCreateRequest.LocationCategoryId,
-                        LocationSubcategoryId = locationCreateRequest.LocationSubcategoryId
+                        LocationSubcategoryId = locationCreateRequest.LocationSubcategoryId,
+                        BookingUrl=locationCreateRequest.BookingUrl,
+                        FacebookUrl=locationCreateRequest.FacebookUrl,
+                        InstagramUrl=locationCreateRequest.InstagramUrl
                     };
 
                     createdLocation = await base.Insert(newLocation);
                     await _context.SaveChangesAsync();
-
                     LocationTouristAttractionOwnerCreateRequest locationTouristAttractionOwnerCreateRequest = new LocationTouristAttractionOwnerCreateRequest
                     {
                         LocationId=createdLocation.LocationId,

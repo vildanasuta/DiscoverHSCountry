@@ -23,5 +23,13 @@ namespace DiscoverHSCountry.Model.Requests
         public int? LocationSubcategoryId { get; set; }
 
         public int? TouristAttractionOwnerId { get; set; }
+
+        public string? FacebookUrl { get; set; }
+
+        public string? InstagramUrl { get; set; }
+
+        public string? BookingUrl { get; set; }
+
+
     }
 }

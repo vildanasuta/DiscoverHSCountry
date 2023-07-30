@@ -19,13 +19,13 @@ namespace DiscoverHSCountry.API.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         public override Task<EventLocation> Insert([FromBody] EventLocationCreateRequest insert)
         {
-            return base.Insert(insert);
+            return _eventLocationService.Insert(insert);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
         public override Task<EventLocation> Update(int id, [FromBody] EventLocationUpdateRequest update)
         {
-            return base.Update(id, update);
+            return _eventLocationService.Update(id, update);
         }
 
     }

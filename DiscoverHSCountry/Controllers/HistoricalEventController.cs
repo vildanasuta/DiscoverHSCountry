@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DiscoverHSCountry.API.Controllers
 {
+    [ApiController]
+    [Route("[controller]")]
     public class HistoricalEventController : BaseCRUDController<Model.HistoricalEvent, Model.SearchObjects.HistoricalEventSearchObject, Model.Requests.HistoricalEventCreateRequest, Model.Requests.HistoricalEventUpdateRequest>
     {
         private readonly IHistoricalEventService _eventService;
