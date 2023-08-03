@@ -31,9 +31,11 @@ namespace DiscoverHSCountry.Services
                         Email = touristAttractionOwnerCreateRequest.Email,
                         FirstName = touristAttractionOwnerCreateRequest.FirstName,
                         LastName = touristAttractionOwnerCreateRequest.LastName,
-                        Password = touristAttractionOwnerCreateRequest.Password,
                         ProfileImage = touristAttractionOwnerCreateRequest.ProfileImage,
                     };
+                    // Hash the password using bcrypt
+                    string hashedPassword = BCrypt.Net.BCrypt.HashPassword(touristAttractionOwnerCreateRequest.Password);
+                    user.Password = hashedPassword;
                     Model.User createdUser = await _userService.Insert(user);
                     await _context.SaveChangesAsync();
 
