@@ -23,7 +23,7 @@ namespace DiscoverHSCountry.Services
         }
         public async Task<AuthenticationResponse> AuthenticateUser(string email, string password)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
 
             if (user == null)
             {
@@ -37,6 +37,7 @@ namespace DiscoverHSCountry.Services
 
             return new AuthenticationResponse { Result = Util.AuthenticationResult.Success, UserId = user.UserId };
         }
+
     }
 
 }
