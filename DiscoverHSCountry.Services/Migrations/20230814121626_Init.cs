@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DiscoverHSCountry.Services.Migrations
 {
     /// <inheritdoc />
-    public partial class FixSocialMediaLocation : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

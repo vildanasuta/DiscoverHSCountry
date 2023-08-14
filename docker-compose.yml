@@ -1,0 +1,36 @@
+version: '3'
+services:
+#mssql docker
+  discoverhscountry-sql:
+    image: mcr.microsoft.com/mssql/server:2017-latest-ubuntu
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=QWElkj132!
+      - MSSQL_PID=Developer
+    ports:
+      - 1401:1433
+    expose:
+      - 1433
+    networks:
+      - discoverhscountrynet
+
+  discoverhscountry-api:
+    restart: unless-stopped
+    build:
+      context: .
+    environment:
+      - ConnectionStrings:DefaultConnection=Server=discoverhscountry-sql,1433;Database=DiscoverHSCountry;User=sa;Password=QWElkj132!;ConnectRetryCount=0; TrustServerCertificate=True
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - 7125:7125
+    networks:
+      - discoverhscountrynet
+    links:
+      - discoverhscountry-sql
+    depends_on:
+      - discoverhscountry-sql
+      
+networks:
+  discoverhscountrynet:
+    driver: bridge      
