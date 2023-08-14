@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DiscoverHSCountry.Services.Migrations
 {
     [DbContext(typeof(DiscoverHSCountryContext))]
-    [Migration("20230725133437_FixSocialMediaLocation")]
-    partial class FixSocialMediaLocation
+    [Migration("20230814121626_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

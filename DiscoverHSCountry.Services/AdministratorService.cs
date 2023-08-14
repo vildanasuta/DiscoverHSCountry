@@ -29,9 +29,11 @@ namespace DiscoverHSCountry.Services
                         Email = administratorCreateRequest.Email,
                         FirstName = administratorCreateRequest.FirstName,
                         LastName = administratorCreateRequest.LastName,
-                        Password = administratorCreateRequest.Password,
                         ProfileImage = administratorCreateRequest.ProfileImage,
                     };
+                    // Hash the password using bcrypt
+                    string hashedPassword = BCrypt.Net.BCrypt.HashPassword(administratorCreateRequest.Password);
+                    user.Password = hashedPassword;
                     Model.User createdUser = await _userService.Insert(user);
                     await _context.SaveChangesAsync();
 

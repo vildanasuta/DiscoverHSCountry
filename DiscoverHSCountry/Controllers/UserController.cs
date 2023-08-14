@@ -36,5 +36,35 @@ namespace DiscoverHSCountry.API.Controllers
         {
             return _userService.Update(id, update);
         }
+
+        // POST: api/users/login
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginRequest request)
+        {
+            var authenticationResponse = await _userService.AuthenticateUser(request.Email, request.Password);
+
+            switch (authenticationResponse.Result)
+            {
+                case Util.AuthenticationResult.Success:
+                    // Check if the user is a tourist and trying to access the desktop app
+                    if (request.UserType == "tourist" && request.DeviceType == "desktop")
+                    {
+                        return BadRequest("Tourists cannot use the desktop app.");
+                    }
+                    // Check if the user is a tourist attraction owner or administrator and trying to access the mobile app
+                    if ((request.UserType == "touristattractionowner" || request.UserType == "admin") && request.DeviceType == "mobile")
+                    {
+                        return BadRequest("Tourist Attraction Owners or Administrators cannot use the mobile app.");
+                    }
+                    return Ok(new { UserId = authenticationResponse.UserId });
+                case Util.AuthenticationResult.UserNotFound:
+                    return BadRequest("User not found.");
+                case Util.AuthenticationResult.InvalidPassword:
+                    return BadRequest("Invalid password.");
+                default:
+                    return StatusCode(500, "An error occurred during authentication.");
+            }
+        }
+
     }
 }
