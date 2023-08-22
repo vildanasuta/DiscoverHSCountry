@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace DiscoverHSCountry.Model.Requests
 {
-    public class LoginRequest
+    public class PasswordUpdateRequest
     {
-        public string Email { get; set; }
-        public string Password { get; set; }
-        public string DeviceType { get; set; }
+        public String Password { get; set; }
+        public String OldPassword { get; set; }
     }
 }

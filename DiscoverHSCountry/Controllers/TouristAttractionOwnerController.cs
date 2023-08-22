@@ -35,5 +35,20 @@ namespace DiscoverHSCountry.API.Controllers
         {
             return base.Insert(insert);
         }
+
+        [HttpGet("GetTouristAttractionOwnerIdByUserId/{userId}")]
+        public IActionResult GetTouristAttractionOwnerIdByUserId(int userId)
+        {
+            int taoId = _touristAttractionOwnerService.GetTouristAttractionOwnerIdByUserId(userId);
+
+            if (taoId != 0) // Check if a valid result was returned from the service
+            {
+                return Ok(taoId);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
     }
 }
