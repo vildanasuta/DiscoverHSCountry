@@ -30,16 +30,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-
+  json_annotation: ^4.4.0 # Replace with the latest version
+  http: ^0.13.5  # Add this line
+  file_picker: ^5.3.3
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  flutter_form_builder: ^9.1.0
+  form_builder_validators: ^9.0.0
+  image: ^3.0.1
+  provider: ^5.0.0
+  another_flushbar: ^1.12.30
+  bcrypt: ^1.1.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  json_serializable: ^6.2.0
+  build_runner: ^2.1.11
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -57,6 +65,8 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  assets:
+     - assets/logo.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
