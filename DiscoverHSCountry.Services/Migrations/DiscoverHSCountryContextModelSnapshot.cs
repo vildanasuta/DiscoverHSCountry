@@ -240,6 +240,9 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.Property<string>("InstagramUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
+
                     b.Property<int?>("LocationCategoryId")
                         .HasColumnType("int")
                         .HasColumnName("location_category_id");

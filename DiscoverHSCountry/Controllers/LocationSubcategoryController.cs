@@ -10,8 +10,18 @@ namespace DiscoverHSCountry.API.Controllers
     [Route("[controller]")]
     public class LocationSubcategoryController : BaseCRUDController<Model.LocationSubcategory, Model.SearchObjects.LocationSubcategorySearchObject, Model.Requests.LocationSubcategoryCreateRequest, Model.Requests.LocationSubcategoryUpdateRequest>
     {
-        public LocationSubcategoryController(ILogger<BaseController<LocationSubcategory, LocationSubcategorySearchObject>> logger, ILocationSubcategoryService service) : base(logger, service)
+        private readonly ILocationSubcategoryService _subcategoryService;
+
+        public LocationSubcategoryController(ILogger<BaseController<LocationSubcategory, LocationSubcategorySearchObject>> logger, ILocationSubcategoryService service, ILocationSubcategoryService subcategoryService) : base(logger, service)
         {
+            _subcategoryService = subcategoryService;
+        }
+
+        [HttpGet("GetSubcategoriesByCategory/{categoryId}")]
+        public async Task<ActionResult<List<LocationSubcategory>>> GetSubcategoriesByCategoryIdAsync(int categoryId)
+        {
+            var subcategories = await _subcategoryService.GetSubcategoriesByCategoryIdAsync(categoryId);
+            return Ok(subcategories);
         }
     }
 }

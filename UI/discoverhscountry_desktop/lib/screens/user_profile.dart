@@ -30,6 +30,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   bool _showNewPassword = false;
   bool _showRepeatPassword = false;
   void _changePassword() {
+    // ignore: no_leading_underscores_for_local_identifiers
     final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
     // ignore: no_leading_underscores_for_local_identifiers
     TextEditingController _oldPasswordController = TextEditingController();
@@ -214,13 +215,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           ClipOval(
                             child: Container(
                               color: Colors.white,
-                              child: widget.user?.profileImage != null
+                              child: widget.user?.profileImage != ''
                                   ? Image.memory(
                                       base64Decode(widget.user!.profileImage),
                                       width: 120,
                                       height: 120,
                                     )
-                                  : const Icon(Icons.add_a_photo),
+                                  : Image.asset('assets/default-user.png',
+                                      width: 120, height: 120),
                             ),
                           ),
                           Positioned.fill(
@@ -541,43 +543,93 @@ void sendChangePasswordRequest(int userId, String newPassword,
 }
 
 void deleteProfile(BuildContext context, int userId) async {
-  int taoId = 0;
-  var getTAOId = Uri.parse(
-      '${ApiConstants.baseUrl}/TouristAttractionOwner/GetTouristAttractionOwnerIdByUserId/$userId');
-  var taoResponse = await http.get(getTAOId);
-  if (taoResponse.statusCode == 200) {
-    taoId = int.parse(taoResponse.body);
-  }
-
-  var deleteTAO =
-      Uri.parse('${ApiConstants.baseUrl}/TouristAttractionOwner/$taoId');
-  var deleteResponse = await http.delete(deleteTAO);
-
-  if (deleteResponse.statusCode == 200) {
-    Future.delayed(Duration.zero, () {
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => const FirstPage()),
+  // Display a confirmation dialog
+  bool confirmDelete = await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return WillPopScope(
+        onWillPop: () async {
+          Navigator.of(context).pop(false); // User cancelled delete
+          return false; // Prevent dialog from being popped by back button
+        },
+        child: AlertDialog(
+          title: const Text('Jeste li sigurni da želite obrisati Vaš profil?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // User cancelled delete
+              },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                    (Set<MaterialState> states) {
+                  return Colors.green;
+                }),
+                foregroundColor: MaterialStateProperty.resolveWith<Color?>(
+                    (Set<MaterialState> states) {
+                  return Colors.white;
+                }),
+              ),
+              child: const Text('Odustani'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // User confirmed delete
+              },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                    (Set<MaterialState> states) {
+                  return Colors.red;
+                }),
+                foregroundColor: MaterialStateProperty.resolveWith<Color?>(
+                    (Set<MaterialState> states) {
+                  return Colors.white;
+                }),
+              ),
+              child: const Text('Da'),
+            )
+          ],
+        ),
+      );
+    },
   );
 
-  Future.microtask(() {
-    Flushbar(
-      message: "Uspješno ste obrisali profil!",
-      backgroundColor: Colors.green,
-      duration: const Duration(seconds: 3),
-    ).show(context);
-  });
-});
+  if (confirmDelete == true) {
+    int taoId = 0;
+    var getTAOId = Uri.parse(
+        '${ApiConstants.baseUrl}/TouristAttractionOwner/GetTouristAttractionOwnerIdByUserId/$userId');
+    var taoResponse = await http.get(getTAOId);
+    if (taoResponse.statusCode == 200) {
+      taoId = int.parse(taoResponse.body);
+    }
 
+    var deleteTAO =
+        Uri.parse('${ApiConstants.baseUrl}/TouristAttractionOwner/$taoId');
+    var deleteResponse = await http.delete(deleteTAO);
+
+    if (deleteResponse.statusCode == 200) {
+      // ignore: use_build_context_synchronously
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const FirstPage()),
+      );
+
+      // Show success message
+      // ignore: use_build_context_synchronously
+      Flushbar(
+        message: "Uspješno ste obrisali profil!",
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 3),
+      ).show(context);
+    } else {
+      // Show error message
+      // ignore: use_build_context_synchronously
+      Flushbar(
+        message: "Profil nije obrisan!",
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ).show(context);
+    }
   } else {
-    // Show error message
-    Flushbar(
-      message: "Profil nije obrisan!",
-      backgroundColor: Colors.red,
-      duration: const Duration(seconds: 3),
-    ).show(context);
+    // User cancelled profile deletion or dismissed dialog
   }
-
-  // Close the delete confirmation dialog
-  Navigator.of(context).pop();
 }

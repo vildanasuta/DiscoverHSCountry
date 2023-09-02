@@ -30,6 +30,7 @@ namespace DiscoverHSCountry.Model.Requests
 
         public string? BookingUrl { get; set; }
 
+        public bool IsApproved { get; set; }
 
     }
 }

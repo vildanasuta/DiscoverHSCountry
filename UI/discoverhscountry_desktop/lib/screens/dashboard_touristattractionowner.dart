@@ -1,5 +1,6 @@
 import 'package:discoverhscountry_desktop/main.dart';
 import 'package:discoverhscountry_desktop/models/user_model.dart';
+import 'package:discoverhscountry_desktop/screens/new_location.dart';
 import 'package:discoverhscountry_desktop/services/authentication_service.dart';
 import 'package:discoverhscountry_desktop/widgets/common_app_bar.dart';
 import 'package:flutter/material.dart';
@@ -58,11 +59,13 @@ class _DashboardTouristAttractionOwnerState extends State<DashboardTouristAttrac
               children: buttonLabels.map((label) {
                 return ElevatedButton(
                   onPressed: () {
-                    print(label);
+                    if(label=='Dodaj novu lokaciju'){
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=> NewLocation(user: widget.user)));
+                    }
                   },
                   style: ElevatedButton.styleFrom(
-                    minimumSize: Size(400, 200),
-                    padding: EdgeInsets.all(0),
+                    minimumSize: const Size(400, 200),
+                    padding: const EdgeInsets.all(0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
