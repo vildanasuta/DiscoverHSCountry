@@ -8,5 +8,6 @@ namespace DiscoverHSCountry.Services
 {
     public interface ILocationSubcategoryService : ICRUDService<Model.LocationSubcategory, Model.SearchObjects.LocationSubcategorySearchObject, Model.Requests.LocationSubcategoryCreateRequest, Model.Requests.LocationSubcategoryUpdateRequest>
     {
+        public Task<List<Model.LocationSubcategory>> GetSubcategoriesByCategoryIdAsync(int categoryId);
     }
 }

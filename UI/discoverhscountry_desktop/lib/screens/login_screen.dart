@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:another_flushbar/flushbar.dart';
 import 'package:discoverhscountry_desktop/api_constants.dart';
 import 'package:discoverhscountry_desktop/models/login_model.dart';
 import 'package:discoverhscountry_desktop/models/user_model.dart';
@@ -145,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           '${ApiConstants.baseUrl}/User/$userId');
                                       var userResponse =
                                           await http.get(getUserUrl);
-                                      User? user; 
+                                      User? user;
                                       if (userResponse.statusCode == 200) {
                                         Map<String, dynamic> userBody =
                                             json.decode(userResponse.body);
@@ -185,6 +186,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                     }
                                   } else {
                                     print(response.body);
+                                    if (response.body == "User not found.") {
+                                      // ignore: use_build_context_synchronously
+                                      Flushbar(
+                                        message: "Korisnik nije pronađen.",
+                                        backgroundColor: Colors.red,
+                                        duration: const Duration(seconds: 3),
+                                      ).show(context);
+                                    }
+                                    else if(response.body=="Invalid password."){
+                                      // ignore: use_build_context_synchronously
+                                      Flushbar(
+                                        message: "Netačna lozinka. Pokušajte ponovo!",
+                                        backgroundColor: Colors.red,
+                                        duration: const Duration(seconds: 3),
+                                      ).show(context);
+                                    }
                                   }
                                 }
                               },

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DiscoverHSCountry.Services.Migrations
 {
     [DbContext(typeof(DiscoverHSCountryContext))]
-    [Migration("20230814121626_Init")]
-    partial class Init
+    [Migration("20230827140932_addIsApprovedLocation")]
+    partial class addIsApprovedLocation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -242,6 +242,9 @@ namespace DiscoverHSCountry.Services.Migrations
 
                     b.Property<string>("InstagramUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
 
                     b.Property<int?>("LocationCategoryId")
                         .HasColumnType("int")

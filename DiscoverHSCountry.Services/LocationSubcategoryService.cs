@@ -2,6 +2,7 @@
 using DiscoverHSCountry.Model.Requests;
 using DiscoverHSCountry.Model.SearchObjects;
 using DiscoverHSCountry.Services.Database;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,5 +18,23 @@ namespace DiscoverHSCountry.Services
         {
             _locationCategoryService = locationCategoryService;
         }
-    }
+
+        public async Task<List<Model.LocationSubcategory>> GetSubcategoriesByCategoryIdAsync(int categoryId)
+        {
+            var category = await _locationCategoryService.GetById(categoryId);
+
+            if (category == null)
+            {
+                // Category not found, return an empty list
+                return new List<Model.LocationSubcategory>();
+            }
+
+            var subcategories = await _context.LocationSubcategories
+                .Where(subcategory => subcategory.LocationCategoryId == categoryId)
+                .Select(subcategory => _mapper.Map<Model.LocationSubcategory>(subcategory))
+                .ToListAsync();
+
+            return subcategories;
+        }
+    }  
 }
