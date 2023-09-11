@@ -168,23 +168,27 @@ class _LoginScreenState extends State<LoginScreen> {
                                           MaterialPageRoute(
                                             builder: (context) =>
                                                 DashboardTouristAttractionOwner(
-                                              user: user,
+                                              user: user, userType: userType
                                             ),
                                           ),
                                         );
                                       } else if (userType == "administrator") {
+                                        await authService
+                                            .login(); // Update isLoggedIn status
                                         // ignore: use_build_context_synchronously
                                         Navigator.of(context)
                                             .push(MaterialPageRoute(
                                           builder: (context) =>
-                                              const DashboardAdmin(),
+                                              DashboardAdmin(user: user, userType: userType),
                                         ));
                                       }
                                     } else {
+                                      // ignore: avoid_print
                                       print(
                                           'User type not provided in the response.');
                                     }
                                   } else {
+                                    // ignore: avoid_print
                                     print(response.body);
                                     if (response.body == "User not found.") {
                                       // ignore: use_build_context_synchronously

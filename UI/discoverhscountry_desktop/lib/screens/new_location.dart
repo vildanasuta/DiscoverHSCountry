@@ -9,8 +9,10 @@ import 'package:discoverhscountry_desktop/models/location_category_model.dart';
 import 'package:discoverhscountry_desktop/models/location_model.dart';
 import 'package:discoverhscountry_desktop/models/location_subcategory_model.dart';
 import 'package:discoverhscountry_desktop/models/user_model.dart';
+import 'package:discoverhscountry_desktop/screens/dashboard_admin.dart';
 import 'package:discoverhscountry_desktop/screens/dashboard_touristattractionowner.dart';
 import 'package:discoverhscountry_desktop/services/authentication_service.dart';
+import 'package:discoverhscountry_desktop/util/dataFetcher.dart';
 import 'package:discoverhscountry_desktop/widgets/common_app_bar.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -21,18 +23,18 @@ import 'package:image/image.dart' as img;
 
 class NewLocation extends StatefulWidget {
   final User? user;
-  const NewLocation({super.key, required this.user});
+  final String? userType;
+  const NewLocation({super.key, required this.user, required this.userType});
 
   @override
   State<NewLocation> createState() => _NewLocationState();
 }
 
-class _NewLocationState extends State<NewLocation> {
+class _NewLocationState extends State<NewLocation> with DataFetcher{
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   final AuthenticationService authService = AuthenticationService();
   String? locationCoverImage;
 
-  // Define TextEditingController for the input fields
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
@@ -51,7 +53,6 @@ class _NewLocationState extends State<NewLocation> {
   List<LocationSubcategory> subcategories = [];
   Map<String, int> cityIdMap = {};
   Map<String, int> categoryIdMap = {};
-  Map<String, int> subcategoryIdMap = {};
 
   @override
   void initState() {
@@ -64,7 +65,7 @@ class _NewLocationState extends State<NewLocation> {
       // Handle error
     });
 
-    fetchCategories(true).then((fetchedCategories) {
+    fetchLocationCategories(widget.userType=='touristattractionowner'?true:false).then((fetchedCategories) {
       setState(() {
         categories = fetchedCategories;
       });
@@ -73,81 +74,6 @@ class _NewLocationState extends State<NewLocation> {
     });
   }
 
-  Future<List<City>> fetchCities() async {
-    final response = await http.get(Uri.parse('${ApiConstants.baseUrl}/City'));
-    if (response.statusCode == 200) {
-      var jsonData =
-          json.decode(response.body)['result']['\$values'] as List<dynamic>;
-      var cities = <City>[];
-      for (var cityData in jsonData) {
-        var city = City(
-          id: cityData['cityId'] as int,
-          name: cityData['name'] as String,
-          coverImage: cityData['coverImage'] as String,
-        );
-        cities.add(city);
-      }
-      return cities;
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
-
-  Future<List<LocationCategory>> fetchCategories(
-      bool isTouristAttractionOwner) async {
-    final response =
-        await http.get(Uri.parse('${ApiConstants.baseUrl}/LocationCategory'));
-    if (response.statusCode == 200) {
-      var jsonData =
-          json.decode(response.body)['result']['\$values'] as List<dynamic>;
-      var categories = <LocationCategory>[];
-      for (var categoryData in jsonData) {
-        var categoryName = categoryData['name'] as String;
-        // it doesn't make sense for tourist attraction owners to add historical & religious sites or natural landmarks
-        // the idea is that they add their own tourist attractions (which are their properties)
-        // administrator will be adding public tourist attractions like natural landmarks, historical & religious sites
-        if (isTouristAttractionOwner) {
-          if (categoryName == "Historical & Religious Sites" ||
-              categoryName == "Natural Landmarks") {
-            continue;
-          }
-        }
-        var category = LocationCategory(
-          id: categoryData['locationCategoryId'] as int,
-          name: categoryData['name'] as String,
-          coverImage: categoryData['coverImage'] as String,
-        );
-        categories.add(category);
-      }
-      return categories;
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
-
-  Future<List<LocationSubcategory>> fetchSubcategories(int categoryId) async {
-    final response = await http.get(Uri.parse(
-      '${ApiConstants.baseUrl}/LocationSubcategory/GetSubcategoriesByCategory/$categoryId',
-    ));
-    if (response.statusCode == 200) {
-      var jsonData = json.decode(response.body) as Map<String, dynamic>;
-      var subcategories = <LocationSubcategory>[];
-      if (jsonData.containsKey("\$values")) {
-        var subcategoryDataList = jsonData["\$values"];
-        for (var subcategoryData in subcategoryDataList) {
-          var subcategory = LocationSubcategory(
-            id: subcategoryData['locationSubcategoryId'] as int,
-            name: subcategoryData['name'] as String,
-            coverImage: subcategoryData['coverImage'] as String,
-          );
-          subcategories.add(subcategory);
-        }
-      }
-      return subcategories;
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
 
   Map<String, String> categoryTranslations = {
     "Historical & Religious Sites": "Historijski i vjerski lokaliteti",
@@ -187,6 +113,7 @@ class _NewLocationState extends State<NewLocation> {
         appBar: CommonAppBar(
           isLoggedIn: true,
           user: widget.user,
+          userType: widget.userType,
           onLogout: () async {
             await authService.logout();
             // ignore: use_build_context_synchronously
@@ -379,7 +306,7 @@ class _NewLocationState extends State<NewLocation> {
 
                                                         List<LocationSubcategory>
                                                             fetchedSubcategories =
-                                                            await fetchSubcategories(
+                                                            await fetchLocationSubcategories(
                                                                 newCategoryId);
 
                                                         setState(() {
@@ -616,9 +543,9 @@ class _NewLocationState extends State<NewLocation> {
                                                               locationSubcategoryId:
                                                                   selectedSubcategory!
                                                                       .id,
-                                                              touristAttractionOwnerId:
+                                                              touristAttractionOwnerId: widget.userType=='touristattractionowner'?
                                                                   widget.user!
-                                                                      .userId,
+                                                                      .userId:null,
                                                               facebookUrl:
                                                                   facebookUrlController
                                                                       .text,
@@ -628,8 +555,8 @@ class _NewLocationState extends State<NewLocation> {
                                                               bookingUrl:
                                                                   bookingUrlController
                                                                       .text,
-                                                              isApproved:
-                                                                  false);
+                                                              isApproved: widget.userType=='touristattractionowner'?
+                                                                  false:true);
                                                           var url = Uri.parse(
                                                               '${ApiConstants.baseUrl}/Location');
                                                           var response =
@@ -660,14 +587,24 @@ class _NewLocationState extends State<NewLocation> {
                                                                       TextButton(
                                                                         onPressed:
                                                                             () {
+                                                                          if (widget.userType ==
+                                          'touristattractionowner'){
                                                                           Navigator.of(context)
                                                                               .push(
                                                                             MaterialPageRoute(
                                                                               builder: (context) => DashboardTouristAttractionOwner(
                                                                                 user: widget.user,
+                                                                                userType: widget.userType,
                                                                               ),
                                                                             ),
-                                                                          );
+                                                                          );}
+                                                                          else if (widget.userType =='administrator'){
+                                                                            Navigator.of(context)
+                                            .push(MaterialPageRoute(
+                                          builder: (context) =>
+                                              DashboardAdmin(user: widget.user, userType: widget.userType),
+                                        ));
+                                                                          }
                                                                         },
                                                                         child: const Text(
                                                                             'Idi na Dashboard'),

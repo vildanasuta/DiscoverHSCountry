@@ -17,8 +17,9 @@ import 'package:another_flushbar/flushbar.dart';
 
 class UserProfileScreen extends StatefulWidget {
   final User? user;
+  final String? userType;
 
-  const UserProfileScreen({Key? key, required this.user}) : super(key: key);
+  const UserProfileScreen({Key? key, required this.user, required this.userType}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
@@ -178,6 +179,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       appBar: CommonAppBar(
         isLoggedIn: true,
         user: widget.user,
+        userType: widget.userType,
         onLogout: () async {
           final AuthenticationService authService = AuthenticationService();
           await authService.logout();
@@ -305,14 +307,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             onHover: (isHovering) {
                               setState(() {
                                 isHover =
-                                    isHovering; // Make sure 'isHover' is a boolean variable
+                                    isHovering;
                               });
                             },
                             child: ClipOval(
-                              // Clip the container to a circular shape
                               child: Visibility(
                                 visible:
-                                    isHover, // Make sure 'isHover' is declared outside the build method
+                                    isHover, 
                                 child: Container(
                                   color: Colors.blue.withOpacity(0.8),
                                   padding: const EdgeInsets.all(8),
@@ -478,7 +479,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               Navigator.of(context)
                                   .pushReplacement(MaterialPageRoute(
                                 builder: (context) =>
-                                    UserProfileScreen(user: editedUser),
+                                    UserProfileScreen(user: editedUser, userType: widget.userType,),
                               ));
                             },
                             child: const Text('OK'),
