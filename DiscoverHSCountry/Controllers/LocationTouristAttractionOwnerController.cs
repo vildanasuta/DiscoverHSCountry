@@ -28,5 +28,20 @@ namespace DiscoverHSCountry.API.Controllers
             return base.Update(id, update);
         }
 
+        [HttpGet("GetLocationIdsByTouristAttractionOwnerId/{touristAttractionOwnerId}")]
+        public async Task<IActionResult> GetLocationIdsByTouristAttractionOwnerId(int touristAttractionOwnerId)
+        {
+            try
+            {
+                var locationIds = await _locationTouristAttractionOwnerService.GetLocationIdsByTouristAttractionOwnerIdAsync(touristAttractionOwnerId);
+
+                return Ok(locationIds);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving location IDs");
+            }
+        }
+
     }
 }

@@ -42,14 +42,16 @@ namespace DiscoverHSCountry.Services
 
                     createdLocation = await base.Insert(newLocation);
                     await _context.SaveChangesAsync();
-                    LocationTouristAttractionOwnerCreateRequest locationTouristAttractionOwnerCreateRequest = new LocationTouristAttractionOwnerCreateRequest
+                    if (locationCreateRequest.TouristAttractionOwnerId != null)
                     {
-                        LocationId=createdLocation.LocationId,
-                        TouristAttractionOwnerId=locationCreateRequest.TouristAttractionOwnerId
-                    };
-                    await _locationTouristAttractionOwnerService.Insert(locationTouristAttractionOwnerCreateRequest);
-                    await _context.SaveChangesAsync();
-
+                        LocationTouristAttractionOwnerCreateRequest locationTouristAttractionOwnerCreateRequest = new LocationTouristAttractionOwnerCreateRequest
+                        {
+                            LocationId = createdLocation.LocationId,
+                            TouristAttractionOwnerId = locationCreateRequest.TouristAttractionOwnerId
+                        };
+                        await _locationTouristAttractionOwnerService.Insert(locationTouristAttractionOwnerCreateRequest);
+                        await _context.SaveChangesAsync();
+                    }
                     transaction.Commit();
 
                 }
@@ -61,6 +63,57 @@ namespace DiscoverHSCountry.Services
                 }
             }
             return createdLocation;
+        }
+
+        public async Task<bool> ApproveLocationAsync(int locationId)
+        {
+            try
+            {   
+                var location = await _context.Locations.FindAsync(locationId);
+
+                if (location != null)
+                {
+                    location.IsApproved = true;
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteLocationByIdAsync(int locationId)
+        {
+            try
+            {
+                var location = await _context.Locations.FindAsync(locationId);
+
+                if (location == null)
+                {
+                    return false; 
+                }
+
+                var jointRecords = _context.LocationTouristAttractionOwners
+                    .Where(ltao => ltao.LocationId == locationId);
+
+                _context.LocationTouristAttractionOwners.RemoveRange(jointRecords);
+
+                _context.Locations.Remove(location);
+
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false; 
+            }
         }
 
     }

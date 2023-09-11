@@ -4,6 +4,7 @@ part 'location_model.g.dart';
 
 @JsonSerializable()
 class Location {
+  final int? locationId;
   final String name;
   final String description;
   final String coverImage;
@@ -11,13 +12,14 @@ class Location {
   final int cityId;
   final int locationCategoryId;
   final int locationSubcategoryId;
-  final int touristAttractionOwnerId;
+  final int? touristAttractionOwnerId;
   final String facebookUrl;
   final String instagramUrl;
   final String bookingUrl;
   final bool isApproved;
 
   Location({
+    this.locationId,
     required this.name,
     required this.description,
     required this.coverImage,
@@ -25,7 +27,7 @@ class Location {
     required this.cityId,
     required this.locationCategoryId,
     required this.locationSubcategoryId,
-    required this.touristAttractionOwnerId,
+    this.touristAttractionOwnerId,
     required this.facebookUrl,
     required this.instagramUrl,
     required this.bookingUrl,

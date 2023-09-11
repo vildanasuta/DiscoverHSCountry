@@ -8,5 +8,7 @@ namespace DiscoverHSCountry.Services
 {
     public interface ILocationTouristAttractionOwnerService: ICRUDService<Model.LocationTouristAttractionOwner, Model.SearchObjects.LocationTouristAttractionOwnerSearchObject, Model.Requests.LocationTouristAttractionOwnerCreateRequest, Model.Requests.LocationTouristAttractionOwnerUpdateRequest>
     {
+        public Task<List<int>> GetLocationIdsByTouristAttractionOwnerIdAsync(int touristAttractionOwnerId);
+
     }
 }

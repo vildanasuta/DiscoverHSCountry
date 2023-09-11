@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:discoverhscountry_desktop/models/user_model.dart';
+import 'package:discoverhscountry_desktop/screens/dashboard_admin.dart';
 import 'package:discoverhscountry_desktop/screens/dashboard_touristattractionowner.dart';
 import 'package:discoverhscountry_desktop/screens/user_profile.dart';
 import 'package:flutter/material.dart';
@@ -8,10 +9,12 @@ import 'package:flutter/material.dart';
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool isLoggedIn;
   final User? user;
+  final String? userType;
   final VoidCallback onLogout;
   const CommonAppBar({
     required this.isLoggedIn,
     required this.user,
+    required this.userType,
     required this.onLogout,
     super.key,
   });
@@ -28,13 +31,23 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
           return IconButton(
             icon: const Icon(Icons.dashboard, color: Colors.blue,), // Burger menu icon
             onPressed: () {
+              if(userType=='touristattractionowner'){
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => DashboardTouristAttractionOwner(
-                    user: user,
+                    user: user, userType: userType,
+                  ),
+                ),
+              );}
+              else if(userType=='administrator'){
+                Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => DashboardAdmin(
+                    user: user, userType: userType,
                   ),
                 ),
               );
+              }
             },
           );
         },
@@ -47,7 +60,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onPressed: () {
                   // Navigate to user's profile screen
                   Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => UserProfileScreen(user: user),
+                    builder: (context) => UserProfileScreen(user: user, userType: userType),
                   ));
                 },
                 child: Row(

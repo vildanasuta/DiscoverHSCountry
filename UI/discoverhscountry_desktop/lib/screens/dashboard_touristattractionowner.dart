@@ -1,14 +1,19 @@
 import 'package:discoverhscountry_desktop/main.dart';
 import 'package:discoverhscountry_desktop/models/user_model.dart';
+import 'package:discoverhscountry_desktop/screens/generate_report.dart';
+import 'package:discoverhscountry_desktop/screens/new_event.dart';
 import 'package:discoverhscountry_desktop/screens/new_location.dart';
+import 'package:discoverhscountry_desktop/screens/report_problem.dart';
+import 'package:discoverhscountry_desktop/screens/view_reservations.dart';
+import 'package:discoverhscountry_desktop/screens/view_reviews.dart';
 import 'package:discoverhscountry_desktop/services/authentication_service.dart';
 import 'package:discoverhscountry_desktop/widgets/common_app_bar.dart';
 import 'package:flutter/material.dart';
 
 class DashboardTouristAttractionOwner extends StatefulWidget {
   final User? user;
-
-  const DashboardTouristAttractionOwner({super.key, required this.user});
+  final String? userType;
+  const DashboardTouristAttractionOwner({super.key, required this.user, required this.userType});
 
   @override
   State<DashboardTouristAttractionOwner> createState() =>
@@ -33,6 +38,7 @@ class _DashboardTouristAttractionOwnerState extends State<DashboardTouristAttrac
       appBar: CommonAppBar(
         isLoggedIn: true,
         user: widget.user,
+        userType: widget.userType,
         onLogout: () async {
           await authService.logout(); // Call logout from the service
           // ignore: use_build_context_synchronously
@@ -60,7 +66,22 @@ class _DashboardTouristAttractionOwnerState extends State<DashboardTouristAttrac
                 return ElevatedButton(
                   onPressed: () {
                     if(label=='Dodaj novu lokaciju'){
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=> NewLocation(user: widget.user)));
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=> NewLocation(user: widget.user, userType: widget.userType)));
+                    }
+                    else if(label=='Dodaj novi događaj'){
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=> NewEvent(user: widget.user, userType: widget.userType)));
+                    }
+                    else if(label=='Generiši izvještaj'){
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>GenerateReport(user: widget.user)));
+                    }
+                    else if(label=='Pogledaj rezervacije'){
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ViewReservations(user: widget.user)));
+                    }
+                    else if(label=='Pogledaj recenzije'){
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ViewReviews(user: widget.user)));
+                    }
+                    else if(label=='Prijavi problem'){
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ReportProblem(user: widget.user)));
                     }
                   },
                   style: ElevatedButton.styleFrom(

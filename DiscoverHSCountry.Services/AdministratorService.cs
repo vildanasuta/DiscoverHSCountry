@@ -57,18 +57,16 @@ namespace DiscoverHSCountry.Services
             }
             return administrator;
         }
-
-        public async Task<int> ReturnUserIdByAdministratorIdAsync(int id)
+        public async Task<int?> ReturnUserIdByAdministratorIdAsync(int id)
         {
-            int userId;
             Model.Administrator administrator = await base.GetById(id);
-            userId = (int)administrator.UserId;
-            return userId;
+            return administrator?.UserId;
         }
+
 
         public override async Task<Model.Administrator> Delete(int id)
         {
-            int userId = await ReturnUserIdByAdministratorIdAsync(id);
+            int userId = (int)await ReturnUserIdByAdministratorIdAsync(id);
 
             using (var transaction = _context.Database.BeginTransaction())
             {
