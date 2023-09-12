@@ -8,6 +8,7 @@ part of 'technical_issue_owner.dart';
 
 TechnicalIssueOwner _$TechnicalIssueOwnerFromJson(Map<String, dynamic> json) =>
     TechnicalIssueOwner(
+      tehnicalIssueOwnerId: json['tehnicalIssueOwnerId'] as int?,
       title: json['title'] as String,
       description: json['description'] as String,
       touristAttractionOwnerId: json['touristAttractionOwnerId'] as int?,
@@ -16,6 +17,7 @@ TechnicalIssueOwner _$TechnicalIssueOwnerFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$TechnicalIssueOwnerToJson(
         TechnicalIssueOwner instance) =>
     <String, dynamic>{
+      'tehnicalIssueOwnerId': instance.tehnicalIssueOwnerId,
       'title': instance.title,
       'description': instance.description,
       'touristAttractionOwnerId': instance.touristAttractionOwnerId,
