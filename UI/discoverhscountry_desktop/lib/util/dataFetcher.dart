@@ -9,6 +9,9 @@ import 'package:discoverhscountry_desktop/models/location_model.dart';
 import 'package:discoverhscountry_desktop/models/location_subcategory_model.dart';
 import 'package:discoverhscountry_desktop/models/reservation_model.dart';
 import 'package:discoverhscountry_desktop/models/service_model.dart';
+import 'package:discoverhscountry_desktop/models/technical_issue_owner.dart';
+import 'package:discoverhscountry_desktop/models/technical_issue_tourist.dart';
+import 'package:discoverhscountry_desktop/models/tourist_attraction_owner.dart';
 import 'package:discoverhscountry_desktop/models/tourist_model.dart';
 import 'package:discoverhscountry_desktop/models/user_model.dart';
 import 'package:http/http.dart' as http;
@@ -317,4 +320,88 @@ Future<void> launchURL(String url) async {
   }
 }
 
+
+ Future<List<TechnicalIssueOwner>> fetchAllTechnicalIssuesOwner() async {
+    final response = await http.get(
+      Uri.parse(
+          '${ApiConstants.baseUrl}/TechnicalIssueOwner'),
+    );
+
+    if (response.statusCode == 200) {
+      try {
+        var data = json.decode(response.body)['result']['\$values'];
+        if (data is List) {
+          final List<TechnicalIssueOwner> technicalIssuesOwnerList = data
+              .map((technicalIssuesOwner) => TechnicalIssueOwner.fromJson(technicalIssuesOwner))
+              .toList();
+          return technicalIssuesOwnerList;
+        } else {
+          throw Exception('Unexpected data format: $data');
+        }
+      } catch (e) {
+        throw Exception('Failed to parse JSON: $e');
+      }
+    } else {
+      throw Exception('Failed to load issues: ${response.statusCode}');
+    }
+
+
+    
+  }
+
+
+  Future<List<TechnicalIssueTourist>> fetchAllTechnicalIssuesTourist() async {
+    final response = await http.get(
+      Uri.parse(
+          '${ApiConstants.baseUrl}/TechnicalIssueTourist'),
+    );
+
+    if (response.statusCode == 200) {
+      try {
+        var data = json.decode(response.body)['result']['\$values'];
+        if (data is List) {
+          final List<TechnicalIssueTourist> technicalIssuesTouristList = data
+              .map((technicalIssuesTourist) => TechnicalIssueTourist.fromJson(technicalIssuesTourist))
+              .toList();
+          return technicalIssuesTouristList;
+        } else {
+          throw Exception('Unexpected data format: $data');
+        }
+      } catch (e) {
+        throw Exception('Failed to parse JSON: $e');
+      }
+    } else {
+      throw Exception('Failed to load issues: ${response.statusCode}');
+    }
+
+
+    
+  }
+
+
+  Future<TouristAttractionOwner> getTouristAttractionOwnerById(int taoId) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/TouristAttractionOwner/$taoId'),
+    );
+    if (response.statusCode == 200) {
+      try {
+        var data = json.decode(response.body);
+        var user = await getUserByUserId(data['userId']);
+        final tao= TouristAttractionOwner(touristAttractionOwnerId: data['touristAttractionOwnerId'], 
+        userId: data['userId'], 
+        firstName: user.firstName, 
+        lastName: user.lastName, 
+        email: user.email, 
+        profileImage: user.profileImage);
+
+      return tao;
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error: $e');
+      throw Exception('Failed to parse user data');
+    }
+  } else {
+    throw Exception('Failed to fetch user data');
+  }
+    }
 }

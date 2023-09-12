@@ -3,15 +3,19 @@ part 'tourist_attraction_owner.g.dart';
 
 @JsonSerializable()
 class TouristAttractionOwner {
+  int? touristAttractionOwnerId;
+  int? userId;
   String email;
-  String password;
+  String? password;
   String firstName;
   String lastName;
   String? profileImage;
 
   TouristAttractionOwner({
+    this.touristAttractionOwnerId,
+    this.userId,
     required this.email,
-    required this.password,
+    this.password,
     required this.firstName,
     required this.lastName,
     this.profileImage,
