@@ -48,7 +48,7 @@ Widget build(BuildContext context) {
     body: Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF0054A6), Colors.white],
+          colors: [Color.fromARGB(255, 0, 76, 151), Colors.white],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
