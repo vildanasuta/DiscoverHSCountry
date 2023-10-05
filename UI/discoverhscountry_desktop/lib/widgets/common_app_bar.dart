@@ -68,7 +68,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
                     CircleAvatar(
                       backgroundColor: Colors.white,
                       child: Container(
-                        child: user?.profileImage != ''
+                        child: (user?.profileImage != '' && user?.profileImage!='string')
                             ? Image.memory(
                                 base64Decode(user!.profileImage),
                                 width: 120,

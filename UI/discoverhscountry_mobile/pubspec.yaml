@@ -72,6 +72,7 @@ flutter:
     - assets/Welcome.mp4
     - assets/logo.png
     - assets/dashboard-welcome.png
+    - assets/default-user.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

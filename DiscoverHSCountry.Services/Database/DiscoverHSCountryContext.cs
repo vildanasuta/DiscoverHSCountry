@@ -37,6 +37,8 @@ public partial class DiscoverHSCountryContext : DbContext
 
     public virtual DbSet<LocationTouristAttractionOwner> LocationTouristAttractionOwners { get; set; }
 
+    public virtual DbSet<PublicCityService> PublicCityServices { get; set; }
+
     public virtual DbSet<Reservation> Reservations { get; set; }
 
     public virtual DbSet<Review> Reviews { get; set; }
@@ -69,6 +71,8 @@ public partial class DiscoverHSCountryContext : DbContext
             entity.HasKey(e => e.AdministratorId).HasName("PK__Administ__3871E7ACD9FAD8E6");
 
             entity.ToTable("Administrator");
+            
+            entity.HasIndex(e => e.UserId, "IX_Administrator_user_id");
 
             entity.Property(e => e.AdministratorId).HasColumnName("administrator_id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
@@ -96,6 +100,10 @@ public partial class DiscoverHSCountryContext : DbContext
             entity.HasKey(e => e.EventId).HasName("PK__Event__2370F727CA0FAF35");
 
             entity.ToTable("Event");
+
+            entity.HasIndex(e => e.CityId, "IX_Event_city_id");
+
+            entity.HasIndex(e => e.EventCategoryId, "IX_Event_event_category_id");
 
             entity.Property(e => e.EventId).HasColumnName("event_id");
             entity.Property(e => e.Address)
@@ -146,6 +154,8 @@ public partial class DiscoverHSCountryContext : DbContext
 
             entity.ToTable("Event_Location");
 
+            entity.HasIndex(e => e.LocationId, "IX_Event_Location_location_id");
+
             entity.Property(e => e.EventId)
                 .ValueGeneratedNever()
                 .HasColumnName("event_id");
@@ -167,6 +177,8 @@ public partial class DiscoverHSCountryContext : DbContext
 
             entity.ToTable("HistoricalEvent");
 
+            entity.HasIndex(e => e.CityId, "IX_HistoricalEvent_city_id");
+
             entity.Property(e => e.HistoricalEventId).HasColumnName("historical_event_id");
             entity.Property(e => e.CityId).HasColumnName("city_id");
             entity.Property(e => e.CoverImage).HasColumnName("cover_image");
@@ -186,6 +198,12 @@ public partial class DiscoverHSCountryContext : DbContext
 
             entity.ToTable("Location");
 
+            entity.HasIndex(e => e.CityId, "IX_Location_city_id");
+
+            entity.HasIndex(e => e.LocationCategoryId, "IX_Location_location_category_id");
+
+            entity.HasIndex(e => e.LocationSubcategoryId, "IX_Location_location_subcategory_id");
+
             entity.Property(e => e.LocationId).HasColumnName("location_id");
             entity.Property(e => e.Address)
                 .HasMaxLength(100)
@@ -195,6 +213,9 @@ public partial class DiscoverHSCountryContext : DbContext
             entity.Property(e => e.Description)
                 .HasMaxLength(200)
                 .HasColumnName("description");
+            entity.Property(e => e.IsApproved)
+                .IsRequired()
+                .HasDefaultValueSql("(CONVERT([bit],(0)))");
             entity.Property(e => e.LocationCategoryId).HasColumnName("location_category_id");
             entity.Property(e => e.LocationSubcategoryId).HasColumnName("location_subcategory_id");
             entity.Property(e => e.Name)
@@ -233,6 +254,8 @@ public partial class DiscoverHSCountryContext : DbContext
 
             entity.ToTable("LocationImage");
 
+            entity.HasIndex(e => e.LocationId, "IX_LocationImage_location_id");
+
             entity.Property(e => e.ImageId).HasColumnName("image_id");
             entity.Property(e => e.Image).HasColumnName("image");
             entity.Property(e => e.LocationId).HasColumnName("location_id");
@@ -247,6 +270,8 @@ public partial class DiscoverHSCountryContext : DbContext
             entity.HasKey(e => e.LocationSubcategoryId).HasName("PK__Location__419D810A25618620");
 
             entity.ToTable("LocationSubcategory");
+
+            entity.HasIndex(e => e.LocationCategoryId, "IX_LocationSubcategory_location_category_id");
 
             entity.Property(e => e.LocationSubcategoryId).HasColumnName("location_subcategory_id");
             entity.Property(e => e.CoverImage).HasColumnName("cover_image");
@@ -266,6 +291,10 @@ public partial class DiscoverHSCountryContext : DbContext
 
             entity.ToTable("Location_TouristAttractionOwner");
 
+            entity.HasIndex(e => e.LocationId, "IX_Location_TouristAttractionOwner_location_id");
+
+            entity.HasIndex(e => e.TouristAttractionOwnerId, "IX_Location_TouristAttractionOwner_tourist_attraction_owner_id");
+
             entity.Property(e => e.LocationTouristAttractionOwnerId).HasColumnName("location_tourist_attraction_owner_id");
             entity.Property(e => e.LocationId).HasColumnName("location_id");
             entity.Property(e => e.TouristAttractionOwnerId).HasColumnName("tourist_attraction_owner_id");
@@ -279,11 +308,37 @@ public partial class DiscoverHSCountryContext : DbContext
                 .HasConstraintName("FK__Location___touri__07C12930");
         });
 
+        modelBuilder.Entity<PublicCityService>(entity =>
+        {
+            entity.HasKey(e => e.PublicCityServiceId).HasName("PK__PublicCi__AC85DF2F64E031CC");
+
+            entity.ToTable("PublicCityService");
+
+            entity.Property(e => e.PublicCityServiceId)
+                .ValueGeneratedNever()
+                .HasColumnName("public_city_service_id");
+            entity.Property(e => e.Address).HasColumnName("address");
+            entity.Property(e => e.CityId).HasColumnName("city_id");
+            entity.Property(e => e.CoverImage).HasColumnName("cover_image");
+            entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.Name).HasColumnName("name");
+
+            entity.HasOne(d => d.City).WithMany(p => p.PublicCityServices)
+                .HasForeignKey(d => d.CityId)
+                .HasConstraintName("FK__PublicCit__city___5224328E");
+        });
+
         modelBuilder.Entity<Reservation>(entity =>
         {
             entity.HasKey(e => e.ReservationId).HasName("PK__Reservat__31384C29F8D94933");
 
             entity.ToTable("Reservation");
+
+            entity.HasIndex(e => e.LocationId, "IX_Reservation_location_id");
+
+            entity.HasIndex(e => e.ServiceId, "IX_Reservation_service_id");
+
+            entity.HasIndex(e => e.TouristId, "IX_Reservation_tourist_id");
 
             entity.Property(e => e.ReservationId).HasColumnName("reservation_id");
             entity.Property(e => e.AdditionalDescription)
@@ -321,6 +376,10 @@ public partial class DiscoverHSCountryContext : DbContext
             entity.HasKey(e => e.ReviewId).HasName("PK__Review__60883D90245F288E");
 
             entity.ToTable("Review");
+
+            entity.HasIndex(e => e.LocationId, "IX_Review_location_id");
+
+            entity.HasIndex(e => e.TouristId, "IX_Review_tourist_id");
 
             entity.Property(e => e.ReviewId).HasColumnName("review_id");
             entity.Property(e => e.Description)
@@ -363,6 +422,8 @@ public partial class DiscoverHSCountryContext : DbContext
 
             entity.ToTable("TechnicalIssue_Owner");
 
+            entity.HasIndex(e => e.TouristAttractionOwnerId, "IX_TechnicalIssue_Owner_tourist_attraction_owner_id");
+
             entity.Property(e => e.TehnicalIssueOwnerId).HasColumnName("tehnical_issue_owner_id");
             entity.Property(e => e.Description)
                 .HasMaxLength(200)
@@ -382,6 +443,10 @@ public partial class DiscoverHSCountryContext : DbContext
             entity.HasKey(e => e.TehnicalIssueTouristId).HasName("PK__Technica__9A1ACC0471B6D537");
 
             entity.ToTable("TechnicalIssue_Tourist");
+
+            entity.HasIndex(e => e.LocationId, "IX_TechnicalIssue_Tourist_location_id");
+
+            entity.HasIndex(e => e.TouristId, "IX_TechnicalIssue_Tourist_tourist_id");
 
             entity.Property(e => e.TehnicalIssueTouristId).HasColumnName("tehnical_issue_tourist_id");
             entity.Property(e => e.Description)
@@ -408,6 +473,8 @@ public partial class DiscoverHSCountryContext : DbContext
 
             entity.ToTable("Tourist");
 
+            entity.HasIndex(e => e.UserId, "IX_Tourist_user_id");
+
             entity.Property(e => e.TouristId).HasColumnName("tourist_id");
             entity.Property(e => e.DateOfBirth)
                 .HasColumnType("date")
@@ -424,6 +491,8 @@ public partial class DiscoverHSCountryContext : DbContext
             entity.HasKey(e => e.TouristAttractionOwnerId).HasName("PK__TouristA__3BFDDD96BFD8B586");
 
             entity.ToTable("TouristAttractionOwner");
+
+            entity.HasIndex(e => e.UserId, "IX_TouristAttractionOwner_user_id");
 
             entity.Property(e => e.TouristAttractionOwnerId).HasColumnName("tourist_attraction_owner_id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
@@ -461,6 +530,10 @@ public partial class DiscoverHSCountryContext : DbContext
 
             entity.ToTable("VisitedLocation");
 
+            entity.HasIndex(e => e.LocationId, "IX_VisitedLocation_location_id");
+
+            entity.HasIndex(e => e.TouristId, "IX_VisitedLocation_tourist_id");
+
             entity.Property(e => e.VisitedLocationId).HasColumnName("visited_location_id");
             entity.Property(e => e.LocationId).HasColumnName("location_id");
             entity.Property(e => e.Notes)
@@ -486,6 +559,8 @@ public partial class DiscoverHSCountryContext : DbContext
 
             entity.ToTable("VisitedLocationImage");
 
+            entity.HasIndex(e => e.VisitedLocationId, "IX_VisitedLocationImage_visited_location_id");
+
             entity.Property(e => e.ImageId).HasColumnName("image_id");
             entity.Property(e => e.Image).HasColumnName("image");
             entity.Property(e => e.VisitedLocationId).HasColumnName("visited_location_id");
@@ -500,3 +575,4 @@ public partial class DiscoverHSCountryContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
+ 

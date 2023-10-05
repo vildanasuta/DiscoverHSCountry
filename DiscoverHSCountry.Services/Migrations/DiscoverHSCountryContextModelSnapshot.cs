@@ -38,7 +38,7 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.HasKey("AdministratorId")
                         .HasName("PK__Administ__3871E7ACD9FAD8E6");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex(new[] { "UserId" }, "IX_Administrator_user_id");
 
                     b.ToTable("Administrator", (string)null);
                 });
@@ -119,9 +119,9 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.HasKey("EventId")
                         .HasName("PK__Event__2370F727CA0FAF35");
 
-                    b.HasIndex("CityId");
+                    b.HasIndex(new[] { "CityId" }, "IX_Event_city_id");
 
-                    b.HasIndex("EventCategoryId");
+                    b.HasIndex(new[] { "EventCategoryId" }, "IX_Event_event_category_id");
 
                     b.ToTable("Event", (string)null);
                 });
@@ -160,7 +160,7 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.HasKey("EventId")
                         .HasName("PK__Event_Lo__2370F7279BAEF639");
 
-                    b.HasIndex("LocationId");
+                    b.HasIndex(new[] { "LocationId" }, "IX_Event_Location_location_id");
 
                     b.ToTable("Event_Location", (string)null);
                 });
@@ -197,7 +197,7 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.HasKey("HistoricalEventId")
                         .HasName("PK__Historic__6D7C1E04AF2D9D32");
 
-                    b.HasIndex("CityId");
+                    b.HasIndex(new[] { "CityId" }, "IX_HistoricalEvent_city_id");
 
                     b.ToTable("HistoricalEvent", (string)null);
                 });
@@ -240,8 +240,11 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.Property<string>("InstagramUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("bit");
+                    b.Property<bool?>("IsApproved")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValueSql("(CONVERT([bit],(0)))");
 
                     b.Property<int?>("LocationCategoryId")
                         .HasColumnType("int")
@@ -260,11 +263,11 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.HasKey("LocationId")
                         .HasName("PK__Location__771831EA98F9947F");
 
-                    b.HasIndex("CityId");
+                    b.HasIndex(new[] { "CityId" }, "IX_Location_city_id");
 
-                    b.HasIndex("LocationCategoryId");
+                    b.HasIndex(new[] { "LocationCategoryId" }, "IX_Location_location_category_id");
 
-                    b.HasIndex("LocationSubcategoryId");
+                    b.HasIndex(new[] { "LocationSubcategoryId" }, "IX_Location_location_subcategory_id");
 
                     b.ToTable("Location", (string)null);
                 });
@@ -314,7 +317,7 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.HasKey("ImageId")
                         .HasName("PK__Location__DC9AC955E88B92D6");
 
-                    b.HasIndex("LocationId");
+                    b.HasIndex(new[] { "LocationId" }, "IX_LocationImage_location_id");
 
                     b.ToTable("LocationImage", (string)null);
                 });
@@ -345,7 +348,7 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.HasKey("LocationSubcategoryId")
                         .HasName("PK__Location__419D810A25618620");
 
-                    b.HasIndex("LocationCategoryId");
+                    b.HasIndex(new[] { "LocationCategoryId" }, "IX_LocationSubcategory_location_category_id");
 
                     b.ToTable("LocationSubcategory", (string)null);
                 });
@@ -370,11 +373,48 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.HasKey("LocationTouristAttractionOwnerId")
                         .HasName("PK__Location__2F4C1BA510E7EF02");
 
-                    b.HasIndex("LocationId");
+                    b.HasIndex(new[] { "LocationId" }, "IX_Location_TouristAttractionOwner_location_id");
 
-                    b.HasIndex("TouristAttractionOwnerId");
+                    b.HasIndex(new[] { "TouristAttractionOwnerId" }, "IX_Location_TouristAttractionOwner_tourist_attraction_owner_id");
 
                     b.ToTable("Location_TouristAttractionOwner", (string)null);
+                });
+
+            modelBuilder.Entity("DiscoverHSCountry.Services.Database.PublicCityService", b =>
+                {
+                    b.Property<int>("PublicCityServiceId")
+                        .HasColumnType("int")
+                        .HasColumnName("public_city_service_id");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("address");
+
+                    b.Property<int?>("CityId")
+                        .HasColumnType("int")
+                        .HasColumnName("city_id");
+
+                    b.Property<string>("CoverImage")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("cover_image");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("name");
+
+                    b.HasKey("PublicCityServiceId")
+                        .HasName("PK__PublicCi__AC85DF2F64E031CC");
+
+                    b.HasIndex("CityId");
+
+                    b.ToTable("PublicCityService", (string)null);
                 });
 
             modelBuilder.Entity("DiscoverHSCountry.Services.Database.Reservation", b =>
@@ -422,11 +462,11 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.HasKey("ReservationId")
                         .HasName("PK__Reservat__31384C29F8D94933");
 
-                    b.HasIndex("LocationId");
+                    b.HasIndex(new[] { "LocationId" }, "IX_Reservation_location_id");
 
-                    b.HasIndex("ServiceId");
+                    b.HasIndex(new[] { "ServiceId" }, "IX_Reservation_service_id");
 
-                    b.HasIndex("TouristId");
+                    b.HasIndex(new[] { "TouristId" }, "IX_Reservation_tourist_id");
 
                     b.ToTable("Reservation", (string)null);
                 });
@@ -471,9 +511,9 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.HasKey("ReviewId")
                         .HasName("PK__Review__60883D90245F288E");
 
-                    b.HasIndex("LocationId");
+                    b.HasIndex(new[] { "LocationId" }, "IX_Review_location_id");
 
-                    b.HasIndex("TouristId");
+                    b.HasIndex(new[] { "TouristId" }, "IX_Review_tourist_id");
 
                     b.ToTable("Review", (string)null);
                 });
@@ -527,7 +567,7 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.HasKey("TehnicalIssueOwnerId")
                         .HasName("PK__Technica__ADF21CDB7A38475E");
 
-                    b.HasIndex("TouristAttractionOwnerId");
+                    b.HasIndex(new[] { "TouristAttractionOwnerId" }, "IX_TechnicalIssue_Owner_tourist_attraction_owner_id");
 
                     b.ToTable("TechnicalIssue_Owner", (string)null);
                 });
@@ -564,9 +604,9 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.HasKey("TehnicalIssueTouristId")
                         .HasName("PK__Technica__9A1ACC0471B6D537");
 
-                    b.HasIndex("LocationId");
+                    b.HasIndex(new[] { "LocationId" }, "IX_TechnicalIssue_Tourist_location_id");
 
-                    b.HasIndex("TouristId");
+                    b.HasIndex(new[] { "TouristId" }, "IX_TechnicalIssue_Tourist_tourist_id");
 
                     b.ToTable("TechnicalIssue_Tourist", (string)null);
                 });
@@ -591,7 +631,7 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.HasKey("TouristId")
                         .HasName("PK__Tourist__83DD92C91BDB1850");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex(new[] { "UserId" }, "IX_Tourist_user_id");
 
                     b.ToTable("Tourist", (string)null);
                 });
@@ -612,7 +652,7 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.HasKey("TouristAttractionOwnerId")
                         .HasName("PK__TouristA__3BFDDD96BFD8B586");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex(new[] { "UserId" }, "IX_TouristAttractionOwner_user_id");
 
                     b.ToTable("TouristAttractionOwner", (string)null);
                 });
@@ -689,9 +729,9 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.HasKey("VisitedLocationId")
                         .HasName("PK__VisitedL__1D63958280F68D95");
 
-                    b.HasIndex("LocationId");
+                    b.HasIndex(new[] { "LocationId" }, "IX_VisitedLocation_location_id");
 
-                    b.HasIndex("TouristId");
+                    b.HasIndex(new[] { "TouristId" }, "IX_VisitedLocation_tourist_id");
 
                     b.ToTable("VisitedLocation", (string)null);
                 });
@@ -716,7 +756,7 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.HasKey("ImageId")
                         .HasName("PK__VisitedL__DC9AC95521CC7E9E");
 
-                    b.HasIndex("VisitedLocationId");
+                    b.HasIndex(new[] { "VisitedLocationId" }, "IX_VisitedLocationImage_visited_location_id");
 
                     b.ToTable("VisitedLocationImage", (string)null);
                 });
@@ -835,6 +875,16 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.Navigation("Location");
 
                     b.Navigation("TouristAttractionOwner");
+                });
+
+            modelBuilder.Entity("DiscoverHSCountry.Services.Database.PublicCityService", b =>
+                {
+                    b.HasOne("DiscoverHSCountry.Services.Database.City", "City")
+                        .WithMany("PublicCityServices")
+                        .HasForeignKey("CityId")
+                        .HasConstraintName("FK__PublicCit__city___5224328E");
+
+                    b.Navigation("City");
                 });
 
             modelBuilder.Entity("DiscoverHSCountry.Services.Database.Reservation", b =>
@@ -959,6 +1009,8 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.Navigation("HistoricalEvents");
 
                     b.Navigation("Locations");
+
+                    b.Navigation("PublicCityServices");
                 });
 
             modelBuilder.Entity("DiscoverHSCountry.Services.Database.Event", b =>

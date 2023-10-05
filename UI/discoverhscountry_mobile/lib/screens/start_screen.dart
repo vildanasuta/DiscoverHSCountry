@@ -1,3 +1,4 @@
+import 'package:discoverhscountry_mobile/screens/login_screen.dart';
 import 'package:discoverhscountry_mobile/screens/registration_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,7 @@ class _StartScreenState extends State<StartScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.blue, Colors.grey], 
+            colors: [Colors.white,Color.fromRGBO(0,2,89,1.0)], 
           ),
         ),
         child: Center(
@@ -51,7 +52,21 @@ class _StartScreenState extends State<StartScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Add your login button logic here
+                Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) {
+            return const LoginScreen();
+          },
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(0.0, 1.0);
+            const end = Offset.zero;
+            const curve = Curves.easeInOut;
+            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var offsetAnimation = animation.drive(tween);
+            return SlideTransition(position: offsetAnimation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 500),
+        ),);
               },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32), 

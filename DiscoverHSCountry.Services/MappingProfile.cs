@@ -94,6 +94,10 @@ namespace DiscoverHSCountry.Services
             CreateMap<Database.VisitedLocationImage, Model.VisitedLocationImage>();
             CreateMap<Model.Requests.VisitedLocationImageCreateRequest, Database.VisitedLocationImage>();
             CreateMap<Model.Requests.VisitedLocationImageUpdateRequest, Database.VisitedLocationImage>();
+
+            CreateMap<Database.PublicCityService, Model.PublicCityService>();
+            CreateMap<Model.Requests.PublicCityServiceCreateRequest, Database.PublicCityService>();
+            CreateMap<Model.Requests.PublicCityServiceUpdateRequest, Database.PublicCityService>();
         }
     }
 }

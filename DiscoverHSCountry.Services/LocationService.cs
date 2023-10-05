@@ -37,7 +37,8 @@ namespace DiscoverHSCountry.Services
                         LocationSubcategoryId = locationCreateRequest.LocationSubcategoryId,
                         BookingUrl=locationCreateRequest.BookingUrl,
                         FacebookUrl=locationCreateRequest.FacebookUrl,
-                        InstagramUrl=locationCreateRequest.InstagramUrl
+                        InstagramUrl=locationCreateRequest.InstagramUrl,
+                        IsApproved=locationCreateRequest.IsApproved
                     };
 
                     createdLocation = await base.Insert(newLocation);

@@ -124,6 +124,8 @@ class _NewHistoricalStoryState extends State<NewHistoricalStory> with DataFetche
                                                         CrossAxisAlignment
                                                             .stretch,
                                                     children: [
+                                                    const Text('Napomena: Sva polja se popunjavaju na engleskom jeziku!', style: TextStyle(fontSize: 12),),
+                                                    const SizedBox(height: 16,),
                                                       FormBuilderTextField(
                                                         name: 'title',
                                                         controller:
@@ -286,7 +288,7 @@ class _NewHistoricalStoryState extends State<NewHistoricalStory> with DataFetche
                                                             height: 10,
                                                           ),
                                                           Text(
-                                                              'Izaberite naslovnu fotografiju lokacije!')
+                                                              'Izaberite naslovnu fotografiju događaja!')
                                                         ],
                                                       ),
                                                     ),
@@ -311,8 +313,6 @@ class _NewHistoricalStoryState extends State<NewHistoricalStory> with DataFetche
 
                                                             );
                                                             // ignore: avoid_print
-                                                            print(newEvent
-                                                                .toJson());
                                                             var url = Uri.parse(
                                                                 '${ApiConstants.baseUrl}/HistoricalEvent');
                                                             var response =

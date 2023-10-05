@@ -167,6 +167,8 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
                                                         CrossAxisAlignment
                                                             .stretch,
                                                     children: [
+                                                    const Text('Napomena: Sva polja se popunjavaju na engleskom jeziku!', style: TextStyle(fontSize: 12),),
+                                                    const SizedBox(height: 16,),
                                                       FormBuilderTextField(
                                                         name: 'title',
                                                         controller:

@@ -68,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         
                       ],
                       border: Border.all(
-                      color:const Color.fromARGB(255, 1, 38, 160),
+                      color:const Color.fromRGBO(0,2,89,1.0),
       width: 3, 
     ),
                     ),
@@ -77,13 +77,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         labelText: 'Email',
-                        labelStyle:Theme.of(context).textTheme.displaySmall?.copyWith(                      color:const Color.fromARGB(255, 1, 38, 160),),
+                        labelStyle:Theme.of(context).textTheme.displaySmall?.copyWith(                      color:const Color.fromRGBO(0,2,89,1.0),),
                         prefixIcon: const Icon(CupertinoIcons.mail, color:Color.fromARGB(255, 1, 38, 160),),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(15),
                         errorStyle: Theme.of(context).textTheme.labelSmall?.copyWith(color:const Color.fromARGB(255, 228, 164, 160), fontSize: 9),
                       ),
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(color:const Color.fromARGB(255, 1, 38, 160)),
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(color:const Color.fromRGBO(0,2,89,1.0)),
                       controller: _emailController,
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(
@@ -107,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                       border: Border.all(
-                      color:const Color.fromARGB(255, 1, 38, 160),
+                      color:const Color.fromRGBO(0,2,89,1.0),
       width: 3, 
                       ),
                     ),
@@ -115,13 +115,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       name: 'password',
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        labelStyle:Theme.of(context).textTheme.displaySmall?.copyWith(color:const Color.fromARGB(255, 1, 38, 160)),
+                        labelStyle:Theme.of(context).textTheme.displaySmall?.copyWith(color:const Color.fromRGBO(0,2,89,1.0)),
                         prefixIcon: const Icon(CupertinoIcons.lock, color:Color.fromARGB(255, 1, 38, 160)),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(15),
                         errorStyle: Theme.of(context).textTheme.labelSmall?.copyWith(color:const Color.fromARGB(255, 228, 164, 160), fontSize: 9),
                       ),
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(color:const Color.fromARGB(255, 1, 38, 160)),
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(color:const Color.fromRGBO(0,2,89,1.0)),
                       controller: _passwordController,
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(
@@ -162,7 +162,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           Uri.parse('${ApiConstants.baseUrl}/User/$userId');
                       var userResponse = await http.get(getUserUrl);
                       User? user;
-                      print(userResponse.body);
                       if (userResponse.statusCode == 200) {
                         Map<String, dynamic> userBody =
                             json.decode(userResponse.body);
@@ -177,7 +176,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (userType == 'tourist') {
                         await authService.login(); // Update isLoggedIn status
                         // ignore: use_build_context_synchronously
-                        Navigator.of(context).push(
+                        Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
                             builder: (context) => DashboardScreen(
                                 user: user
@@ -214,12 +213,12 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             TextButton(
                 onPressed: () {
-                  Navigator.of(context).push(
+                  Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                         builder: (context) => const RegistrationScreen()),
                   );
                 },
-                child: Text('You do not have account? Register now!', style: Theme.of(context).textTheme.displaySmall,)),
+                child: Text('You do not have an account? Register now!', style: Theme.of(context).textTheme.displaySmall,)),
           ]),
         ),
       ),

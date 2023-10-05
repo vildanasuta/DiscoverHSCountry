@@ -75,7 +75,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
                         border: Border.all(
-                      color:const Color.fromARGB(255, 1, 38, 160),
+                      color:const Color.fromRGBO(0,2,89,1.0),
       width: 3, 
                       ),
                       ),
@@ -86,10 +86,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           labelStyle: Theme.of(context)
                               .textTheme
                               .displaySmall
-                              ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160)),
+                              ?.copyWith(color: const Color.fromRGBO(0,2,89,1.0)),
                           prefixIcon: const Icon(
                             CupertinoIcons.person,
-                            color: Color.fromARGB(255, 1, 38, 160),
+                            color: Color.fromRGBO(0,2,89,1.0),
                           ),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.all(15),
@@ -104,7 +104,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         style: Theme.of(context)
                             .textTheme
                             .displaySmall
-                            ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160)),
+                            ?.copyWith(color: const Color.fromRGBO(0,2,89,1.0)),
                         controller: _firstNameController,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
@@ -126,7 +126,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
                         border: Border.all(
-                      color:const Color.fromARGB(255, 1, 38, 160),
+                      color:const Color.fromRGBO(0,2,89,1.0),
       width: 3, 
                       ),
                       ),
@@ -137,10 +137,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           labelStyle: Theme.of(context)
                               .textTheme
                               .displaySmall
-                              ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160)),
+                              ?.copyWith(color: const Color.fromRGBO(0,2,89,1.0)),
                           prefixIcon: const Icon(
                             CupertinoIcons.person,
-                            color: Color.fromARGB(255, 1, 38, 160),
+                            color: Color.fromRGBO(0,2,89,1.0),
                           ),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.all(15),
@@ -154,7 +154,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         style: Theme.of(context)
                             .textTheme
                             .displaySmall
-                            ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160)),
+                            ?.copyWith(color: const Color.fromRGBO(0,2,89,1.0)),
                         controller: _lastNameController,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
@@ -174,7 +174,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
                         border: Border.all(
-                      color:const Color.fromARGB(255, 1, 38, 160),
+                      color:const Color.fromRGBO(0,2,89,1.0),
       width: 3, 
                       ),
                       ),
@@ -186,10 +186,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           labelStyle: Theme.of(context)
                               .textTheme
                               .displaySmall
-                              ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160)),
+                              ?.copyWith(color: const Color.fromRGBO(0,2,89,1.0)),
                           prefixIcon: const Icon(
                             CupertinoIcons.mail,
-                            color: Color.fromARGB(255, 1, 38, 160),
+                            color: Color.fromRGBO(0,2,89,1.0),
                           ),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.all(15),
@@ -203,7 +203,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         style: Theme.of(context)
                             .textTheme
                             .displaySmall
-                            ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160)),
+                            ?.copyWith(color: const Color.fromRGBO(0,2,89,1.0)),
                         controller: _emailController,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
@@ -219,7 +219,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
                         border: Border.all(
-                      color:const Color.fromARGB(255, 1, 38, 160),
+                      color:const Color.fromRGBO(0,2,89,1.0),
       width: 3, 
                       ),
                       ),
@@ -230,10 +230,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           labelStyle: Theme.of(context)
                               .textTheme
                               .displaySmall
-                              ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160)),
+                              ?.copyWith(color: const Color.fromRGBO(0,2,89,1.0)),
                           prefixIcon: const Icon(
                             CupertinoIcons.lock,
-                            color: Color.fromARGB(255, 1, 38, 160),
+                            color: Color.fromRGBO(0,2,89,1.0),
                           ),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.all(15),
@@ -248,14 +248,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         style: Theme.of(context)
                             .textTheme
                             .displaySmall
-                            ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160)),
+                            ?.copyWith(color: const Color.fromRGBO(0,2,89,1.0)),
                         controller: _passwordController,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
                               errorText: 'This field is required!'),
                           FormBuilderValidators.minLength(8,
                               errorText:
-                                  'Password needs to have minimum 8 characters.'),
+                                  'Password needs to contain minimum of 8 characters.'),
                           FormBuilderValidators.match(
                               r'^(?=.*[a-zščćžđ])(?=.*[A-ZŠŽČĆŽĐ])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-zžščćžđŠŽČĆŽĐ\d@$!%*?&.]+$',
                               errorText:
@@ -268,7 +268,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
                         border: Border.all(
-                      color:const Color.fromARGB(255, 1, 38, 160),
+                      color:const Color.fromRGBO(0,2,89,1.0),
       width: 3, 
                       ),
                       ),
@@ -279,10 +279,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           labelStyle: Theme.of(context)
                               .textTheme
                               .displaySmall
-                              ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160)),
+                              ?.copyWith(color: const Color.fromRGBO(0,2,89,1.0)),
                           prefixIcon: const Icon(
                             CupertinoIcons.lock,
-                            color: Color.fromARGB(255, 1, 38, 160),
+                            color: Color.fromRGBO(0,2,89,1.0),
                           ),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.all(15),
@@ -297,7 +297,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         style: Theme.of(context)
                             .textTheme
                             .displaySmall
-                            ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160)),
+                            ?.copyWith(color: const Color.fromRGBO(0,2,89,1.0)),
                         controller: _repeatPasswordController,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
@@ -319,7 +319,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(
-                      color:const Color.fromARGB(255, 1, 38, 160),
+                      color:const Color.fromRGBO(0,2,89,1.0),
       width: 3, 
                       ),
                 ),
@@ -333,10 +333,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     labelStyle: Theme.of(context)
                         .textTheme
                         .displaySmall
-                        ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160)),
+                        ?.copyWith(color: const Color.fromRGBO(0,2,89,1.0)),
                     prefixIcon: const Icon(
                       CupertinoIcons.calendar,
-                      color: Color.fromARGB(255, 1, 38, 160),
+                      color: Color.fromRGBO(0,2,89,1.0),
                     ),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.all(15),
@@ -349,7 +349,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   style: Theme.of(context)
                             .textTheme
                             .displaySmall
-                            ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160)),
+                            ?.copyWith(color: const Color.fromRGBO(0,2,89,1.0)),
                   validator: FormBuilderValidators.required(),
                   onChanged: (value) {
                     dateTime = DateTime(value!.year, value.month, value.day);
@@ -385,7 +385,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
-                  foregroundColor: const Color.fromARGB(255, 1, 38, 160),
+                  foregroundColor: const Color.fromRGBO(0,2,89,1.0),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   shape: RoundedRectangleBorder(
@@ -445,10 +445,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                         password: password,
                                         firstName: firstName,
                                         lastName: lastName,
-                                        profileImage: _profileImage!,
+                                        profileImage: profileImage!,
                                         dateOfBirth:dateTime!,
                                       );
-                                                                            print(tourist.toJson());
                                       var url = Uri.parse(
                                           '${ApiConstants.baseUrl}/Tourist/CreateTouristWithUserDetails');
                                       var response = await http.post(
@@ -471,7 +470,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                                   TextButton(
                                                     onPressed: () {
                                                       Navigator.of(context)
-                                                          .push(
+                                                          .pushReplacement(
                                                         MaterialPageRoute(
                                                           builder: (context) =>
                                                               const LoginScreen(),
@@ -503,13 +502,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                               );
                                             });
                                       }
-                                    
-                                  
-                                
-
-
-
-
                                     }}},
                 style: ElevatedButton.styleFrom(
                   padding:
@@ -518,7 +510,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   elevation: 6,
-                  backgroundColor: const Color.fromARGB(255, 1, 38, 160),
+                  backgroundColor: const Color.fromRGBO(0,2,89,1.0),
                   foregroundColor: Colors.white,
                 ),
                 child: Text(
@@ -532,7 +524,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).push(
+                  Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                         builder: (context) => const LoginScreen()),
                   );

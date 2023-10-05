@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.blue, Colors.grey],
+            colors: [Colors.white,Color.fromRGBO(0,2,89,1.0)], 
           ),
         ),
         child: Center(
@@ -78,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               Text(
                 'to Discover Heart-Shaped Country',
-                style: Theme.of(context).textTheme.displayMedium,
+                style: Theme.of(context).textTheme.displayMedium?.copyWith(color: Colors.white),
               ),
             ],
           ),

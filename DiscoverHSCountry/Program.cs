@@ -30,6 +30,7 @@ builder.Services.AddTransient<ITechnicalIssueOwnerService, TechnicalIssueOwnerSe
 builder.Services.AddTransient<ITechnicalIssueTouristService, TechnicalIssueTouristService>();
 builder.Services.AddTransient<IVisitedLocationService, VisitedLocationService>();
 builder.Services.AddTransient<IVisitedLocationImageService, VisitedLocationImageService>();
+builder.Services.AddTransient<IPublicCityServiceService, PublicCityServiceService>();
 
 builder.Services.AddControllers()
             .AddJsonOptions(options =>
@@ -60,10 +61,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
+/*using (var scope = app.Services.CreateScope())
 {
     var dataContext = scope.ServiceProvider.GetRequiredService<DiscoverHSCountryContext>();
-    //dataContext.Database.Migrate();
-}
-
+    dataContext.Database.Migrate();
+}*/
 app.Run();

@@ -27,9 +27,9 @@ public partial class Location
 
     public string? BookingUrl { get; set; }
 
-    public virtual City? City { get; set; }
+    public bool? IsApproved { get; set; }
 
-    public bool IsApproved { get; set; }
+    public virtual City? City { get; set; }
 
     public virtual ICollection<EventLocation> EventLocations { get; set; } = new List<EventLocation>();
 
