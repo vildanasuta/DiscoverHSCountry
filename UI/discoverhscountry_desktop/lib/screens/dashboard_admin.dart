@@ -1,9 +1,12 @@
+import 'dart:ui';
+
 import 'package:discoverhscountry_desktop/main.dart';
 import 'package:discoverhscountry_desktop/models/user_model.dart';
 import 'package:discoverhscountry_desktop/screens/approve_new_location.dart';
 import 'package:discoverhscountry_desktop/screens/new_event.dart';
 import 'package:discoverhscountry_desktop/screens/new_historical_story.dart';
 import 'package:discoverhscountry_desktop/screens/new_location.dart';
+import 'package:discoverhscountry_desktop/screens/new_public_city_service.dart';
 import 'package:discoverhscountry_desktop/screens/view_reported_issues.dart';
 import 'package:discoverhscountry_desktop/services/authentication_service.dart';
 import 'package:discoverhscountry_desktop/widgets/common_app_bar.dart';
@@ -25,7 +28,7 @@ class _DashboardAdminState extends State<DashboardAdmin> {
     'Dodaj novu lokaciju',
     'Dodaj novi događaj',
     'Dodaj novu historijsku priču',
-    'Dodaj novu uslugu',
+    'Dodaj novi javni gradski servis',
     'Odobri nove lokacije',
     'Pogledaj prijavljene probleme',
   ];
@@ -45,22 +48,32 @@ class _DashboardAdminState extends State<DashboardAdmin> {
           );
         },
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF0054A6), Colors.white],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              children: buttonLabels.map((label) {
-                return ElevatedButton(
+      body: Stack(
+          children: <Widget>[
+            Image.asset(
+              'assets/desktop-background.png',
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+            ),
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+              child: Container(
+                color: Colors.white.withOpacity(0.2),
+              ),
+            ),
+          Center(
+  child: Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Wrap(
+      spacing: 16,
+      runSpacing: 16,
+      alignment: WrapAlignment.center,
+      children: buttonLabels.map((label) {
+
+        return SizedBox(
+          width: MediaQuery.of(context).size.width / 4 - 16,
+          child: ElevatedButton(
                   onPressed: () {
                     if (label == 'Dodaj novu lokaciju') {
                       Navigator.of(context).push(MaterialPageRoute(builder: (context)=> NewLocation(user: widget.user, userType: widget.userType)));
@@ -74,6 +87,8 @@ class _DashboardAdminState extends State<DashboardAdmin> {
                       Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ApproveNewLocation(user: widget.user, userType: widget.userType)));
                     } else if (label == 'Pogledaj prijavljene probleme') {
                       Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ViewReportedIssues(user: widget.user, userType: widget.userType)));
+                    } else if (label == 'Dodaj novi javni gradski servis'){
+                      Navigator.of(context).push(MaterialPageRoute(builder: ((context) => NewPublicCityService(user: widget.user, userType: widget.userType))));
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -92,11 +107,11 @@ class _DashboardAdminState extends State<DashboardAdmin> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                );
+                ));
               }).toList(),
             ),
           ),
-        ),
+        ),]
       ),
     );
   }

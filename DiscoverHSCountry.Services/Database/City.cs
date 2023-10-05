@@ -16,4 +16,6 @@ public partial class City
     public virtual ICollection<HistoricalEvent> HistoricalEvents { get; set; } = new List<HistoricalEvent>();
 
     public virtual ICollection<Location> Locations { get; set; } = new List<Location>();
+
+    public virtual ICollection<PublicCityService> PublicCityServices { get; set; } = new List<PublicCityService>();
 }

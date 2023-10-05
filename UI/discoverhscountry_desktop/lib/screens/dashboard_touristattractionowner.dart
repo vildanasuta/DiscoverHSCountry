@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:discoverhscountry_desktop/main.dart';
 import 'package:discoverhscountry_desktop/models/user_model.dart';
 import 'package:discoverhscountry_desktop/screens/generate_report.dart';
@@ -48,15 +50,21 @@ class _DashboardTouristAttractionOwnerState extends State<DashboardTouristAttrac
         },
       ),
       resizeToAvoidBottomInset: false,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF0054A6), Colors.white],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Center(
+      body: Stack(
+          children: <Widget>[
+            Image.asset(
+              'assets/desktop-background.png',
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+            ),
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+              child: Container(
+                color: Colors.white.withOpacity(0.2),
+              ),
+            ),
+          Center(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Wrap(
@@ -102,13 +110,13 @@ class _DashboardTouristAttractionOwnerState extends State<DashboardTouristAttrac
                   ),
                 );
               }).toList(),
-            ),
+ ),
           ),
         ),
-      ),
-    );
-  }
+      ],
+    ),
+  );
 }
-
+}
 
 

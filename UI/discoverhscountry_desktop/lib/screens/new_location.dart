@@ -81,6 +81,7 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
     "Hospitality Spots": "Gostoprimstvo",
     "Adventure and Sports": "Avantura i sport",
     "Shopping": "Kupovina",
+    "Other":"Drugo"
   };
 
   Map<String, String> subcategoryTranslations = {
@@ -177,6 +178,8 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
                                                       CrossAxisAlignment
                                                           .stretch,
                                                   children: [
+                                                    const Text('Napomena: Sva polja se popunjavaju na engleskom jeziku!', style: TextStyle(fontSize: 12),),
+                                                    const SizedBox(height: 16,),
                                                     FormBuilderTextField(
                                                       name: 'name',
                                                       controller:
@@ -222,6 +225,7 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
                                                             .minLength(3,
                                                                 errorText:
                                                                     'Opis mora sadržavati minimalno 3 karaktera.'),
+                                                        FormBuilderValidators.maxLength(200, errorText: 'Opis može sadržavati maximalno 200 karaktera.')
                                                       ]),
                                                     ),
                                                     const SizedBox(height: 16),
@@ -555,8 +559,7 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
                                                               bookingUrl:
                                                                   bookingUrlController
                                                                       .text,
-                                                              isApproved: widget.userType=='touristattractionowner'?
-                                                                  false:true);
+                                                              isApproved: widget.userType=='touristattractionowner'?false:true);
                                                           var url = Uri.parse(
                                                               '${ApiConstants.baseUrl}/Location');
                                                           var response =

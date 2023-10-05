@@ -55,83 +55,79 @@ class _ApproveNewLocationState extends State<ApproveNewLocation>
       ),
       resizeToAvoidBottomInset: false,
       body: SingleChildScrollView(
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF0054A6), Colors.white],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
+          child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0054A6), Colors.white],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          child: Center(
+        ),
+        child: Center(
             child: Padding(
-              padding: const EdgeInsets.all(40.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children:[
-                  const Padding(
-                          padding: EdgeInsets.all(8.0),
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(
-                            "Nove lokacije koje čekaju odobrenje",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.white,
-                              shadows: [
-                                Shadow(
-                                  color: Color.fromARGB(255, 16, 40, 107),
-                                  offset: Offset(2, 2),
-                                  blurRadius: 3,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),),
-                    isLoading
-                        ? const CircularProgressIndicator()
-                        : ListView.separated(
-                            shrinkWrap: true,
-                            itemCount: disapprovedLocations.length,
-                            separatorBuilder:
-                                (BuildContext context, int index) {
-                              return const SizedBox(height: 30.0);
-                            },
-                            itemBuilder: (context, index) {
-                              final location = disapprovedLocations[index];
-                                return Card(
-                                    elevation: 4,
-                                    margin: const EdgeInsets.all(8.0),
-                               child: ListTile(
-                                title: Text(
-                                  location.name,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20),
-                                ),
-                                leading: CircleAvatar(
-                                  radius: 70,
-                                  backgroundImage: MemoryImage(
-                                      base64Decode(location.coverImage)),
-                                ),
-                                trailing: ElevatedButton(
-                                  onPressed: () {
-                                    _showLocationDetailsDialog(location);
-                                  },
-                                  child: const Text(
-                                    "Pogledaj detalje",
-                                    style: TextStyle(),
-                                  ),
-                                ),
-                              ));
-                            },
-                          ),
-                  ]),)
-                
+          padding: const EdgeInsets.all(40.0),
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  "Nove lokacije koje čekaju odobrenje",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        color: Color.fromARGB(255, 16, 40, 107),
+                        offset: Offset(2, 2),
+                        blurRadius: 3,
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            )
-          ),);
+            ),
+            isLoading
+                ? const CircularProgressIndicator()
+                : ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: disapprovedLocations.length,
+                    separatorBuilder: (BuildContext context, int index) {
+                      return const SizedBox(height: 30.0);
+                    },
+                    itemBuilder: (context, index) {
+                      final location = disapprovedLocations[index];
+                      return Card(
+                          elevation: 4,
+                          margin: const EdgeInsets.all(8.0),
+                          child: ListTile(
+                            title: Text(
+                              location.name,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 20),
+                            ),
+                            leading: CircleAvatar(
+                              radius: 70,
+                              backgroundImage: MemoryImage(
+                                  base64Decode(location.coverImage)),
+                            ),
+                            trailing: ElevatedButton(
+                              onPressed: () {
+                                _showLocationDetailsDialog(location);
+                              },
+                              child: const Text(
+                                "Pogledaj detalje",
+                                style: TextStyle(),
+                              ),
+                            ),
+                          ));
+                    },
+                  ),
+          ]),
+        )),
+      )),
+    );
   }
 
   void _showLocationDetailsDialog(Location location) {
@@ -189,9 +185,11 @@ class _ApproveNewLocationState extends State<ApproveNewLocation>
                     duration: const Duration(seconds: 3),
                   ).show(context);
                   // ignore: use_build_context_synchronously
-                  Future.delayed(const Duration(milliseconds: 3500), () {
+                  Future.delayed(const Duration(milliseconds: 3500), () async {
                     Navigator.of(context).pop();
-                    Navigator.of(context).pop();
+                    await Navigator.of(context).push(MaterialPageRoute(
+                        builder: ((context) => ApproveNewLocation(
+                            user: widget.user, userType: widget.userType))));
                   });
                 }
               },
@@ -213,9 +211,11 @@ class _ApproveNewLocationState extends State<ApproveNewLocation>
                     duration: const Duration(seconds: 3),
                   ).show(context);
                   // ignore: use_build_context_synchronously
-                  Future.delayed(const Duration(milliseconds: 3500), () {
+                  Future.delayed(const Duration(milliseconds: 3500), () async {
                     Navigator.of(context).pop();
-                    Navigator.of(context).pop();
+                    await Navigator.of(context).push(MaterialPageRoute(
+                        builder: ((context) => ApproveNewLocation(
+                            user: widget.user, userType: widget.userType))));
                   });
                 }
               },

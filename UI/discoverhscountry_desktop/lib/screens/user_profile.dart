@@ -217,7 +217,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           ClipOval(
                             child: Container(
                               color: Colors.white,
-                              child: widget.user?.profileImage != ''
+                              child: (widget.user?.profileImage != '' && widget.user?.profileImage !='string')
                                   ? Image.memory(
                                       base64Decode(widget.user!.profileImage),
                                       width: 120,
