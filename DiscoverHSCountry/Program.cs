@@ -23,7 +23,7 @@ builder.Services.AddTransient<ILocationTouristAttractionOwnerService, LocationTo
 builder.Services.AddTransient<ILocationCategoryService, LocationCategoryService>();
 builder.Services.AddTransient<ILocationImageService, LocationImageService>();
 builder.Services.AddTransient<ILocationSubcategoryService, LocationSubcategoryService>();
-builder.Services.AddTransient<IReservationService, ReservationService>();
+builder.Services.AddTransient<IReservationService, DiscoverHSCountry.Services.ReservationService>();
 builder.Services.AddTransient<IReviewService, ReviewService>();
 builder.Services.AddTransient<IServiceService, ServiceService>();
 builder.Services.AddTransient<ITechnicalIssueOwnerService, TechnicalIssueOwnerService>();
@@ -31,6 +31,7 @@ builder.Services.AddTransient<ITechnicalIssueTouristService, TechnicalIssueTouri
 builder.Services.AddTransient<IVisitedLocationService, VisitedLocationService>();
 builder.Services.AddTransient<IVisitedLocationImageService, VisitedLocationImageService>();
 builder.Services.AddTransient<IPublicCityServiceService, PublicCityServiceService>();
+builder.Services.AddTransient<IReservationServiceService, ReservationServiceService>();
 
 builder.Services.AddControllers()
             .AddJsonOptions(options =>

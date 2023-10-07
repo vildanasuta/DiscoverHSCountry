@@ -117,5 +117,13 @@ namespace DiscoverHSCountry.Services
             }
         }
 
+        public List<Database.Location> GetLocationsBySubcategoryId(int categoryId, int subcategoryId)
+        {
+                return _context.Locations
+                    .Where(location => location.LocationCategoryId==categoryId && location.LocationSubcategoryId == subcategoryId)
+                    .ToList();
+        }
+
+
     }
 }

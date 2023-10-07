@@ -98,6 +98,10 @@ namespace DiscoverHSCountry.Services
             CreateMap<Database.PublicCityService, Model.PublicCityService>();
             CreateMap<Model.Requests.PublicCityServiceCreateRequest, Database.PublicCityService>();
             CreateMap<Model.Requests.PublicCityServiceUpdateRequest, Database.PublicCityService>();
+
+            CreateMap<Database.ReservationService, Model.ReservationService>();
+            CreateMap<Model.Requests.ReservationServiceCreateRequest, Database.ReservationService>();
+            CreateMap<Model.Requests.ReservationServiceUpdateRequest, Database.ReservationService>();
         }
     }
 }

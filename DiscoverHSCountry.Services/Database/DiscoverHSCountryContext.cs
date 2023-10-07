@@ -233,6 +233,10 @@ public partial class DiscoverHSCountryContext : DbContext
             entity.HasOne(d => d.LocationSubcategory).WithMany(p => p.Locations)
                 .HasForeignKey(d => d.LocationSubcategoryId)
                 .HasConstraintName("FK__Location__locati__04E4BC85");
+
+           entity.HasMany(e => e.Services)
+          .WithOne() 
+          .HasForeignKey(service => service.LocationId);
         });
 
         modelBuilder.Entity<LocationCategory>(entity =>
@@ -336,35 +340,25 @@ public partial class DiscoverHSCountryContext : DbContext
 
             entity.HasIndex(e => e.LocationId, "IX_Reservation_location_id");
 
-            entity.HasIndex(e => e.ServiceId, "IX_Reservation_service_id");
-
             entity.HasIndex(e => e.TouristId, "IX_Reservation_tourist_id");
 
             entity.Property(e => e.ReservationId).HasColumnName("reservation_id");
-            entity.Property(e => e.AdditionalDescription)
-                .HasMaxLength(200)
-                .HasColumnName("additional_description");
-            entity.Property(e => e.EndDate)
-                .HasColumnType("date")
-                .HasColumnName("end_date");
+
             entity.Property(e => e.LocationId).HasColumnName("location_id");
-            entity.Property(e => e.NumberOfPeople).HasColumnName("number_of_people");
             entity.Property(e => e.Price)
                 .HasColumnType("money")
                 .HasColumnName("price");
-            entity.Property(e => e.ServiceId).HasColumnName("service_id");
-            entity.Property(e => e.StartDate)
-                .HasColumnType("date")
-                .HasColumnName("start_date");
+
             entity.Property(e => e.TouristId).HasColumnName("tourist_id");
 
             entity.HasOne(d => d.Location).WithMany(p => p.Reservations)
                 .HasForeignKey(d => d.LocationId)
                 .HasConstraintName("FK__Reservati__locat__160F4887");
 
-            entity.HasOne(d => d.Service).WithMany(p => p.Reservations)
-                .HasForeignKey(d => d.ServiceId)
-                .HasConstraintName("FK__Reservati__servi__151B244E");
+            entity.HasMany(r => r.ReservationServices)
+        .WithOne(rs => rs.Reservation)
+        .HasForeignKey(rs => rs.ReservationId)
+        .HasConstraintName("FK__ReservationService_Reservation");
 
             entity.HasOne(d => d.Tourist).WithMany(p => p.Reservations)
                 .HasForeignKey(d => d.TouristId)
@@ -411,9 +405,23 @@ public partial class DiscoverHSCountryContext : DbContext
             entity.ToTable("Service");
 
             entity.Property(e => e.ServiceId).HasColumnName("service_id");
+
             entity.Property(e => e.ServiceName)
                 .HasMaxLength(100)
                 .HasColumnName("service_name");
+
+            entity.Property(e => e.ServiceDescription)
+                .HasColumnName("service_description");
+
+            entity.Property(e => e.UnitPrice)
+                .HasColumnType("money")
+                .HasColumnName("unit_price");
+
+            entity.HasOne(e => e.Location)  
+                .WithMany(location => location.Services) 
+                .HasForeignKey(e => e.LocationId)  
+                .HasConstraintName("FK_Service_Location"); 
+
         });
 
         modelBuilder.Entity<TechnicalIssueOwner>(entity =>
@@ -570,6 +578,39 @@ public partial class DiscoverHSCountryContext : DbContext
                 .HasConstraintName("FK__VisitedLo__visit__1CBC4616");
         });
 
+
+        modelBuilder.Entity<ReservationService>(entity =>
+        {
+            entity.HasKey(e => e.ReservationServiceId).HasName("PK__ReservationService__YourPrimaryKeyName");
+
+            entity.ToTable("ReservationService");
+
+            entity.Property(e => e.ReservationServiceId).HasColumnName("reservation_service_id");
+
+            entity.Property(e => e.StartDate).HasColumnType("datetime").HasColumnName("start_date");
+
+            entity.Property(e => e.EndDate).HasColumnType("datetime").HasColumnName("end_date");
+
+            entity.Property(e => e.NumberOfPeople).HasColumnName("number_of_people");
+
+            entity.Property(e => e.AdditionalDescription)
+                .HasMaxLength(200)
+                .HasColumnName("additional_description");
+
+            entity.Property(e => e.ReservationId).HasColumnName("reservation_id");
+
+            entity.Property(e => e.ServiceId).HasColumnName("service_id");
+
+            entity.HasOne(rs => rs.Reservation)
+                .WithMany(r => r.ReservationServices)
+                .HasForeignKey(rs => rs.ReservationId)
+                .HasConstraintName("FK_ReservationService_Reservation");
+
+            entity.HasOne(rs => rs.Service)
+                .WithMany(s => s.ReservationServices)
+                .HasForeignKey(rs => rs.ServiceId)
+                .HasConstraintName("FK_ReservationService_Service");
+        });
         OnModelCreatingPartial(modelBuilder);
     }
 

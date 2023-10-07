@@ -16,8 +16,8 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 
 // ignore: must_be_immutable
 class EditProfile extends StatefulWidget {
-  User? user;
-  EditProfile({super.key, this.user});
+  User user;
+  EditProfile({super.key, required this.user});
 
   @override
   State<EditProfile> createState() => _EditProfileState();
@@ -132,7 +132,7 @@ class _EditProfileState extends State<EditProfile> {
                                       _repeatPasswordController.text) {
                                     // ignore: use_build_context_synchronously
                                     sendChangePasswordRequest(
-                                        widget.user!.userId,
+                                        widget.user.userId,
                                         _passwordController.text,
                                         context,
                                         oldPasswordFromForm);
@@ -216,9 +216,9 @@ class _EditProfileState extends State<EditProfile> {
                               ClipOval(
                                 child: Container(
                                   color: Colors.white,
-                                  child: widget.user?.profileImage != ''
+                                  child: widget.user.profileImage != ''
                                       ? Image.memory(
-                                          base64Decode(widget.user!.profileImage),
+                                          base64Decode(widget.user.profileImage),
                                           width: 120,
                                           height: 120,
                                         )
@@ -254,7 +254,7 @@ class _EditProfileState extends State<EditProfile> {
                                     var request = http.MultipartRequest(
                                       'PUT',
                                       Uri.parse(
-                                          '${ApiConstants.baseUrl}/User/UpdateProfilePhoto/${widget.user?.userId}'),
+                                          '${ApiConstants.baseUrl}/User/UpdateProfilePhoto/${widget.user.userId}'),
                                     );
 
                                     // Set the 'Content-Type' header to 'multipart/form-data'
@@ -277,7 +277,7 @@ class _EditProfileState extends State<EditProfile> {
                                       // After successful update, retrieve the updated user data
                                       var getUserResponse = await http.get(
                                         Uri.parse(
-                                            '${ApiConstants.baseUrl}/User/${widget.user?.userId}'),
+                                            '${ApiConstants.baseUrl}/User/${widget.user.userId}'),
                                       );
 
                                       if (getUserResponse.statusCode == 200) {
@@ -285,7 +285,7 @@ class _EditProfileState extends State<EditProfile> {
                                             json.decode(getUserResponse.body);
 
                                         setState(() {
-                                          widget.user?.profileImage =
+                                          widget.user.profileImage =
                                               userData['profileImage'];
                                         });
                                         // ignore: use_build_context_synchronously
@@ -326,14 +326,14 @@ class _EditProfileState extends State<EditProfile> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            '${widget.user?.firstName} ${widget.user?.lastName}', style: Theme.of(context)
+                            '${widget.user.firstName} ${widget.user.lastName}', style: Theme.of(context)
                                 .textTheme
                                 .headlineMedium
                                 ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160)),
                            
                           ),
                           Text(
-                            widget.user!.email,
+                            widget.user.email,
                             style: Theme.of(context)
                                 .textTheme
                                 .displaySmall
@@ -362,7 +362,7 @@ class _EditProfileState extends State<EditProfile> {
                           const SizedBox(height: 32),
                           TextButton(
                             onPressed: () {
-                              deleteProfile(context, widget.user!.userId);
+                              deleteProfile(context, widget.user.userId);
                             },
                             style: ButtonStyle(
                               foregroundColor:
@@ -392,11 +392,11 @@ class _EditProfileState extends State<EditProfile> {
 
   void _showEditPopup(BuildContext context) {
     TextEditingController firstNameController =
-        TextEditingController(text: widget.user?.firstName);
+        TextEditingController(text: widget.user.firstName);
     TextEditingController lastNameController =
-        TextEditingController(text: widget.user?.lastName);
+        TextEditingController(text: widget.user.lastName);
     TextEditingController emailController =
-        TextEditingController(text: widget.user?.email);
+        TextEditingController(text: widget.user.email);
     String profileImage = '';
     showDialog(
       context: context,
@@ -451,7 +451,7 @@ class _EditProfileState extends State<EditProfile> {
             ElevatedButton(
               onPressed: () async {
                 User editedUser = User(
-                  userId: widget.user!.userId,
+                  userId: widget.user.userId,
                   email: emailController.text,
                   firstName: firstNameController.text,
                   lastName: lastNameController.text,
@@ -518,7 +518,7 @@ class _EditProfileState extends State<EditProfile> {
       },
     );
   }
-}
+
 
 void sendChangePasswordRequest(int userId, String newPassword,
     BuildContext context, String oldPassword) async {
@@ -616,7 +616,7 @@ void deleteProfile(BuildContext context, int userId) async {
       // ignore: use_build_context_synchronously
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const DashboardScreen()),
+        MaterialPageRoute(builder: (context) => DashboardScreen(user: widget.user,)),
       );
 
       // ignore: use_build_context_synchronously
@@ -636,4 +636,4 @@ void deleteProfile(BuildContext context, int userId) async {
   } else {
     // User cancelled profile deletion or dismissed dialog
   }
-}
+}}

@@ -426,34 +426,13 @@ namespace DiscoverHSCountry.Services.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReservationId"));
 
-                    b.Property<string>("AdditionalDescription")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)")
-                        .HasColumnName("additional_description");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("date")
-                        .HasColumnName("end_date");
-
                     b.Property<int?>("LocationId")
                         .HasColumnType("int")
                         .HasColumnName("location_id");
 
-                    b.Property<int>("NumberOfPeople")
-                        .HasColumnType("int")
-                        .HasColumnName("number_of_people");
-
                     b.Property<decimal>("Price")
                         .HasColumnType("money")
                         .HasColumnName("price");
-
-                    b.Property<int?>("ServiceId")
-                        .HasColumnType("int")
-                        .HasColumnName("service_id");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("date")
-                        .HasColumnName("start_date");
 
                     b.Property<int?>("TouristId")
                         .HasColumnType("int")
@@ -464,11 +443,53 @@ namespace DiscoverHSCountry.Services.Migrations
 
                     b.HasIndex(new[] { "LocationId" }, "IX_Reservation_location_id");
 
-                    b.HasIndex(new[] { "ServiceId" }, "IX_Reservation_service_id");
-
                     b.HasIndex(new[] { "TouristId" }, "IX_Reservation_tourist_id");
 
                     b.ToTable("Reservation", (string)null);
+                });
+
+            modelBuilder.Entity("DiscoverHSCountry.Services.Database.ReservationService", b =>
+                {
+                    b.Property<int>("ReservationServiceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("reservation_service_id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReservationServiceId"));
+
+                    b.Property<string>("AdditionalDescription")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("additional_description");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime")
+                        .HasColumnName("end_date");
+
+                    b.Property<int>("NumberOfPeople")
+                        .HasColumnType("int")
+                        .HasColumnName("number_of_people");
+
+                    b.Property<int>("ReservationId")
+                        .HasColumnType("int")
+                        .HasColumnName("reservation_id");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int")
+                        .HasColumnName("service_id");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime")
+                        .HasColumnName("start_date");
+
+                    b.HasKey("ReservationServiceId")
+                        .HasName("PK__ReservationService__YourPrimaryKeyName");
+
+                    b.HasIndex("ReservationId");
+
+                    b.HasIndex("ServiceId");
+
+                    b.ToTable("ReservationService", (string)null);
                 });
 
             modelBuilder.Entity("DiscoverHSCountry.Services.Database.Review", b =>
@@ -527,14 +548,27 @@ namespace DiscoverHSCountry.Services.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ServiceId"));
 
+                    b.Property<int>("LocationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ServiceDescription")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("service_description");
+
                     b.Property<string>("ServiceName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("service_name");
 
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("money")
+                        .HasColumnName("unit_price");
+
                     b.HasKey("ServiceId")
                         .HasName("PK__Service__3E0DB8AFF7BCF2B5");
+
+                    b.HasIndex("LocationId");
 
                     b.ToTable("Service", (string)null);
                 });
@@ -894,11 +928,6 @@ namespace DiscoverHSCountry.Services.Migrations
                         .HasForeignKey("LocationId")
                         .HasConstraintName("FK__Reservati__locat__160F4887");
 
-                    b.HasOne("DiscoverHSCountry.Services.Database.Service", "Service")
-                        .WithMany("Reservations")
-                        .HasForeignKey("ServiceId")
-                        .HasConstraintName("FK__Reservati__servi__151B244E");
-
                     b.HasOne("DiscoverHSCountry.Services.Database.Tourist", "Tourist")
                         .WithMany("Reservations")
                         .HasForeignKey("TouristId")
@@ -906,9 +935,28 @@ namespace DiscoverHSCountry.Services.Migrations
 
                     b.Navigation("Location");
 
-                    b.Navigation("Service");
-
                     b.Navigation("Tourist");
+                });
+
+            modelBuilder.Entity("DiscoverHSCountry.Services.Database.ReservationService", b =>
+                {
+                    b.HasOne("DiscoverHSCountry.Services.Database.Reservation", "Reservation")
+                        .WithMany("ReservationServices")
+                        .HasForeignKey("ReservationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ReservationService_Reservation");
+
+                    b.HasOne("DiscoverHSCountry.Services.Database.Service", "Service")
+                        .WithMany("ReservationServices")
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ReservationService_Service");
+
+                    b.Navigation("Reservation");
+
+                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("DiscoverHSCountry.Services.Database.Review", b =>
@@ -926,6 +974,18 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.Navigation("Location");
 
                     b.Navigation("Tourist");
+                });
+
+            modelBuilder.Entity("DiscoverHSCountry.Services.Database.Service", b =>
+                {
+                    b.HasOne("DiscoverHSCountry.Services.Database.Location", "Location")
+                        .WithMany("Services")
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Service_Location");
+
+                    b.Navigation("Location");
                 });
 
             modelBuilder.Entity("DiscoverHSCountry.Services.Database.TechnicalIssueOwner", b =>
@@ -1035,6 +1095,8 @@ namespace DiscoverHSCountry.Services.Migrations
 
                     b.Navigation("Reviews");
 
+                    b.Navigation("Services");
+
                     b.Navigation("TechnicalIssueTourists");
 
                     b.Navigation("VisitedLocations");
@@ -1052,9 +1114,14 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.Navigation("Locations");
                 });
 
+            modelBuilder.Entity("DiscoverHSCountry.Services.Database.Reservation", b =>
+                {
+                    b.Navigation("ReservationServices");
+                });
+
             modelBuilder.Entity("DiscoverHSCountry.Services.Database.Service", b =>
                 {
-                    b.Navigation("Reservations");
+                    b.Navigation("ReservationServices");
                 });
 
             modelBuilder.Entity("DiscoverHSCountry.Services.Database.Tourist", b =>

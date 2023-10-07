@@ -69,8 +69,12 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
     }).catchError((error) {
       // Handle error
     });
-
-    fetchLocationIdsByTouristAttractionOwnerId(widget.user!.userId)
+    
+int taoId = 0;
+getTouristAttractionOwnerIdByUserId(widget.user!.userId).then((id) async {
+  setState(() {
+    taoId = id!;
+    fetchLocationIdsByTouristAttractionOwnerId(taoId)
         .then((fetchedIds) async {
       setState(() {
         locationIds = fetchedIds;
@@ -83,6 +87,8 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
     }).catchError((error) {
       // Handle error
     });
+  });
+});
   }
 
   Map<String, String> eventCategoriesTranslations = {
@@ -167,7 +173,7 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
                                                         CrossAxisAlignment
                                                             .stretch,
                                                     children: [
-                                                    const Text('Napomena: Sva polja se popunjavaju na engleskom jeziku!', style: TextStyle(fontSize: 12),),
+                                                    const Text('Napomena: Opis se popunjava na engleskom jeziku!', style: TextStyle(fontSize: 12),),
                                                     const SizedBox(height: 16,),
                                                       FormBuilderTextField(
                                                         name: 'title',

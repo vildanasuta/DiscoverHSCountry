@@ -43,6 +43,8 @@ dependencies:
   image: ^4.1.0
   another_flushbar: ^1.12.30
   json_serializable: ^6.7.1
+  url_launcher: ^6.1.14
+  flutter_svg: ^2.0.7
 
 
 dev_dependencies:
@@ -73,6 +75,9 @@ flutter:
     - assets/logo.png
     - assets/dashboard-welcome.png
     - assets/default-user.png
+    - assets/facebook-icon.png
+    - assets/instagram_icon.png
+    - assets/booking-icon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

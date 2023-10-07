@@ -6,8 +6,9 @@ import 'package:discoverhscountry_mobile/widgets/tourist_drawer.dart';
 import 'package:discoverhscountry_mobile/common/data_fetcher.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class AllCitiesScreen extends StatefulWidget {
-  User? user;
+  User user;
   AllCitiesScreen({super.key, required this.user});
 
   @override
@@ -15,15 +16,15 @@ class AllCitiesScreen extends StatefulWidget {
 }
 
 class _AllCitiesScreenState extends State<AllCitiesScreen> with DataFetcher {
-   List<City> cities = [];
+  List<City> cities = [];
   List<City> loadedCities = [];
-  List<City> allCities=[];
+  List<City> allCities = [];
   int currentPage = 1;
   bool isLoading = false;
-  int pageSize=6;
+  int pageSize = 6;
 
-Future<void> _fetchCities(int page, int pageSize) async {
-  allCities=await fetchCities();
+  Future<void> _fetchCities(int page, int pageSize) async {
+    allCities = await fetchCities();
     if (isLoading) {
       return; // Prevent multiple simultaneous requests
     }
@@ -39,19 +40,16 @@ Future<void> _fetchCities(int page, int pageSize) async {
       );
 
       setState(() {
-  if (newCities.isNotEmpty) {
-  newCities.removeWhere((newCity) {
-    return cities.any((city) => newCity.id == city.id);
-  });
+        if (newCities.isNotEmpty) {
+          newCities.removeWhere((newCity) {
+            return cities.any((city) => newCity.cityId == city.cityId);
+          });
 
-  cities=newCities;
-
-    print(cities);
-  
-  }
-});
-
+          cities = newCities;
+        }
+      });
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching cities: $e');
     } finally {
       setState(() {
@@ -60,13 +58,11 @@ Future<void> _fetchCities(int page, int pageSize) async {
     }
   }
 
-
-
-@override
-void initState() {
-  super.initState();
-  _fetchCities(0, 6); // Load the initial page (page 0)
-}
+  @override
+  void initState() {
+    super.initState();
+    _fetchCities(0, 6); // Load the initial page (page 0)
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +82,15 @@ void initState() {
             },
           ),
         ],
+        title: Center(
+          child: Text(
+            'All cities',
+            style: Theme.of(context)
+                .textTheme
+                .headlineMedium
+                ?.copyWith(color: Colors.white),
+          ),
+        ),
       ),
       endDrawer: TouristDrawer(user: widget.user),
       body: Column(
@@ -104,7 +109,7 @@ void initState() {
     );
   }
 
-Widget buildCityCard(City city, int index) {
+  Widget buildCityCard(City city, int index) {
     if (index % 2 == 0) {
       return Column(
         children: [
@@ -119,7 +124,11 @@ Widget buildCityCard(City city, int index) {
               final cityIndex = index + rowIndex;
               if (cityIndex < cities.length) {
                 final city = cities[cityIndex];
-                return Container(
+                return GestureDetector(
+                  onTap: () {
+                    // Handle cities tap
+                  },
+                  child: Container(
                   padding: const EdgeInsets.all(8.0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
@@ -141,12 +150,12 @@ Widget buildCityCard(City city, int index) {
                                 .withOpacity(0.2),
                             child: Center(
                               child: Text(
-                                city.name,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
+                                city.name.toUpperCase(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium
+                                    ?.copyWith(color: Colors.white),
+                                textAlign: TextAlign.center,
                               ),
                             ),
                           ),
@@ -154,7 +163,7 @@ Widget buildCityCard(City city, int index) {
                       ],
                     ),
                   ),
-                );
+                ));
               } else {
                 return const SizedBox();
               }
@@ -165,11 +174,9 @@ Widget buildCityCard(City city, int index) {
     } else {
       return const SizedBox();
     }
-  
-}
+  }
 
-
-int calculateTotalPages(int totalCities, int pageSize) {
+  int calculateTotalPages(int totalCities, int pageSize) {
     return (totalCities / pageSize).ceil();
   }
 
@@ -194,7 +201,7 @@ int calculateTotalPages(int totalCities, int pageSize) {
             icon: const Icon(Icons.arrow_back),
           ),
           Text(
-            'Page $currentPage of $totalPages', 
+            'Page $currentPage of $totalPages',
             style: const TextStyle(
               fontWeight: FontWeight.bold,
             ),
@@ -202,7 +209,7 @@ int calculateTotalPages(int totalCities, int pageSize) {
           IconButton(
             onPressed: currentPage < totalPages
                 ? () {
-                    _fetchCities(0, pageSize*2);
+                    _fetchCities(0, pageSize * 2);
                     setState(() {
                       currentPage += 1;
                     });
@@ -214,5 +221,4 @@ int calculateTotalPages(int totalCities, int pageSize) {
       ),
     );
   }
- 
 }

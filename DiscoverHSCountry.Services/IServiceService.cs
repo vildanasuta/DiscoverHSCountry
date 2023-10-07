@@ -8,5 +8,7 @@ namespace DiscoverHSCountry.Services
 {
     public interface IServiceService : ICRUDService<Model.Service, Model.SearchObjects.ServiceSearchObject, Model.Requests.ServiceCreateRequest, Model.Requests.ServiceUpdateRequest>
     {
+        public Task<List<Database.Service>> GetServicesByLocationId(int locationId);
+
     }
 }

@@ -7,13 +7,13 @@ part of 'city_model.dart';
 // **************************************************************************
 
 City _$CityFromJson(Map<String, dynamic> json) => City(
-      id: json['id'] as int,
+      cityId: json['cityId'] as int,
       name: json['name'] as String,
       coverImage: json['coverImage'] as String,
     );
 
 Map<String, dynamic> _$CityToJson(City instance) => <String, dynamic>{
-      'id': instance.id,
+      'cityId': instance.cityId,
       'name': instance.name,
       'coverImage': instance.coverImage,
     };

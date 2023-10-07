@@ -47,5 +47,7 @@ namespace DiscoverHSCountry.Model
         public virtual ICollection<TechnicalIssueTourist> TechnicalIssueTourists { get; set; } = new List<TechnicalIssueTourist>();
 
         public virtual ICollection<VisitedLocation> VisitedLocations { get; set; } = new List<VisitedLocation>();
+        public virtual ICollection<Service> Services { get; set; } = new List<Service>();
+
     }
 }

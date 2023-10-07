@@ -126,7 +126,7 @@ class _NewPublicCityServiceState extends State<NewPublicCityService> with DataFe
                                                         CrossAxisAlignment
                                                             .stretch,
                                                     children: [
-                                                      const Text('Napomena: Sva polja se popunjavaju na engleskom jeziku!', style: TextStyle(fontSize: 12),),
+                                                      const Text('Napomena: Opis se popunjava na engleskom jeziku!', style: TextStyle(fontSize: 12),),
                                                       const SizedBox(height: 16,),
                                                       FormBuilderTextField(
                                                         name: 'name',

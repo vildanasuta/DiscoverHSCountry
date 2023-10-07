@@ -7,17 +7,7 @@ public partial class Reservation
 {
     public int ReservationId { get; set; }
 
-    public DateTime StartDate { get; set; }
-
-    public DateTime EndDate { get; set; }
-
-    public int NumberOfPeople { get; set; }
-
-    public string? AdditionalDescription { get; set; }
-
     public int? TouristId { get; set; }
-
-    public int? ServiceId { get; set; }
 
     public int? LocationId { get; set; }
 
@@ -25,7 +15,7 @@ public partial class Reservation
 
     public virtual Location? Location { get; set; }
 
-    public virtual Service? Service { get; set; }
-
     public virtual Tourist? Tourist { get; set; }
+    public virtual ICollection<ReservationService> ReservationServices { get; set; } = new List<ReservationService>();
+
 }
