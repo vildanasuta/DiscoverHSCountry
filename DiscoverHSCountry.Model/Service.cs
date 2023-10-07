@@ -9,6 +9,15 @@ namespace DiscoverHSCountry.Model
 
         public string ServiceName { get; set; } = null!;
 
-        public virtual ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+        public string? ServiceDescription { get; set; }
+        public decimal UnitPrice { get; set; }
+
+        public int LocationId { get; set; }
+
+        public virtual Location? Location { get; set; }
+
+        public virtual ICollection<ReservationService> ReservationServices { get; set; } = new List<ReservationService>();
+
     }
+
 }

@@ -87,7 +87,11 @@ namespace DiscoverHSCountry.Services
                 }
             }
         }
-
+        public int GetTouristIdByUserId(int userId)
+        {
+            var tourist = _context.Tourists.FirstOrDefault(t => t.UserId == userId);
+            return tourist.TouristId;
+        }
 
     }
 }

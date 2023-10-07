@@ -17,7 +17,6 @@ import 'package:discoverhscountry_desktop/models/user_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher_string.dart';
 
-
 mixin DataFetcher {
   Future<List<City>> fetchCities() async {
     final response = await http.get(Uri.parse('${ApiConstants.baseUrl}/City'));
@@ -125,9 +124,7 @@ mixin DataFetcher {
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body)['\$values'];
-
-      // ignore: unnecessary_null_comparison
-      if (jsonData != null && jsonData.isNotEmpty) {
+      if (jsonData.isNotEmpty) {
         final List<int> locationIds =
             jsonData.map<int>((value) => value as int).toList();
         return locationIds;
@@ -155,6 +152,25 @@ mixin DataFetcher {
           'name': jsonData['name'] as String,
           'description': jsonData['description'] as String,
         };
+        locationsData.add(locationData);
+      } else {
+        throw Exception('Failed to load location data for ID: $id');
+      }
+    }
+    return locationsData;
+  }
+
+  Future<List<Location>> fetchLocationDetailsByIds(
+      List<int> locationIds) async {
+    List<Location> locationsData = [];
+
+    for (int id in locationIds) {
+      final response = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}/Location/$id'),
+      );
+      if (response.statusCode == 200) {
+        var jsonData = json.decode(response.body);
+        var locationData = Location.fromJson(jsonData);
         locationsData.add(locationData);
       } else {
         throw Exception('Failed to load location data for ID: $id');
@@ -217,77 +233,80 @@ mixin DataFetcher {
       try {
         var data = json.decode(response.body);
         var user = await getUserByUserId(data['userId']);
-        final tourist= Tourist(touristId: data['touristId'], 
-        dateOfBirth: data['dateOfBirth'],
-        userId: data['userId'], 
-        firstName: user.firstName, 
-        lastName: user.lastName, 
-        email: user.email, 
-        profileImage: user.profileImage);
+        final tourist = Tourist(
+            touristId: data['touristId'],
+            dateOfBirth: data['dateOfBirth'],
+            userId: data['userId'],
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            profileImage: user.profileImage);
 
-      return tourist;
-    } catch (e) {
-      // ignore: avoid_print
-      print('Error: $e');
-      throw Exception('Failed to parse user data');
+        return tourist;
+      } catch (e) {
+        // ignore: avoid_print
+        print('Error: $e');
+        throw Exception('Failed to parse user data');
+      }
+    } else {
+      throw Exception('Failed to fetch user data');
     }
-  } else {
-    throw Exception('Failed to fetch user data');
   }
-    }
-  
-Future<User> getUserByUserId(int userId) async {
-  final response = await http.get(
-    Uri.parse('${ApiConstants.baseUrl}/User/$userId'),
-  );
-  if (response.statusCode == 200) {
-    try {
-      var data = json.decode(response.body);
-      final user = User(
-        userId: data['userId'],
-        firstName: data['firstName'],
-        lastName: data['lastName'],
-        profileImage: data['profileImage'],
-        email: data['email']
-      );
 
-      return user;
-    } catch (e) {
-      // ignore: avoid_print
-      print('Error: $e');
-      throw Exception('Failed to parse user data');
-    }
-  } else {
-    throw Exception('Failed to fetch user data');
-  }
-}
-Future<Service> getServiceByServiceId(int serviceId) async {
-  final response = await http.get(
-    Uri.parse('${ApiConstants.baseUrl}/Service/$serviceId'),
-  );
-  if (response.statusCode == 200) {
-    try {
-      var data = json.decode(response.body);
-      final service = Service(
-        serviceId: data['serviceId'],
-        serviceName: data['serviceName'],
-      );
+  Future<User> getUserByUserId(int userId) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/User/$userId'),
+    );
+    if (response.statusCode == 200) {
+      try {
+        var data = json.decode(response.body);
+        final user = User(
+            userId: data['userId'],
+            firstName: data['firstName'],
+            lastName: data['lastName'],
+            profileImage: data['profileImage'],
+            email: data['email']);
 
-      return service;
-    } catch (e) {
-      // ignore: avoid_print
-      print('Error: $e');
-      throw Exception('Failed to parse user data');
+        return user;
+      } catch (e) {
+        // ignore: avoid_print
+        print('Error: $e');
+        throw Exception('Failed to parse user data');
+      }
+    } else {
+      throw Exception('Failed to fetch user data');
     }
-  } else {
-    throw Exception('Failed to fetch user data');
   }
-}
+
+  Future<Service> getServiceByServiceId(int serviceId) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/Service/$serviceId'),
+    );
+    if (response.statusCode == 200) {
+      try {
+        var data = json.decode(response.body);
+        final service = Service(
+          serviceId: data['serviceId'],
+          serviceName: data['serviceName'],
+          serviceDescription: data['serviceDescription'],
+          unitPrice: data['unitPrice'],
+          locationId: data['locationId'],
+        );
+
+        return service;
+      } catch (e) {
+        // ignore: avoid_print
+        print('Error: $e');
+        throw Exception('Failed to parse user data');
+      }
+    } else {
+      throw Exception('Failed to fetch user data');
+    }
+  }
 
   Future<List<Location>> fetchAllDisapprovedLocations() async {
     final response = await http.get(
-      Uri.parse(
-          '${ApiConstants.baseUrl}/Location'),
+      Uri.parse('${ApiConstants.baseUrl}/Location'),
     );
 
     if (response.statusCode == 200) {
@@ -296,7 +315,7 @@ Future<Service> getServiceByServiceId(int serviceId) async {
         if (data is List) {
           final List<Location> locations = data
               .map((locationsjson) => Location.fromJson(locationsjson))
-              .where((location) => location.isApproved == false) 
+              .where((location) => location.isApproved == false)
               .toList();
           return locations;
         } else {
@@ -308,23 +327,19 @@ Future<Service> getServiceByServiceId(int serviceId) async {
     } else {
       throw Exception('Failed to load reservations: ${response.statusCode}');
     }
-
-
-    
   }
-Future<void> launchURL(String url) async {
-  if (await canLaunchUrlString(url)) {
-    await launchUrlString(url);
-  } else {
-    throw 'Could not launch $url';
+
+  Future<void> launchURL(String url) async {
+    if (await canLaunchUrlString(url)) {
+      await launchUrlString(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
-}
 
-
- Future<List<TechnicalIssueOwner>> fetchAllTechnicalIssuesOwner() async {
+  Future<List<TechnicalIssueOwner>> fetchAllTechnicalIssuesOwner() async {
     final response = await http.get(
-      Uri.parse(
-          '${ApiConstants.baseUrl}/TechnicalIssueOwner'),
+      Uri.parse('${ApiConstants.baseUrl}/TechnicalIssueOwner'),
     );
 
     if (response.statusCode == 200) {
@@ -332,7 +347,8 @@ Future<void> launchURL(String url) async {
         var data = json.decode(response.body)['result']['\$values'];
         if (data is List) {
           final List<TechnicalIssueOwner> technicalIssuesOwnerList = data
-              .map((technicalIssuesOwner) => TechnicalIssueOwner.fromJson(technicalIssuesOwner))
+              .map((technicalIssuesOwner) =>
+                  TechnicalIssueOwner.fromJson(technicalIssuesOwner))
               .toList();
           return technicalIssuesOwnerList;
         } else {
@@ -344,16 +360,11 @@ Future<void> launchURL(String url) async {
     } else {
       throw Exception('Failed to load issues: ${response.statusCode}');
     }
-
-
-    
   }
-
 
   Future<List<TechnicalIssueTourist>> fetchAllTechnicalIssuesTourist() async {
     final response = await http.get(
-      Uri.parse(
-          '${ApiConstants.baseUrl}/TechnicalIssueTourist'),
+      Uri.parse('${ApiConstants.baseUrl}/TechnicalIssueTourist'),
     );
 
     if (response.statusCode == 200) {
@@ -361,7 +372,8 @@ Future<void> launchURL(String url) async {
         var data = json.decode(response.body)['result']['\$values'];
         if (data is List) {
           final List<TechnicalIssueTourist> technicalIssuesTouristList = data
-              .map((technicalIssuesTourist) => TechnicalIssueTourist.fromJson(technicalIssuesTourist))
+              .map((technicalIssuesTourist) =>
+                  TechnicalIssueTourist.fromJson(technicalIssuesTourist))
               .toList();
           return technicalIssuesTouristList;
         } else {
@@ -373,13 +385,10 @@ Future<void> launchURL(String url) async {
     } else {
       throw Exception('Failed to load issues: ${response.statusCode}');
     }
-
-
-    
   }
 
-
-  Future<TouristAttractionOwner> getTouristAttractionOwnerById(int taoId) async {
+  Future<TouristAttractionOwner> getTouristAttractionOwnerById(
+      int taoId) async {
     final response = await http.get(
       Uri.parse('${ApiConstants.baseUrl}/TouristAttractionOwner/$taoId'),
     );
@@ -387,21 +396,22 @@ Future<void> launchURL(String url) async {
       try {
         var data = json.decode(response.body);
         var user = await getUserByUserId(data['userId']);
-        final tao= TouristAttractionOwner(touristAttractionOwnerId: data['touristAttractionOwnerId'], 
-        userId: data['userId'], 
-        firstName: user.firstName, 
-        lastName: user.lastName, 
-        email: user.email, 
-        profileImage: user.profileImage);
+        final tao = TouristAttractionOwner(
+            touristAttractionOwnerId: data['touristAttractionOwnerId'],
+            userId: data['userId'],
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            profileImage: user.profileImage);
 
-      return tao;
-    } catch (e) {
-      // ignore: avoid_print
-      print('Error: $e');
-      throw Exception('Failed to parse user data');
+        return tao;
+      } catch (e) {
+        // ignore: avoid_print
+        print('Error: $e');
+        throw Exception('Failed to parse user data');
+      }
+    } else {
+      throw Exception('Failed to fetch user data');
     }
-  } else {
-    throw Exception('Failed to fetch user data');
   }
-    }
 }

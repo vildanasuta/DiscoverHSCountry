@@ -175,14 +175,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       }
                       if (userType == 'tourist') {
                         await authService.login(); // Update isLoggedIn status
-                        // ignore: use_build_context_synchronously
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) => DashboardScreen(
-                                user: user
-                                ),
-                          ),
-                        );
+                        
+    // ignore: use_build_context_synchronously
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => DashboardScreen(user: user!),
+      ));
                       }
                     } else {
                       // ignore: avoid_print

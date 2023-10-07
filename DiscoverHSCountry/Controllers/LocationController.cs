@@ -59,5 +59,19 @@ namespace DiscoverHSCountry.API.Controllers
                 return StatusCode(500, "An error occurred while processing the request.");
             }
         }
+
+        [HttpGet("GetLocationsBySubcategoryId/{categoryId}/{subcategoryId}")]
+        public IActionResult GetLocationsBySubcategoryId(int categoryId, int subcategoryId)
+        {
+            var locations = locationService.GetLocationsBySubcategoryId(categoryId, subcategoryId);
+
+            if (locations == null || locations.Count == 0)
+            {
+                return NotFound(); // Return a 404 Not Found response if no locations are found
+            }
+
+            return Ok(locations); // Return the locations as JSON data
+        }
+
     }
 }

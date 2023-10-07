@@ -53,6 +53,7 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
   List<LocationSubcategory> subcategories = [];
   Map<String, int> cityIdMap = {};
   Map<String, int> categoryIdMap = {};
+  int? taoId;
 
   @override
   void initState() {
@@ -72,6 +73,14 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
     }).catchError((error) {
       // Handle error
     });
+
+    if(widget.userType=='touristattractionowner'){
+      getTAOid();
+    }
+  }
+  
+  void getTAOid() async{
+        taoId= await getTouristAttractionOwnerIdByUserId(widget.user!.userId);
   }
 
 
@@ -178,7 +187,7 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
                                                       CrossAxisAlignment
                                                           .stretch,
                                                   children: [
-                                                    const Text('Napomena: Sva polja se popunjavaju na engleskom jeziku!', style: TextStyle(fontSize: 12),),
+                                                    const Text('Napomena: Opis se popunjava na engleskom jeziku!', style: TextStyle(fontSize: 12),),
                                                     const SizedBox(height: 16,),
                                                     FormBuilderTextField(
                                                       name: 'name',
@@ -548,8 +557,7 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
                                                                   selectedSubcategory!
                                                                       .id,
                                                               touristAttractionOwnerId: widget.userType=='touristattractionowner'?
-                                                                  widget.user!
-                                                                      .userId:null,
+                                                                  taoId:null,
                                                               facebookUrl:
                                                                   facebookUrlController
                                                                       .text,
@@ -573,6 +581,7 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
                                                                 newLocation
                                                                     .toJson()),
                                                           );
+
                                                           if (response
                                                                   .statusCode ==
                                                               200) {

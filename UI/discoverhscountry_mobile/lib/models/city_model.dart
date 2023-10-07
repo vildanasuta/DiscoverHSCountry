@@ -4,12 +4,12 @@ part 'city_model.g.dart';
 
 @JsonSerializable()
 class City {
-  final int id;
+  final int cityId;
   final String name;
   final String coverImage;
 
   City({
-    required this.id,
+    required this.cityId,
     required this.name,
     required this.coverImage,
   });
@@ -18,3 +18,4 @@ class City {
 
   Map<String, dynamic> toJson() => _$CityToJson(this);
 }
+

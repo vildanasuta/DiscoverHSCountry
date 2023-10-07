@@ -1,15 +1,17 @@
 import 'package:discoverhscountry_mobile/models/user_model.dart';
 import 'package:discoverhscountry_mobile/screens/all_cities_screen.dart';
+import 'package:discoverhscountry_mobile/screens/all_location_categories_screen.dart';
 import 'package:discoverhscountry_mobile/screens/dashboard_screen.dart';
 import 'package:discoverhscountry_mobile/screens/edit_profile_screen.dart';
+import 'package:discoverhscountry_mobile/screens/login_screen.dart';
 import 'package:discoverhscountry_mobile/services/authentication_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class TouristDrawer extends StatefulWidget {
-  User? user;
-  TouristDrawer({super.key, this.user});
+  User user;
+  TouristDrawer({super.key, required this.user});
 
   @override
   State<TouristDrawer> createState() => _TouristDrawerState();
@@ -101,8 +103,8 @@ class _TouristDrawerState extends State<TouristDrawer> {
                   ),
             ),
             onTap: () {
-              /* Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => EditProfile(user: widget.user)));*/
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => AllLocationCategoriesScreen(user: widget.user)));
             },
           ),
           ListTile(
@@ -165,6 +167,7 @@ class _TouristDrawerState extends State<TouristDrawer> {
             child: ElevatedButton(
               onPressed: () {
                 authService.logout();
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: ((context) => const LoginScreen())));
               },
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(

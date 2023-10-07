@@ -10,6 +10,8 @@ namespace DiscoverHSCountry.Services
     {
         public Task<bool> ApproveLocationAsync(int locationId);
         public Task<bool> DeleteLocationByIdAsync(int locationId);
+        public List<Database.Location> GetLocationsBySubcategoryId(int categoryId, int subcategoryId);
+
 
     }
 }

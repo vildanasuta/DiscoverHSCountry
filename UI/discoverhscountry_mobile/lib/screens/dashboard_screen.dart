@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:discoverhscountry_mobile/widgets/search_bar.dart' as sb;
 
 class DashboardScreen extends StatefulWidget {
-  final User? user;
-  const DashboardScreen({super.key, this.user});
+  final User user;
+  const DashboardScreen({super.key, required this.user});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -62,13 +62,13 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
           children: [
             CircleAvatar(
               backgroundImage: MemoryImage(
-                base64Decode(widget.user!.profileImage),
+                base64Decode(widget.user.profileImage),
               ),
               radius: 20,
             ),
             const SizedBox(width: 8),
             Text(
-              'Hi, ${widget.user?.firstName} ${widget.user?.lastName}',
+              'Hi, ${widget.user.firstName} ${widget.user.lastName}',
               style: Theme.of(context)
                   .textTheme
                   .displayMedium
@@ -90,7 +90,8 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
         ],
       ),
       endDrawer: TouristDrawer(user: widget.user),
-      body: Stack(children: [
+      body: 
+      Stack(children: [
         if (!_isSearching)
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -102,7 +103,7 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'Where do you want to go?\nExplore now, ${widget.user?.firstName}!',
+                  'Where do you want to go?\nExplore now, ${widget.user.firstName}!',
                   style: Theme.of(context)
                       .textTheme
                       .headlineMedium
@@ -188,7 +189,7 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
                 ),
             ],
           ),
-  
+      
 // Search bar and results
         if (_isSearching)
           Positioned(
