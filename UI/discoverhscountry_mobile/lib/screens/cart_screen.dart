@@ -9,7 +9,10 @@ import 'package:discoverhscountry_mobile/models/reservation_model.dart';
 import 'package:discoverhscountry_mobile/models/reservation_service_model.dart';
 import 'package:discoverhscountry_mobile/models/service_model.dart';
 import 'package:discoverhscountry_mobile/models/user_model.dart';
+import 'package:discoverhscountry_mobile/screens/payment_canceled_page.dart';
+import 'package:discoverhscountry_mobile/screens/payment_success_page.dart';
 import 'package:discoverhscountry_mobile/widgets/tourist_drawer.dart';
+import 'package:flutter_paypal/flutter_paypal.dart';
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
@@ -162,8 +165,10 @@ class _CartScreenState extends State<CartScreen> with DataFetcher {
   }
 
   _saveReservation() async {
-
-    Reservation newReservation=Reservation(touristId: touristId!, locationId: widget.location.locationId!, price: totalPrice!);
+    Reservation newReservation = Reservation(
+        touristId: touristId!,
+        locationId: widget.location.locationId!,
+        price: totalPrice!);
     var url = Uri.parse('${ApiConstants.baseUrl}/Reservation');
     var response = await http.post(
       url,
@@ -173,29 +178,88 @@ class _CartScreenState extends State<CartScreen> with DataFetcher {
       body: jsonEncode(newReservation.toJson()),
     );
 
-    if(response.statusCode==200){
-       Map<String, dynamic> responseData = jsonDecode(response.body);
-  int newReservationId = responseData['reservationId']; 
-   for(var reservationService in widget.cartItems){
-      reservationService.reservationId=newReservationId;
-      var url = Uri.parse('${ApiConstants.baseUrl}/ReservationService');
-      var response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(reservationService.toJson()),
-    );
-    if(response.statusCode!=200){
-      print(response.body);
-    }
-    else{
-      print(response.statusCode);
-      print('Saved');
-    }
-    }
-    }
+    if (response.statusCode == 200) {
+      Map<String, dynamic> responseData = jsonDecode(response.body);
+      int newReservationId = responseData['reservationId'];
+      for (var reservationService in widget.cartItems) {
+        reservationService.reservationId = newReservationId;
+        var url = Uri.parse('${ApiConstants.baseUrl}/ReservationService');
+        var response = await http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(reservationService.toJson()),
+        );
+        if (response.statusCode != 200) {
+          print(response.body);
+        } else {
+          print(response.statusCode);
+          print('Saved');
+        }
+      }
 
-   
+      // ignore: use_build_context_synchronously
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (BuildContext context) => UsePaypal(
+              sandboxMode: true,
+              clientId:
+                  "AZm31Q22LOFbOKAjxt86nZrQpk0zF8Rr3HFkcAPsh7HAZ_d8ED4leIldByNFyN4wV_UK0hCwzmTl_XDb",
+              secretKey:
+                  "EIW1EkL15cHAmDPYud7sttMEcOvUg_HPpuKmvX8wn7q3h-_zVVm4AHSeEhzuGExWDNer6c_SS2s2tgXK",
+              returnURL: "https://samplesite.com/return",
+              cancelURL: "https://samplesite.com/cancel",
+              transactions: [
+                {
+                  "amount": {
+                    "total": (totalPrice!*0.5),
+                    "currency": "USD",
+                  },
+                  "description": "Payment for reservation #$newReservationId.",
+                  "item_list": {
+                    "items": [
+                      for (var reservationservice in widget.cartItems)
+                        {
+                          "name": reservationservice.additionalDescription,
+                          "quantity": reservationservice.numberOfPeople,
+                          "price": ((calculateTotalPrice(reservationservice)/reservationservice.numberOfPeople)*0.5),
+                          "currency": "USD"
+                        }
+                    ],
+                  }
+                }
+              ],
+              note: "Contact us for any questions on your order.",
+              onSuccess: (Map params) async {
+                print("onSuccess: $params");
+                _navigateToSuccessPage();
+              },
+              onError: (error) {
+                print("onError: $error");
+                     /* Navigator.of(context).push(
+ MaterialPageRoute(
+                              builder: (context) => PaymentCanceledPage(user: widget.user),
+                            ));*/
+              },
+              onCancel: (params) {
+                print('cancelled: $params');
+                  /* Navigator.of(context).push(
+ MaterialPageRoute(
+                              builder: (context) => PaymentCanceledPage(user: widget.user),
+                            ));*/
+              },),
+        ),
+        
+      );
+      
+    }
+  }
+  
+  void _navigateToSuccessPage() async {
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => PaymentSuccessPage(user: widget.user),
+    ));
+  
   }
 }
