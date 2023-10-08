@@ -90,7 +90,7 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
         ],
       ),
       endDrawer: TouristDrawer(user: widget.user),
-      body: 
+      body:  
       Stack(children: [
         if (!_isSearching)
           Column(
@@ -182,7 +182,7 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
                               ),
                             ),
                           ],
-                        ),
+                      ),
                       );
                     },
                   ),
