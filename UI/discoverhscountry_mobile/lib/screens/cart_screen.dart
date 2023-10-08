@@ -252,8 +252,11 @@ class _CartScreenState extends State<CartScreen> with DataFetcher {
         ),
         
       );
-      
     }
+    setState(() {
+      widget.cartItems=[];
+    });
+
   }
   
   void _navigateToSuccessPage() async {
