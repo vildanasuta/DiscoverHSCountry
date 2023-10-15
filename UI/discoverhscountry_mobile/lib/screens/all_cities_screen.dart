@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:discoverhscountry_mobile/models/city_model.dart';
 import 'package:discoverhscountry_mobile/models/user_model.dart';
+import 'package:discoverhscountry_mobile/screens/locations_by_city_screen.dart';
 import 'package:discoverhscountry_mobile/widgets/tourist_drawer.dart';
 import 'package:discoverhscountry_mobile/common/data_fetcher.dart';
 import 'package:flutter/material.dart';
@@ -125,45 +126,47 @@ class _AllCitiesScreenState extends State<AllCitiesScreen> with DataFetcher {
               if (cityIndex < cities.length) {
                 final city = cities[cityIndex];
                 return GestureDetector(
-                  onTap: () {
-                    // Handle cities tap
-                  },
-                  child: Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: Stack(
-                      children: [
-                        Image.network(
-                          city.coverImage,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                        ),
-                        BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
-                          child: Container(
-                            color: const Color.fromRGBO(0, 2, 89, 1.0)
-                                .withOpacity(0.2),
-                            child: Center(
-                              child: Text(
-                                city.name.toUpperCase(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium
-                                    ?.copyWith(color: Colors.white),
-                                textAlign: TextAlign.center,
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) =>
+                              LocationsByCity(user: widget.user, city: city)));
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
+                        child: Stack(
+                          children: [
+                            Image.network(
+                              city.coverImage,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                            ),
+                            BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
+                              child: Container(
+                                color: const Color.fromRGBO(0, 2, 89, 1.0)
+                                    .withOpacity(0.2),
+                                child: Center(
+                                  child: Text(
+                                    city.name.toUpperCase(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineMedium
+                                        ?.copyWith(color: Colors.white),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                ));
+                      ),
+                    ));
               } else {
                 return const SizedBox();
               }

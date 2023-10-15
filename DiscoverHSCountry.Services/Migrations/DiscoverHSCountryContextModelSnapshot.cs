@@ -380,6 +380,37 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.ToTable("Location_TouristAttractionOwner", (string)null);
                 });
 
+            modelBuilder.Entity("DiscoverHSCountry.Services.Database.LocationVisits", b =>
+                {
+                    b.Property<int>("LocationVisitsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("location_visits_id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LocationVisitsId"));
+
+                    b.Property<int>("LocationId")
+                        .HasColumnType("int")
+                        .HasColumnName("location_id");
+
+                    b.Property<int>("NumberOfVisits")
+                        .HasColumnType("int")
+                        .HasColumnName("number_of_visits");
+
+                    b.Property<int>("TouristId")
+                        .HasColumnType("int")
+                        .HasColumnName("tourist_id");
+
+                    b.HasKey("LocationVisitsId")
+                        .HasName("PK__LocationVisits__123456");
+
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("TouristId");
+
+                    b.ToTable("LocationVisits", (string)null);
+                });
+
             modelBuilder.Entity("DiscoverHSCountry.Services.Database.PublicCityService", b =>
                 {
                     b.Property<int>("PublicCityServiceId")
@@ -909,6 +940,27 @@ namespace DiscoverHSCountry.Services.Migrations
                     b.Navigation("Location");
 
                     b.Navigation("TouristAttractionOwner");
+                });
+
+            modelBuilder.Entity("DiscoverHSCountry.Services.Database.LocationVisits", b =>
+                {
+                    b.HasOne("DiscoverHSCountry.Services.Database.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_LocationVisits_Location");
+
+                    b.HasOne("DiscoverHSCountry.Services.Database.Tourist", "Tourist")
+                        .WithMany()
+                        .HasForeignKey("TouristId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_LocationVisits_Tourist");
+
+                    b.Navigation("Location");
+
+                    b.Navigation("Tourist");
                 });
 
             modelBuilder.Entity("DiscoverHSCountry.Services.Database.PublicCityService", b =>

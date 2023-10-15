@@ -29,9 +29,12 @@ class _AllLocationCategoriesScreenState
   }
 
   Future<void> _fetchLocationCategories() async {
-    locationCatgeories = await fetchLocationCategories();
-    setState(() {
-      isLoading = false;
+    await fetchLocationCategories().then((value) => {
+      setState(()
+      {
+        locationCatgeories = value;
+        isLoading = false;
+      })
     });
   }
 

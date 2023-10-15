@@ -3,12 +3,14 @@ part 'technical_issue_tourist.g.dart';
 
 @JsonSerializable()
 class TechnicalIssueTourist {
+  int? tehnicalIssueTouristId;
   final String title;
   final String description;
   final int? touristId;
   final int? locationId;
 
   TechnicalIssueTourist({
+    this.tehnicalIssueTouristId,
     required this.title,
     required this.description,
     this.touristId,

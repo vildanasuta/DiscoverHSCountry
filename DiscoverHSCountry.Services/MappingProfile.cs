@@ -102,6 +102,10 @@ namespace DiscoverHSCountry.Services
             CreateMap<Database.ReservationService, Model.ReservationService>();
             CreateMap<Model.Requests.ReservationServiceCreateRequest, Database.ReservationService>();
             CreateMap<Model.Requests.ReservationServiceUpdateRequest, Database.ReservationService>();
+
+            CreateMap<Database.LocationVisits, Model.LocationVisits>();
+            CreateMap<Model.Requests.LocationVisitsCreateRequest, Database.LocationVisits>();
+            CreateMap<Model.Requests.LocationVisitsUpdateRequest, Database.LocationVisits>();
         }
     }
-}
+} 

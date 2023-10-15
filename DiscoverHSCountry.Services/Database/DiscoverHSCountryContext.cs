@@ -59,6 +59,9 @@ public partial class DiscoverHSCountryContext : DbContext
 
     public virtual DbSet<VisitedLocationImage> VisitedLocationImages { get; set; }
 
+    public virtual DbSet<LocationVisits> LocationVisits { get; set; }
+
+
     /*protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Data Source=CS613;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False;Initial Catalog=DiscoverHSCountry");
@@ -611,6 +614,30 @@ public partial class DiscoverHSCountryContext : DbContext
                 .HasForeignKey(rs => rs.ServiceId)
                 .HasConstraintName("FK_ReservationService_Service");
         });
+
+        modelBuilder.Entity<LocationVisits>(entity =>
+        {
+            entity.HasKey(e => e.LocationVisitsId).HasName("PK__LocationVisits__123456");
+
+            entity.ToTable("LocationVisits");
+
+            entity.Property(e => e.LocationVisitsId).HasColumnName("location_visits_id");
+            entity.Property(e => e.LocationId).HasColumnName("location_id");
+            entity.Property(e => e.TouristId).HasColumnName("tourist_id");
+            entity.Property(e => e.NumberOfVisits).HasColumnName("number_of_visits");
+
+            entity.HasOne(d => d.Location)
+                .WithMany() 
+                .HasForeignKey(d => d.LocationId)
+                .HasConstraintName("FK_LocationVisits_Location");
+
+            entity.HasOne(d => d.Tourist)
+                .WithMany()
+                .HasForeignKey(d => d.TouristId)
+                .HasConstraintName("FK_LocationVisits_Tourist");
+        });
+
+
         OnModelCreatingPartial(modelBuilder);
     }
 

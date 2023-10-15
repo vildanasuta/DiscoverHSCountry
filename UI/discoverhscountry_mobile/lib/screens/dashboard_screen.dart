@@ -3,10 +3,13 @@ import 'dart:convert';
 import 'package:discoverhscountry_mobile/common/data_fetcher.dart';
 import 'package:discoverhscountry_mobile/models/city_model.dart';
 import 'package:discoverhscountry_mobile/models/user_model.dart';
+import 'package:discoverhscountry_mobile/screens/locations_by_city_screen.dart';
+import 'package:discoverhscountry_mobile/screens/report_an_issue_screen.dart';
 import 'package:discoverhscountry_mobile/widgets/tourist_drawer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:discoverhscountry_mobile/widgets/search_bar.dart' as sb;
+import 'package:url_launcher/url_launcher.dart';
 
 class DashboardScreen extends StatefulWidget {
   final User user;
@@ -90,8 +93,7 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
         ],
       ),
       endDrawer: TouristDrawer(user: widget.user),
-      body:  
-      Stack(children: [
+      body: Stack(children: [
         if (!_isSearching)
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -110,17 +112,17 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
                       ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160)),
                 ),
               ),
-               Padding(
-          padding:  const EdgeInsets.all(16.0),
-          child: TextField(
-            onTap: _startSearch,
-            decoration: const InputDecoration(
-              hintText: 'Search...',
-              prefixIcon: Icon(CupertinoIcons.search),
-              border: OutlineInputBorder(),
-            ),
-          ),
-        ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  onTap: _startSearch,
+                  decoration: const InputDecoration(
+                    hintText: 'Search...',
+                    prefixIcon: Icon(CupertinoIcons.search),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
@@ -128,15 +130,15 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        // Handle Recommended tap
+                        //default look
                       },
-                      child: const Text('Recommended'),
+                      child: const Text('All locations'),
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        // Handle Trending tap
+                        // Handle Recommended tap
                       },
-                      child: const Text('Trending'),
+                      child: const Text('Recommended'),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -148,7 +150,7 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
                 ),
               ),
               if (!isLoading)
-                  Expanded(
+                Expanded(
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     physics: const BouncingScrollPhysics(),
@@ -156,41 +158,50 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
                     itemBuilder: (context, index) {
                       final city = cities[index];
                       return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Stack(
-                          children: [
-                            Image.network(
-                              city.coverImage,
-                              width: 200,
-                              height: 200,
-                              fit: BoxFit.cover,
-                            ),
-                            Positioned(
-                              bottom: 8,
-                              left: 8,
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                color: const Color.fromARGB(255, 1, 38, 160)
-                                    .withOpacity(0.7),
-                                child: Text(
-                                  city.name,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
+                          padding: const EdgeInsets.all(8.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => LocationsByCity(
+                                    city: city,
+                                    user: widget.user,
                                   ),
                                 ),
-                              ),
+                              );
+                            },
+                            child: Stack(
+                              children: [
+                                Image.network(
+                                  city.coverImage,
+                                  width: 200,
+                                  height: 200,
+                                  fit: BoxFit.cover,
+                                ),
+                                Positioned(
+                                  bottom: 8,
+                                  left: 8,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    color: const Color.fromARGB(255, 1, 38, 160)
+                                        .withOpacity(0.7),
+                                    child: Text(
+                                      city.name,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                      ),
-                      );
+                          ));
                     },
                   ),
                 ),
             ],
           ),
-      
-// Search bar and results
         if (_isSearching)
           Positioned(
             top: 0,
@@ -210,16 +221,26 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
                     },
                     onCancel: _endSearch,
                   ),
-                  // Display search results
                   if (searchResults.isNotEmpty)
                     Expanded(
                       child: ListView.builder(
                         itemCount: searchResults.length,
                         itemBuilder: (context, index) {
                           final city = searchResults[index];
-                          return ListTile(
-                            title: Text(city.name),
-                            // Add more information about the city if needed
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => LocationsByCity(
+                                    city: city,
+                                    user: widget.user,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: ListTile(
+                              title: Text(city.name),
+                            ),
                           );
                         },
                       ),
@@ -235,24 +256,34 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              // Add your menu buttons here
-              // Example:
               ElevatedButton(
                 onPressed: () {
-                  // Handle button tap
+                  _launchEmail(
+                      'support@discoverhscountry.com', 'Support Request', '');
                 },
-                child: const Text('Button 1'),
+                child: const Text('Contact support'),
               ),
               ElevatedButton(
                 onPressed: () {
-                  // Handle button tap
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          ReportAnIssueScreen(user: widget.user)));
                 },
-                child: const Text('Button 2'),
+                child: const Text('Report an issue'),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _launchEmail(String toEmail, String subject, String body) async {
+    final url = 'mailto:$toEmail?subject=$subject&body=$body';
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }

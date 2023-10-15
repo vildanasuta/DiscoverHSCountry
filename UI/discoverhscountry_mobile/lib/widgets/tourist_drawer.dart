@@ -4,7 +4,11 @@ import 'package:discoverhscountry_mobile/screens/all_location_categories_screen.
 import 'package:discoverhscountry_mobile/screens/dashboard_screen.dart';
 import 'package:discoverhscountry_mobile/screens/edit_profile_screen.dart';
 import 'package:discoverhscountry_mobile/screens/login_screen.dart';
+import 'package:discoverhscountry_mobile/screens/report_an_issue_screen.dart';
+import 'package:discoverhscountry_mobile/screens/visited_locations_screen.dart';
+import 'package:discoverhscountry_mobile/screens/visitor_services_hub_screen.dart';
 import 'package:discoverhscountry_mobile/services/authentication_service.dart';
+import 'package:discoverhscountry_mobile/widgets/recommended_locations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -70,7 +74,7 @@ class _TouristDrawerState extends State<TouristDrawer> {
                   ?.copyWith(color: Colors.black),
             ),
             onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
                   builder: (context) => EditProfile(user: widget.user)));
             },
           ),
@@ -87,7 +91,7 @@ class _TouristDrawerState extends State<TouristDrawer> {
                   ?.copyWith(color: Colors.black),
             ),
             onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
                   builder: (context) => AllCitiesScreen(user: widget.user)));
             },
           ),
@@ -103,7 +107,7 @@ class _TouristDrawerState extends State<TouristDrawer> {
                   ),
             ),
             onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
                   builder: (context) => AllLocationCategoriesScreen(user: widget.user)));
             },
           ),
@@ -120,8 +124,8 @@ class _TouristDrawerState extends State<TouristDrawer> {
                   ?.copyWith(color: Colors.black),
             ),
             onTap: () {
-              /* Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => EditProfile(user: widget.user)));*/
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => VisitorServicesHubScreen(user: widget.user)));
             },
           ),
           ListTile(
@@ -137,8 +141,8 @@ class _TouristDrawerState extends State<TouristDrawer> {
                   ?.copyWith(color: Colors.black),
             ),
             onTap: () {
-              /* Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => EditProfile(user: widget.user)));*/
+               Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => VisitedLocationsScreen(user: widget.user)));
             },
           ),
           ListTile(
@@ -154,16 +158,22 @@ class _TouristDrawerState extends State<TouristDrawer> {
                   ?.copyWith(color: Colors.black),
             ),
             onTap: () {
-              /* Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => EditProfile(user: widget.user)));*/
+             Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => ReportAnIssueScreen(user: widget.user)));
             },
           ),
           const SizedBox(
             height: 170,
           ),
+
+          ElevatedButton(onPressed: ()=> {Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => RecommendedLocations(user: widget.user)))}
+                  , child: Text('recommended sistem')),
+
+
           Padding(
             padding: const EdgeInsets.symmetric(
-                horizontal: 20, vertical: 10), // Adjust padding as needed
+                horizontal: 20, vertical: 10),
             child: ElevatedButton(
               onPressed: () {
                 authService.logout();
@@ -171,21 +181,21 @@ class _TouristDrawerState extends State<TouristDrawer> {
               },
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(
-                  const Color.fromRGBO(255, 1, 1, 0.5), // Semi-transparent red
+                  const Color.fromRGBO(255, 1, 1, 0.5),
                 ),
                 foregroundColor: MaterialStateProperty.all<Color>(
-                  const Color.fromRGBO(255, 255, 255, 1), // White text color
+                  const Color.fromRGBO(255, 255, 255, 1),
                 ),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                     borderRadius:
-                        BorderRadius.circular(8.0), // Adjust border radius
+                        BorderRadius.circular(8.0), 
                   ),
                 ),
               ),
               child: const Text('Log out'),
             ),
-          )
+          ),
         ],
       ),
     );

@@ -3,6 +3,7 @@ import 'package:discoverhscountry_desktop/api_constants.dart';
 import 'package:discoverhscountry_desktop/main.dart';
 import 'package:discoverhscountry_desktop/models/technical_issue_owner.dart';
 import 'package:discoverhscountry_desktop/models/technical_issue_tourist.dart';
+import 'package:discoverhscountry_desktop/models/tourist_model.dart';
 import 'package:discoverhscountry_desktop/models/user_model.dart';
 import 'package:discoverhscountry_desktop/services/authentication_service.dart';
 import 'package:discoverhscountry_desktop/util/dataFetcher.dart';
@@ -147,13 +148,23 @@ class _ViewReportedIssuesState extends State<ViewReportedIssues>
                                 itemCount: technicalIssuesTourist.length,
                                 itemBuilder: (context, index) {
                                   return Card(
-                                      elevation: 4,
-                                      margin: const EdgeInsets.all(8.0),
-                                      child: ListTile(
-                                        title: Text(
-                                            technicalIssuesTourist[index]
-                                                .title),
-                                      ));
+                                    elevation: 4,
+                                    margin: const EdgeInsets.all(8.0),
+                                    child: ListTile(
+                                      title: Text(
+                                          technicalIssuesTourist[index].title),
+                                      trailing: ElevatedButton(
+                                        onPressed: () {
+                                          _showDetailsTouristDialog(
+                                              technicalIssuesTourist[index]);
+                                        },
+                                        child: const Text(
+                                          "Pogledaj detalje",
+                                          style: TextStyle(),
+                                        ),
+                                      ),
+                                    ),
+                                  );
                                 },
                               ),
                       ],
@@ -187,6 +198,10 @@ class _ViewReportedIssuesState extends State<ViewReportedIssues>
                           "Ime i prezime vlasnika turističkih atrakcija:",
                           style: TextStyle(fontWeight: FontWeight.bold)),
                       Text('${tao.firstName} ${tao.lastName}'),
+                       const Text(
+                          "Kontakt:",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(tao.email),
                     ]),
               ),
             ],
@@ -200,6 +215,71 @@ class _ViewReportedIssuesState extends State<ViewReportedIssues>
               onPressed: () async {
                 final response = await http.delete(Uri.parse(
                     '${ApiConstants.baseUrl}/TechnicalIssueOwner/${technicalIssueOwner.tehnicalIssueOwnerId}'));
+                if (response.statusCode == 200) {
+                  // ignore: use_build_context_synchronously
+                  Flushbar(
+                    message: "Problem je obrisan",
+                    backgroundColor: Colors.red,
+                    duration: const Duration(seconds: 3),
+                  ).show(context);
+                  // ignore: use_build_context_synchronously
+                  Future.delayed(const Duration(milliseconds: 3500), () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  });
+                }
+              },
+              child: const Text("Problem riješen"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+    void _showDetailsTouristDialog(TechnicalIssueTourist technicalIssueTourist) async {
+    var tourist = await getTouristById(
+        technicalIssueTourist.touristId!);
+    // ignore: use_build_context_synchronously
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(technicalIssueTourist.title),
+          content: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text("Opis:",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(technicalIssueTourist.description),
+                       const Text(
+                          "Ime i prezime vlasnika turiste:",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('${tourist.firstName} ${tourist.lastName}'),
+                      const Text(
+                          "Kontakt:",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(tourist.email),
+                      
+                    ]),
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () async {
+                final response = await http.delete(Uri.parse(
+                    '${ApiConstants.baseUrl}/TechnicalIssueTourist/${technicalIssueTourist.tehnicalIssueTouristId}'));
                 if (response.statusCode == 200) {
                   // ignore: use_build_context_synchronously
                   Flushbar(

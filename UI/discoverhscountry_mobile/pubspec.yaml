@@ -46,6 +46,8 @@ dependencies:
   url_launcher: ^6.1.14
   flutter_svg: ^2.0.7
   flutter_paypal: ^0.2.0
+  flutter_rating_bar: ^4.0.1
+  carousel_slider: ^4.2.1
 
 
 dev_dependencies:
@@ -79,6 +81,10 @@ flutter:
     - assets/facebook-icon.png
     - assets/instagram_icon.png
     - assets/booking-icon.png
+    - assets/heart.png
+    - assets/heart_half.png
+    - assets/heart_border.png
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

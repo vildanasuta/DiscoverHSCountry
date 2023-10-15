@@ -34,10 +34,13 @@ class _LocationSubcategoriesScreenState
   }
 
   fetchLocationSubcategories(int categoryId) async {
-    locationSubcategories = await fetchSubcategoriesByCategoryId(categoryId);
-    setState(() {
-      isLoading = false;
-    });
+    await fetchSubcategoriesByCategoryId(categoryId).then((value)=>{
+        setState(() {
+          locationSubcategories=value;
+          isLoading=false;
+        },)
+      }
+    );
   }
 
   @override
