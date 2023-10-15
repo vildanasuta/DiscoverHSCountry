@@ -60,20 +60,18 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
     }
   }
 
-Future<void> _loadData() {
-  return _getCityById(widget.location.cityId)
-      .then((_) => _getServicesByLocationId(widget.location.locationId!))
-      .then((_) => _getTouristId())
-      .then((_) => _getReviews())
-      .then((_) => _getLocationVisitsByLocationIdAndTouristId())
-      .then((_) {
-        setState(() {
-          isLoading = false;
-        });
-      })
-      .catchError((error) {
+  Future<void> _loadData() {
+    return _getCityById(widget.location.cityId)
+        .then((_) => _getServicesByLocationId(widget.location.locationId!))
+        .then((_) => _getTouristId())
+        .then((_) => _getReviews())
+        .then((_) => _getLocationVisitsByLocationIdAndTouristId())
+        .then((_) {
+      setState(() {
+        isLoading = false;
       });
-}
+    }).catchError((error) {});
+  }
 
   _getTouristId() async {
     touristId = await getTouristIdByUserId(widget.user.userId);
@@ -93,58 +91,63 @@ Future<void> _loadData() {
     }
   }
 
- Future<void> _getLocationVisitsByLocationIdAndTouristId() async {
-  locationVisits = await getLocationVisitsByLocationIdAndTouristId(widget.location.locationId!, touristId!);
-  
-  if (locationVisits == null) {
-    final newLocationVisit = LocationVisits(locationId: widget.location.locationId!, touristId: touristId!, numberOfVisits: 0);
-    final requestBody = jsonEncode(newLocationVisit);
-    final Uri uri = Uri.parse('${ApiConstants.baseUrl}/LocationVisits');
-        final response = await http.post(
+  Future<void> _getLocationVisitsByLocationIdAndTouristId() async {
+    locationVisits = await getLocationVisitsByLocationIdAndTouristId(
+        widget.location.locationId!, touristId!);
+
+    if (locationVisits == null) {
+      final newLocationVisit = LocationVisits(
+          locationId: widget.location.locationId!,
+          touristId: touristId!,
+          numberOfVisits: 0);
+      final requestBody = jsonEncode(newLocationVisit);
+      final Uri uri = Uri.parse('${ApiConstants.baseUrl}/LocationVisits');
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: requestBody,
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        final createdLocationVisits = LocationVisits(
+            locationVisitsId: jsonData['locationVisitsId'],
+            locationId: jsonData['locationId'],
+            touristId: jsonData['touristId'],
+            numberOfVisits: jsonData['numberOfVisits']);
+        locationVisits = createdLocationVisits;
+      }
+    }
+  }
+
+  _increaseVisitNumber() async {
+    int numberOfVisits = locationVisits!.numberOfVisits + 1;
+    final Uri uri = Uri.parse(
+        '${ApiConstants.baseUrl}/LocationVisits/${locationVisits!.locationVisitsId}');
+
+    final response = await http.put(
       uri,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: requestBody,
+      body: jsonEncode({'numberOfVisits': numberOfVisits}),
     );
-    
+
     if (response.statusCode == 200) {
-      final jsonData = json.decode(response.body);
-      final createdLocationVisits = LocationVisits(locationVisitsId: jsonData['locationVisitsId'],
-locationId: jsonData['locationId'], touristId: jsonData['touristId'], numberOfVisits: jsonData['numberOfVisits']);
-      locationVisits = createdLocationVisits;
+      // ignore: avoid_print
+      print('increased number of visits to: $numberOfVisits');
+    } else {
+      // ignore: avoid_print
+      print('fail');
     }
   }
-}
-
-
-_increaseVisitNumber() async {
-  int numberOfVisits = locationVisits!.numberOfVisits + 1;
-  final Uri uri = Uri.parse('${ApiConstants.baseUrl}/LocationVisits/${locationVisits!.locationVisitsId}');
-
-  final response = await http.put(
-    uri,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: jsonEncode({'numberOfVisits': numberOfVisits}),
-  );
-
-
-  if (response.statusCode == 200) {
-    // ignore: avoid_print
-    print('increased number of visits to: $numberOfVisits');
-  } else {
-    // ignore: avoid_print
-    print('fail');
-  }
-}
-
 
   @override
   void initState() {
     super.initState();
-    _loadData().then((_) =>    _increaseVisitNumber());
+    _loadData().then((_) => _increaseVisitNumber());
   }
 
   @override
@@ -191,10 +194,28 @@ _increaseVisitNumber() async {
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                widget.location.name,
-                                style:
-                                    Theme.of(context).textTheme.headlineSmall,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    widget.location.name
+                                        .split(' ')
+                                        .take(3)
+                                        .join(' '), // Take the first 3 words
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall,
+                                  ),
+                                  if (widget.location.name.split(' ').length >
+                                      3)
+                                    Text(
+                                      widget.location.name.split(' ').skip(3).join(
+                                          ' '), // Skip the first 3 words and display the rest on a new line
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineSmall,
+                                    ),
+                                ],
                               ),
                               Tooltip(
                                 message: "Add to Visited Locations",

@@ -7,6 +7,7 @@ import 'package:discoverhscountry_mobile/models/review_model.dart';
 import 'package:discoverhscountry_mobile/models/tourist_model.dart';
 import 'package:discoverhscountry_mobile/models/user_model.dart';
 import 'package:discoverhscountry_mobile/models/visited_location_model.dart';
+import 'package:discoverhscountry_mobile/screens/dashboard_screen.dart';
 import 'package:flutter/cupertino.dart';
 
 // ignore: must_be_immutable
@@ -31,7 +32,7 @@ class _RecommendedLocationsState extends State<RecommendedLocations>
   List<Tourist> usersThatRateSimilar = [];
 
   Map<int, Map<int, double>> userItemMatrix = {};
-  double threshold = 0.2;
+  double threshold = 0.1;
 
   double calculateCosineSimilarity(
       Map<int, double> userA, Map<int, double> userB) {
@@ -163,6 +164,9 @@ class _RecommendedLocationsState extends State<RecommendedLocations>
           location.locationId!, touristId!);
       if (visits != null) {
         locationVisits.add(visits);
+         Map<int, double> userInteractions = {};
+      userInteractions[location.locationId!] = visits.numberOfVisits.toDouble();
+      userItemMatrix[location.locationId!] = userInteractions;
       }
     }
   }
@@ -198,7 +202,7 @@ class _RecommendedLocationsState extends State<RecommendedLocations>
 
   @override
   Widget build(BuildContext context) {
-    print(recommendations);
-    return const Placeholder();
+    print(userItemMatrix);
+    return DashboardScreen(user: widget.user);
   }
 }
