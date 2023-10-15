@@ -8,8 +8,6 @@ namespace DiscoverHSCountry.Model.Requests
 {
     public class ReviewCreateRequest
     {
-        public int ReviewId { get; set; }
-
         public string Title { get; set; } = null!;
 
         public string Description { get; set; } = null!;

@@ -32,9 +32,9 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-       child: SingleChildScrollView(
-      child: Container(          
+        body: Center(
+      child: SingleChildScrollView(
+        child: Container(
           padding: const EdgeInsets.all(16.0),
           child: Column(children: [
             Image.asset(
@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(
               height: 10,
             ),
-             Text(
+            Text(
               'Log in to your account',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
@@ -60,30 +60,42 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.5),
+                          color: const Color.fromARGB(255, 255, 255, 255)
+                              .withOpacity(0.5),
                           spreadRadius: 2,
                           blurRadius: 5,
                           offset: const Offset(0, 3),
                         ),
-                        
                       ],
                       border: Border.all(
-                      color:const Color.fromRGBO(0,2,89,1.0),
-      width: 3, 
-    ),
+                        color: const Color.fromRGBO(0, 2, 89, 1.0),
+                        width: 3,
+                      ),
                     ),
                     child: FormBuilderTextField(
                       name: 'email',
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         labelText: 'Email',
-                        labelStyle:Theme.of(context).textTheme.displaySmall?.copyWith(                      color:const Color.fromRGBO(0,2,89,1.0),),
-                        prefixIcon: const Icon(CupertinoIcons.mail, color:Color.fromARGB(255, 1, 38, 160),),
+                        labelStyle:
+                            Theme.of(context).textTheme.displaySmall?.copyWith(
+                                  color: const Color.fromRGBO(0, 2, 89, 1.0),
+                                ),
+                        prefixIcon: const Icon(
+                          CupertinoIcons.mail,
+                          color: Color.fromARGB(255, 1, 38, 160),
+                        ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(15),
-                        errorStyle: Theme.of(context).textTheme.labelSmall?.copyWith(color:const Color.fromARGB(255, 228, 164, 160), fontSize: 9),
+                        errorStyle: Theme.of(context)
+                            .textTheme
+                            .labelSmall
+                            ?.copyWith(
+                                color: const Color.fromARGB(255, 228, 164, 160),
+                                fontSize: 9),
                       ),
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(color:const Color.fromRGBO(0,2,89,1.0)),
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                          color: const Color.fromRGBO(0, 2, 89, 1.0)),
                       controller: _emailController,
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(
@@ -100,28 +112,40 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.5),
+                          color: const Color.fromARGB(255, 255, 255, 255)
+                              .withOpacity(0.5),
                           spreadRadius: 2,
                           blurRadius: 5,
                           offset: const Offset(0, 3),
                         ),
                       ],
                       border: Border.all(
-                      color:const Color.fromRGBO(0,2,89,1.0),
-      width: 3, 
+                        color: const Color.fromRGBO(0, 2, 89, 1.0),
+                        width: 3,
                       ),
                     ),
                     child: FormBuilderTextField(
                       name: 'password',
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        labelStyle:Theme.of(context).textTheme.displaySmall?.copyWith(color:const Color.fromRGBO(0,2,89,1.0)),
-                        prefixIcon: const Icon(CupertinoIcons.lock, color:Color.fromARGB(255, 1, 38, 160)),
+                        labelStyle: Theme.of(context)
+                            .textTheme
+                            .displaySmall
+                            ?.copyWith(
+                                color: const Color.fromRGBO(0, 2, 89, 1.0)),
+                        prefixIcon: const Icon(CupertinoIcons.lock,
+                            color: Color.fromARGB(255, 1, 38, 160)),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(15),
-                        errorStyle: Theme.of(context).textTheme.labelSmall?.copyWith(color:const Color.fromARGB(255, 228, 164, 160), fontSize: 9),
+                        errorStyle: Theme.of(context)
+                            .textTheme
+                            .labelSmall
+                            ?.copyWith(
+                                color: const Color.fromARGB(255, 228, 164, 160),
+                                fontSize: 9),
                       ),
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(color:const Color.fromRGBO(0,2,89,1.0)),
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                          color: const Color.fromRGBO(0, 2, 89, 1.0)),
                       controller: _passwordController,
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(
@@ -175,12 +199,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       }
                       if (userType == 'tourist') {
                         await authService.login(); // Update isLoggedIn status
-                        
-    // ignore: use_build_context_synchronously
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => DashboardScreen(user: user!),
-      ));
+
+                        // ignore: use_build_context_synchronously
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => DashboardScreen(user: user!),
+                        ));
                       }
                     } else {
                       // ignore: avoid_print
@@ -207,7 +230,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                 }
               },
-              child: Text('Log in', style: Theme.of(context).textTheme.displayMedium,),
+              child: Text(
+                'Log in',
+                style: Theme.of(context).textTheme.displayMedium,
+              ),
             ),
             TextButton(
                 onPressed: () {
@@ -216,7 +242,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         builder: (context) => const RegistrationScreen()),
                   );
                 },
-                child: Text('You do not have an account? Register now!', style: Theme.of(context).textTheme.displaySmall,)),
+                child: Text(
+                  'You do not have an account? Register now!',
+                  style: Theme.of(context).textTheme.displaySmall,
+                )),
           ]),
         ),
       ),

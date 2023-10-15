@@ -30,7 +30,7 @@ class _LocationsBySubcategoryScreenState extends State<LocationsBySubcategoryScr
 
   _fetchLocationsBySubcategoryId(int categoryId, int subcategoryId) async {
     final fetchedLocations = await fetchLocationsBySubcategoryId(categoryId, subcategoryId);
-  final approvedLocations = fetchedLocations.where((location) => location.isApproved == true).toList();
+    final approvedLocations = fetchedLocations.where((location) => location.isApproved == true).toList();
     setState(() {
       isLoading = false;
       locations=approvedLocations;

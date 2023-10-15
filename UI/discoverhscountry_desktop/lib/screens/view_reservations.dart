@@ -1,8 +1,8 @@
 import 'package:discoverhscountry_desktop/main.dart';
 import 'package:discoverhscountry_desktop/models/reservation_model.dart';
-import 'package:discoverhscountry_desktop/models/service_model.dart';
 import 'package:discoverhscountry_desktop/models/tourist_model.dart';
 import 'package:discoverhscountry_desktop/models/user_model.dart';
+import 'package:discoverhscountry_desktop/screens/reservation_details.dart';
 import 'package:discoverhscountry_desktop/services/authentication_service.dart';
 import 'package:discoverhscountry_desktop/util/dataFetcher.dart';
 import 'package:discoverhscountry_desktop/widgets/common_app_bar.dart';
@@ -21,6 +21,8 @@ class _ViewReservationsState extends State<ViewReservations> with DataFetcher {
   List<int> locationIds = [];
   List<Map<String, dynamic>> locations = [];
   List<Reservation> allReservations = [];
+  bool isLoading=true;
+
   int? taoId;
   @override
   void initState() {
@@ -43,9 +45,10 @@ class _ViewReservationsState extends State<ViewReservations> with DataFetcher {
             locations = fetchedLocations;
           });
           for (int locationId in locationIds) {
-            final reservation = await fetchReservationsByLocationId(locationId);
-            allReservations.addAll(reservation);
+            allReservations = await fetchReservationsByLocationId(locationId);
           }
+        }).then((value) => {
+          isLoading=false
         });
       } else {
         // ignore: avoid_print
@@ -72,266 +75,169 @@ class _ViewReservationsState extends State<ViewReservations> with DataFetcher {
       body: Column(
         children: [
           Expanded(
-            child: buildLocationList(), 
+            child: isLoading?const Center(
+              child: CircularProgressIndicator(), // Loading indicator
+            ):buildReservationList(),
           ),
         ],
       ),
     );
   }
-  Widget buildLocationList() {
-  return ListView.separated(
-    itemCount: locations.length,
-    separatorBuilder: (context, index) => const Divider(),
-    itemBuilder: (context, index) {
-      final location = locations[index];
-      final locationName = location['name'] as String;
-      final locationId = location['locationId'] as int;
 
-      final locationReservations = allReservations
-          .where((reservation) => reservation.locationId == locationId)
-          .toList();
+  Widget buildReservationList() {
+    return ListView.separated(
+      itemCount: locations.length,
+      separatorBuilder: (context, index) => const Divider(),
+      itemBuilder: (context, index) {
+        final location = locations[index];
+        final locationName = location['name'] as String;
+        final locationId = location['locationId'] as int;
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ListTile(
-            title: Text(
-              locationName,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
+        final locationReservations = allReservations
+            .where((reservation) => reservation.locationId == locationId)
+            .toList();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              title: Text(
+                locationName,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10.0),
-              border: Border.all(color: Colors.blueGrey),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.blueGrey,
-                  blurRadius: 5,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Table(
-              columnWidths: const {
-                0: FlexColumnWidth(2.0),
-              },
-              border: TableBorder.all(),
-              children: [
-                TableRow(
-                  decoration: BoxDecoration(
-                    color: Colors.blue[200],
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+                border: Border.all(color: Colors.blueGrey),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color.fromARGB(255, 253, 253, 253),
+                    blurRadius: 5,
+                    offset: Offset(0, 2),
                   ),
-                  children: const [
-                    TableCell(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Center(
-                          child: Text(
-                            'Od',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    TableCell(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Center(
-                          child: Text(
-                            'Do',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    TableCell(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Center(
-                          child: Text(
-                            'Broj osoba',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    TableCell(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Center(
-                          child: Text(
-                            'Dodatni opis',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    TableCell(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Center(
-                          child: Text(
-                            'Ime i prezime',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    TableCell(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Center(
-                          child: Text(
-                            'Usluga',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    TableCell(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Center(
-                          child: Text(
-                            'Cijena',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                for (final reservation in locationReservations)
+                ],
+              ),
+              child: Table(
+                columnWidths: const {
+                  0: FlexColumnWidth(2.0),
+                },
+                border: TableBorder.all(),
+                children: [
                   TableRow(
-                    children: [
+                    decoration: BoxDecoration(
+                      color: Colors.blue[200],
+                    ),
+                    children: const [
                       TableCell(
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
                           child: Center(
                             child: Text(
-                              reservation.startDate.toString(),
+                              'Ime i prezime',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
                       TableCell(
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
                           child: Center(
                             child: Text(
-                              reservation.endDate.toString(),
+                              'Cijena',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
                       TableCell(
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
                           child: Center(
                             child: Text(
-                              reservation.numberOfPeople.toString(),
-                            ),
-                          ),
-                        ),
-                      ),
-                      TableCell(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Center(
-                            child: Text(
-                              reservation.additionalDescription ?? '',
-                            ),
-                          ),
-                        ),
-                      ),
-                      TableCell(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: FutureBuilder<Tourist>(
-                            future: getTouristById(reservation.touristId!),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.done) {
-                                if (snapshot.hasData) {
-                                  final tourist = snapshot.data!;
-                                  final touristName =
-                                      '${tourist.firstName} ${tourist.lastName}';
-                                  return Center(child: Text(touristName));
-                                } else if (snapshot.hasError) {
-                                  return Center(
-                                      child:
-                                          Text('Error: ${snapshot.error}'));
-                                }
-                              }
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            },
-                          ),
-                        ),
-                      ),
-                      TableCell(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: FutureBuilder<Service>(
-                            future:
-                                getServiceByServiceId(reservation.serviceId!),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.done) {
-                                if (snapshot.hasData) {
-                                  final service = snapshot.data!;
-                                  return Center(child: Text(service.serviceName));
-                                } else if (snapshot.hasError) {
-                                  return Center(
-                                      child:
-                                          Text('Error: ${snapshot.error}'));
-                                }
-                              }
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            },
-                          ),
-                        ),
-                      ),
-                      TableCell(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Center(
-                            child: Text(
-                              '\$${reservation.price.toStringAsFixed(2)}',
+                              'Detalji',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ],
                   ),
-              ],
-            ),
-          ),
-          const Divider(),
-        ],
-      );
-    },
-  );
-}
+                  for (final reservation in locationReservations)
+                    TableRow(
+                      children: [
+                        TableCell(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: FutureBuilder<Tourist>(
+                              future: getTouristById(reservation.touristId!),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.done) {
+                                  if (snapshot.hasData) {
+                                    final tourist = snapshot.data!;
+                                    final touristName =
+                                        '${tourist.firstName} ${tourist.lastName}';
+                                    return Center(child: Text(touristName));
+                                  } else if (snapshot.hasError) {
+                                    return Center(
+                                        child:
+                                            Text('Error: ${snapshot.error}'));
+                                  }
+                                }
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              },
+                            ),
+                          ),
+                        ),
+                        TableCell(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                              child: Text(
+                                '${reservation.price.toStringAsFixed(2)} BAM',
+                              ),
+                            ),
+                          ),
+                        ),
+                        TableCell(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => ReservationDetails(user: widget.user!, reservation: reservation)),
+          );
 
+
+                              },
+                              child: const Text(
+                                'Pogledaj detalje',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+            const Divider(),
+          ],
+        );
+      },
+    );
+  }
 }

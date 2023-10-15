@@ -85,9 +85,8 @@ class _ViewLocationsState extends State<ViewLocations> with DataFetcher {
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            // Handle edit button click for this location
                           },
-                          child: const Text('Edit'),
+                          child: const Text('Uredi'),
                         ),
                         const SizedBox(width: 8.0),
                         ElevatedButton(
@@ -102,7 +101,7 @@ class _ViewLocationsState extends State<ViewLocations> with DataFetcher {
                               ),
                             );
                           },
-                          child: const Text('Add Service'),
+                          child: const Text('Dodaj uslugu'),
                         ),
                       ],
                     ),

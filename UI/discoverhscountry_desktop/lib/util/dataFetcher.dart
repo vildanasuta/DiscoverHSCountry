@@ -8,6 +8,8 @@ import 'package:discoverhscountry_desktop/models/location_category_model.dart';
 import 'package:discoverhscountry_desktop/models/location_model.dart';
 import 'package:discoverhscountry_desktop/models/location_subcategory_model.dart';
 import 'package:discoverhscountry_desktop/models/reservation_model.dart';
+import 'package:discoverhscountry_desktop/models/reservation_service_model.dart';
+import 'package:discoverhscountry_desktop/models/review_model.dart';
 import 'package:discoverhscountry_desktop/models/service_model.dart';
 import 'package:discoverhscountry_desktop/models/technical_issue_owner.dart';
 import 'package:discoverhscountry_desktop/models/technical_issue_tourist.dart';
@@ -33,6 +35,25 @@ mixin DataFetcher {
         cities.add(city);
       }
       return cities;
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+  Future<List<Review>> getReviewByLocationId(int locationId) async {
+    final Uri uri = Uri.parse('${ApiConstants.baseUrl}/Review');
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      var jsonData =
+          json.decode(response.body)['result']['\$values'] as List<dynamic>;
+      final reviews = jsonData
+          .map<Review>((json) {
+            return Review.fromJson(json);
+          })
+          .where((review) => review.locationId == locationId)
+          .toList();
+      return reviews;
     } else {
       throw Exception('Failed to load data');
     }
@@ -129,8 +150,10 @@ mixin DataFetcher {
             jsonData.map<int>((value) => value as int).toList();
         return locationIds;
       } else {
-        throw Exception(
+        // ignore: avoid_print
+        print(
             'No location IDs found for the specified tourist attraction owner.');
+            return [];
       }
     } else {
       throw Exception('Failed to load data');
@@ -235,7 +258,7 @@ mixin DataFetcher {
         var user = await getUserByUserId(data['userId']);
         final tourist = Tourist(
             touristId: data['touristId'],
-            dateOfBirth: data['dateOfBirth'],
+            dateOfBirth: DateTime.parse(data['dateOfBirth']),
             userId: data['userId'],
             firstName: user.firstName,
             lastName: user.lastName,
@@ -252,7 +275,17 @@ mixin DataFetcher {
       throw Exception('Failed to fetch user data');
     }
   }
-
+Future<Location> getLocationById(int locationId) async{
+  final Uri uri = Uri.parse('${ApiConstants.baseUrl}/Location/$locationId');
+    final response = await http.get(uri);
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      final location = Location.fromJson(jsonData);
+      return location;
+    } else {
+      throw Exception('Failed to load data');
+    }
+}
   Future<User> getUserByUserId(int userId) async {
     final response = await http.get(
       Uri.parse('${ApiConstants.baseUrl}/User/$userId'),
@@ -363,29 +396,32 @@ mixin DataFetcher {
   }
 
   Future<List<TechnicalIssueTourist>> fetchAllTechnicalIssuesTourist() async {
-    final response = await http.get(
-      Uri.parse('${ApiConstants.baseUrl}/TechnicalIssueTourist'),
-    );
+  final response = await http.get(
+    Uri.parse('${ApiConstants.baseUrl}/TechnicalIssueTourist'),
+  );
 
-    if (response.statusCode == 200) {
-      try {
-        var data = json.decode(response.body)['result']['\$values'];
-        if (data is List) {
-          final List<TechnicalIssueTourist> technicalIssuesTouristList = data
-              .map((technicalIssuesTourist) =>
-                  TechnicalIssueTourist.fromJson(technicalIssuesTourist))
-              .toList();
-          return technicalIssuesTouristList;
-        } else {
-          throw Exception('Unexpected data format: $data');
+  if (response.statusCode == 200) {
+    try {
+      var data = json.decode(response.body)['result']['\$values'];
+      if (data is List) {
+        final List<TechnicalIssueTourist> technicalIssuesTouristList = [];
+
+        for (var item in data) {
+          final technicalIssueTourist = TechnicalIssueTourist.fromJson(item);
+          technicalIssuesTouristList.add(technicalIssueTourist);
         }
-      } catch (e) {
-        throw Exception('Failed to parse JSON: $e');
+
+        return technicalIssuesTouristList;
+      } else {
+        throw Exception('Unexpected data format: $data');
       }
-    } else {
-      throw Exception('Failed to load issues: ${response.statusCode}');
+    } catch (e) {
+      throw Exception('Failed to parse JSON: $e');
     }
+  } else {
+    throw Exception('Failed to load issues: ${response.statusCode}');
   }
+}
 
   Future<TouristAttractionOwner> getTouristAttractionOwnerById(
       int taoId) async {
@@ -414,4 +450,35 @@ mixin DataFetcher {
       throw Exception('Failed to fetch user data');
     }
   }
+
+
+Future<List<ReservationService>> getReservationDetailsById(int reservationId) async {
+  final response = await http.get(Uri.parse('${ApiConstants.baseUrl}/ReservationService'));
+  if (response.statusCode == 200) {
+    final jsonData = json.decode(response.body);
+
+    var resultList = jsonData["result"]['\$values'];
+    final List<ReservationService> reservationServicesList = [];
+
+    for (var reservationServiceData in resultList) {
+      final reservationService = ReservationService(
+      additionalDescription: reservationServiceData['additionalDescription'], 
+      startDate: DateTime.parse(reservationServiceData['startDate']),
+      endDate: DateTime.parse(reservationServiceData['endDate']),
+      numberOfPeople: reservationServiceData['numberOfPeople'],
+      reservationId: reservationServiceData['reservationId'],
+      serviceId: reservationServiceData['serviceId']
+      );
+      if (reservationService.reservationId == reservationId) {
+        reservationServicesList.add(reservationService);
+      }
+    }
+
+    return reservationServicesList;
+  } else {
+    throw Exception('Failed to load data');
+  }
+}
+
+
 }
