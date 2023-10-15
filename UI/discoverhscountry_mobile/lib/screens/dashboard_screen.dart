@@ -269,7 +269,7 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
                       builder: (context) =>
                           ReportAnIssueScreen(user: widget.user)));
                 },
-                child: const Text('Report an issue'),
+                child: const Text('Report issue'),
               ),
             ],
           ),

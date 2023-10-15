@@ -30,7 +30,7 @@ class NewLocation extends StatefulWidget {
   State<NewLocation> createState() => _NewLocationState();
 }
 
-class _NewLocationState extends State<NewLocation> with DataFetcher{
+class _NewLocationState extends State<NewLocation> with DataFetcher {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   final AuthenticationService authService = AuthenticationService();
   String? locationCoverImage;
@@ -66,7 +66,9 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
       // Handle error
     });
 
-    fetchLocationCategories(widget.userType=='touristattractionowner'?true:false).then((fetchedCategories) {
+    fetchLocationCategories(
+            widget.userType == 'touristattractionowner' ? true : false)
+        .then((fetchedCategories) {
       setState(() {
         categories = fetchedCategories;
       });
@@ -74,15 +76,14 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
       // Handle error
     });
 
-    if(widget.userType=='touristattractionowner'){
+    if (widget.userType == 'touristattractionowner') {
       getTAOid();
     }
   }
-  
-  void getTAOid() async{
-        taoId= await getTouristAttractionOwnerIdByUserId(widget.user!.userId);
-  }
 
+  void getTAOid() async {
+    taoId = await getTouristAttractionOwnerIdByUserId(widget.user!.userId);
+  }
 
   Map<String, String> categoryTranslations = {
     "Historical & Religious Sites": "Historijski i vjerski lokaliteti",
@@ -90,7 +91,7 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
     "Hospitality Spots": "Gostoprimstvo",
     "Adventure and Sports": "Avantura i sport",
     "Shopping": "Kupovina",
-    "Other":"Drugo"
+    "Other": "Drugo"
   };
 
   Map<String, String> subcategoryTranslations = {
@@ -115,6 +116,7 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
     "Boutiques": "Prodajna mjesta/butici",
     "Unique Souvenirs": "Suvenirnice",
     "Local Produce": "Lokalni proizvodi",
+    "Not specified": "Nije definisano"
   };
 
   @override
@@ -187,8 +189,14 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
                                                       CrossAxisAlignment
                                                           .stretch,
                                                   children: [
-                                                    const Text('Napomena: Opis se popunjava na engleskom jeziku!', style: TextStyle(fontSize: 12),),
-                                                    const SizedBox(height: 16,),
+                                                    const Text(
+                                                      'Napomena: Opis se popunjava na engleskom jeziku!',
+                                                      style: TextStyle(
+                                                          fontSize: 12),
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 16,
+                                                    ),
                                                     FormBuilderTextField(
                                                       name: 'name',
                                                       controller:
@@ -234,7 +242,10 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
                                                             .minLength(3,
                                                                 errorText:
                                                                     'Opis mora sadržavati minimalno 3 karaktera.'),
-                                                        FormBuilderValidators.maxLength(200, errorText: 'Opis može sadržavati maximalno 200 karaktera.')
+                                                        FormBuilderValidators
+                                                            .maxLength(200,
+                                                                errorText:
+                                                                    'Opis može sadržavati maximalno 200 karaktera.')
                                                       ]),
                                                     ),
                                                     const SizedBox(height: 16),
@@ -329,6 +340,7 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
                                                               newCategoryId;
                                                           subcategories =
                                                               fetchedSubcategories;
+                                                                    selectedSubcategory = null; // Reset the selected subcategory
                                                         });
                                                       },
                                                       items: categories
@@ -379,7 +391,7 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
                                                         );
                                                       }).toList(),
                                                       hint: const Text(
-                                                          'Izaberi podkategoriju (obavezno polje)'),
+                                                          'Izaberi potkategoriju (obavezno polje)'),
                                                     ),
                                                     const SizedBox(height: 16),
                                                     FormBuilderTextField(
@@ -538,9 +550,8 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
                                                             .currentState!
                                                             .validate()) {
                                                           Location newLocation = Location(
-                                                              name:
-                                                                  nameController
-                                                                      .text,
+                                                              name: nameController
+                                                                  .text,
                                                               description:
                                                                   descriptionController
                                                                       .text,
@@ -556,8 +567,11 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
                                                               locationSubcategoryId:
                                                                   selectedSubcategory!
                                                                       .id,
-                                                              touristAttractionOwnerId: widget.userType=='touristattractionowner'?
-                                                                  taoId:null,
+                                                              touristAttractionOwnerId:
+                                                                  widget.userType ==
+                                                                          'touristattractionowner'
+                                                                      ? taoId
+                                                                      : null,
                                                               facebookUrl:
                                                                   facebookUrlController
                                                                       .text,
@@ -567,7 +581,11 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
                                                               bookingUrl:
                                                                   bookingUrlController
                                                                       .text,
-                                                              isApproved: widget.userType=='touristattractionowner'?false:true);
+                                                              isApproved: widget
+                                                                          .userType ==
+                                                                      'touristattractionowner'
+                                                                  ? false
+                                                                  : true);
                                                           var url = Uri.parse(
                                                               '${ApiConstants.baseUrl}/Location');
                                                           var response =
@@ -600,22 +618,20 @@ class _NewLocationState extends State<NewLocation> with DataFetcher{
                                                                         onPressed:
                                                                             () {
                                                                           if (widget.userType ==
-                                          'touristattractionowner'){
-                                                                          Navigator.of(context)
-                                                                              .push(
-                                                                            MaterialPageRoute(
-                                                                              builder: (context) => DashboardTouristAttractionOwner(
-                                                                                user: widget.user,
-                                                                                userType: widget.userType,
+                                                                              'touristattractionowner') {
+                                                                            Navigator.of(context).push(
+                                                                              MaterialPageRoute(
+                                                                                builder: (context) => DashboardTouristAttractionOwner(
+                                                                                  user: widget.user,
+                                                                                  userType: widget.userType,
+                                                                                ),
                                                                               ),
-                                                                            ),
-                                                                          );}
-                                                                          else if (widget.userType =='administrator'){
-                                                                            Navigator.of(context)
-                                            .push(MaterialPageRoute(
-                                          builder: (context) =>
-                                              DashboardAdmin(user: widget.user, userType: widget.userType),
-                                        ));
+                                                                            );
+                                                                          } else if (widget.userType ==
+                                                                              'administrator') {
+                                                                            Navigator.of(context).push(MaterialPageRoute(
+                                                                              builder: (context) => DashboardAdmin(user: widget.user, userType: widget.userType),
+                                                                            ));
                                                                           }
                                                                         },
                                                                         child: const Text(
