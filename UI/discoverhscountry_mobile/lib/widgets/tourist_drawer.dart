@@ -8,7 +8,6 @@ import 'package:discoverhscountry_mobile/screens/report_an_issue_screen.dart';
 import 'package:discoverhscountry_mobile/screens/visited_locations_screen.dart';
 import 'package:discoverhscountry_mobile/screens/visitor_services_hub_screen.dart';
 import 'package:discoverhscountry_mobile/services/authentication_service.dart';
-import 'package:discoverhscountry_mobile/widgets/recommended_locations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -165,11 +164,6 @@ class _TouristDrawerState extends State<TouristDrawer> {
           const SizedBox(
             height: 170,
           ),
-
-          ElevatedButton(onPressed: ()=> {Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => RecommendedLocations(user: widget.user)))}
-                  , child: Text('recommended sistem')),
-
 
           Padding(
             padding: const EdgeInsets.symmetric(

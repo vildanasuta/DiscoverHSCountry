@@ -33,6 +33,7 @@ builder.Services.AddTransient<IVisitedLocationImageService, VisitedLocationImage
 builder.Services.AddTransient<IPublicCityServiceService, PublicCityServiceService>();
 builder.Services.AddTransient<IReservationServiceService, ReservationServiceService>();
 builder.Services.AddTransient<ILocationVisitsService, LocationVisitsService>();
+builder.Services.AddTransient<IRecommendationService, RecommendationService>();
 
 builder.Services.AddControllers()
             .AddJsonOptions(options =>
