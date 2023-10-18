@@ -11,9 +11,14 @@ namespace DiscoverHSCountry.API.Controllers
     public class ReservationController : BaseCRUDController<Model.Reservation, Model.SearchObjects.ReservationSearchObject, Model.Requests.ReservationCreateRequest, Model.Requests.ReservationUpdateRequest>
     {
         private readonly IReservationService _reservationService;
-        public ReservationController(ILogger<BaseController<Reservation, ReservationSearchObject>> logger, IReservationService service) : base(logger, service)
+        private readonly RabbitMQEmailProducer _rabbitMQEmailProducer;
+        private readonly EmailService _emailService;
+        public ReservationController(ILogger<BaseController<Reservation, ReservationSearchObject>> logger, IReservationService service, RabbitMQEmailProducer rabbitMQEmailProducer, EmailService emailService) : base(logger, service)
         {
             _reservationService = service;
+            _rabbitMQEmailProducer = rabbitMQEmailProducer;
+
+            _emailService = emailService;
         }
 
         [HttpGet("GetReservationByLocationId/{locationId}")]
@@ -28,5 +33,22 @@ namespace DiscoverHSCountry.API.Controllers
 
             return Ok(reservations);
         }
+
+        [HttpPost("SendConfirmationEmail")]
+        public IActionResult SendConfirmationEmail([FromBody] EmailModel emailModel)
+        {
+            try
+            {
+                _rabbitMQEmailProducer.SendConfirmationEmail(emailModel);
+                _emailService.StartListening();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, ex.Message);
+            }
+        }
+
     }
 }

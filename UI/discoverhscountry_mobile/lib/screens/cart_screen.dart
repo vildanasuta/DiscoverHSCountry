@@ -14,6 +14,7 @@ import 'package:discoverhscountry_mobile/screens/payment_success_page.dart';
 import 'package:discoverhscountry_mobile/widgets/tourist_drawer.dart';
 import 'package:flutter_paypal/flutter_paypal.dart';
 import 'package:flutter/material.dart';
+
 // ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
 
@@ -177,6 +178,10 @@ class _CartScreenState extends State<CartScreen> with DataFetcher {
       },
       body: jsonEncode(newReservation.toJson()),
     );
+    print(touristId);
+
+    var user = await getUserById(widget.user.userId);
+    var location = await getLocationById(widget.location.locationId!);
 
     if (response.statusCode == 200) {
       Map<String, dynamic> responseData = jsonDecode(response.body);
@@ -203,66 +208,94 @@ class _CartScreenState extends State<CartScreen> with DataFetcher {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (BuildContext context) => UsePaypal(
-              sandboxMode: true,
-              clientId:
-                  "AZm31Q22LOFbOKAjxt86nZrQpk0zF8Rr3HFkcAPsh7HAZ_d8ED4leIldByNFyN4wV_UK0hCwzmTl_XDb",
-              secretKey:
-                  "EIW1EkL15cHAmDPYud7sttMEcOvUg_HPpuKmvX8wn7q3h-_zVVm4AHSeEhzuGExWDNer6c_SS2s2tgXK",
-              returnURL: "https://samplesite.com/return",
-              cancelURL: "https://samplesite.com/cancel",
-              transactions: [
-                {
-                  "amount": {
-                    "total": (totalPrice!*0.5),
-                    "currency": "USD",
-                  },
-                  "description": "Payment for reservation #$newReservationId.",
-                  "item_list": {
-                    "items": [
-                      for (var reservationservice in widget.cartItems)
-                        {
-                          "name": reservationservice.additionalDescription,
-                          "quantity": reservationservice.numberOfPeople,
-                          "price": ((calculateTotalPrice(reservationservice)/reservationservice.numberOfPeople)*0.5),
-                          "currency": "USD"
-                        }
-                    ],
-                  }
+            sandboxMode: true,
+            clientId:
+                "AZm31Q22LOFbOKAjxt86nZrQpk0zF8Rr3HFkcAPsh7HAZ_d8ED4leIldByNFyN4wV_UK0hCwzmTl_XDb",
+            secretKey:
+                "EIW1EkL15cHAmDPYud7sttMEcOvUg_HPpuKmvX8wn7q3h-_zVVm4AHSeEhzuGExWDNer6c_SS2s2tgXK",
+            returnURL: "https://samplesite.com/return",
+            cancelURL: "https://samplesite.com/cancel",
+            transactions: [
+              {
+                "amount": {
+                  "total": (totalPrice! * 0.5),
+                  "currency": "USD",
+                },
+                "description": "Payment for reservation #$newReservationId.",
+                "item_list": {
+                  "items": [
+                    for (var reservationservice in widget.cartItems)
+                      {
+                        "name": reservationservice.additionalDescription,
+                        "quantity": reservationservice.numberOfPeople,
+                        "price": ((calculateTotalPrice(reservationservice) /
+                                reservationservice.numberOfPeople) *
+                            0.5),
+                        "currency": "USD"
+                      }
+                  ],
                 }
-              ],
-              note: "Contact us for any questions on your order.",
-              onSuccess: (Map params) async {
-                print("onSuccess: $params");
-                _navigateToSuccessPage();
-              },
-              onError: (error) {
-                print("onError: $error");
-                     /* Navigator.of(context).push(
+              }
+            ],
+            note: "Contact us for any questions on your order.",
+            onSuccess: (Map params) async {
+              print("onSuccess: $params");
+              print("sending email...");
+              _sendConfirmationEmail(user, location!);
+              _navigateToSuccessPage();
+            },
+            onError: (error) {
+              print("onError: $error");
+              /* Navigator.of(context).push(
  MaterialPageRoute(
                               builder: (context) => PaymentCanceledPage(user: widget.user),
                             ));*/
-              },
-              onCancel: (params) {
-                print('cancelled: $params');
-                  /* Navigator.of(context).push(
+            },
+            onCancel: (params) {
+              print('cancelled: $params');
+              /* Navigator.of(context).push(
  MaterialPageRoute(
                               builder: (context) => PaymentCanceledPage(user: widget.user),
                             ));*/
-              },),
+            },
+          ),
         ),
-        
       );
     }
     setState(() {
-      widget.cartItems=[];
+      widget.cartItems = [];
     });
-
   }
-  
+
   void _navigateToSuccessPage() async {
     await Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => PaymentSuccessPage(user: widget.user),
     ));
-  
+  }
+
+  _sendConfirmationEmail(User user, Location location) async {
+    final emailData = {
+      'sender': 'discoverhscountry@gmail.com',
+      'recipient': user.email,
+      'subject': 'Reservation confirmation for ${location.name}',
+      'content':
+          'Dear ${user.firstName}, this email is confirmation of your reservation for ${location.name}',
+    };
+
+    final response = await http.post(
+      Uri.parse('${ApiConstants.baseUrl}/Reservation/SendConfirmationEmail'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(emailData),
+    );
+    
+
+    print(response.statusCode);
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      print('Email sent successfully.');
+    } else {
+      print('Failed to send email.');
+    }
   }
 }

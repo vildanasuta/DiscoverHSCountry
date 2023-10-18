@@ -20,7 +20,7 @@ services:
     build:
       context: .
     environment:
-      - ConnectionStrings:DefaultConnection=Server=discoverhscountry-sql,1433;Database=DiscoverHSCountry;User=sa;Password=QWElkj132!;ConnectRetryCount=0; TrustServerCertificate=True
+      - ConnectionStrings:DefaultConnection=Server=discoverhscountry-sql,1433;Database=DiscoverHSCountry;User=sa;Password=QWElkj132!;ConnectRetryCount=0; TrustServerCertificate=True; MultipleActiveResultSets=true
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - 7125:7125
@@ -31,6 +31,22 @@ services:
     depends_on:
       - discoverhscountry-sql
       
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - discoverhscountrynet  
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+volumes:
+  rabbitmq_data:
+  
 networks:
   discoverhscountrynet:
     driver: bridge      

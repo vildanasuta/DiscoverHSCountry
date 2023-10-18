@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using DiscoverHSCountry.Model;
 using System.Text.Json.Serialization;
+using MathNet.Numerics;
+using RabbitMQ.Client;
+using System.Threading.Channels;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +39,23 @@ builder.Services.AddTransient<IReservationServiceService, ReservationServiceServ
 builder.Services.AddTransient<ILocationVisitsService, LocationVisitsService>();
 builder.Services.AddTransient<IRecommendationService, RecommendationService>();
 
+
+var factory = new ConnectionFactory
+{
+    HostName = "localhost",
+    Port = 5672,
+    UserName = "guest",
+    Password = "guest",
+};
+var connection = factory.CreateConnection();
+var channel = connection.CreateModel();
+
+builder.Services.AddTransient<IModel>(_ => (IModel)channel);
+
+// Register the EmailService and start listening for messages
+builder.Services.AddTransient<RabbitMQEmailProducer>();
+builder.Services.AddTransient<EmailService>();
+
 builder.Services.AddControllers()
             .AddJsonOptions(options =>
             {
@@ -63,6 +84,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 /*using (var scope = app.Services.CreateScope())
 {
