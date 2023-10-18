@@ -19,8 +19,11 @@ namespace DiscoverHSCountry.Services
 {
     public class RecommendationService : BaseCRUDService<Model.Recommendation, Database.Recommendation, RecommendationSearchObject, RecommendationCreateRequest, RecommendationUpdateRequest>, IRecommendationService
     {
+        private readonly DiscoverHSCountryContext _context;
+
         public RecommendationService(DiscoverHSCountryContext context, IMapper mapper) : base(context, mapper)
         {
+            _context = context;
         }
 
 
@@ -29,8 +32,24 @@ namespace DiscoverHSCountry.Services
             List<Database.Recommendation> recommendations = await GenerateRecommendationsBasedOnSimilarityAsync(touristId);
             recommendations.AddRange(await GenerateMatrixFactorizationRecommendationsAsync(touristId));
 
-            _context.Recommendation.AddRange(recommendations);
-            _context.SaveChanges();
+            var visitedLocations = await GetUserVisitedLocationsAsync(touristId);
+
+            var uniqueLocationIds = new HashSet<int>();
+
+            foreach (var recommendation in recommendations)
+            {
+                var locationExists = await _context.Locations
+                    .AnyAsync(location => location.LocationId == recommendation.LocationId);
+
+                if (locationExists && !uniqueLocationIds.Contains(recommendation.LocationId) && !visitedLocations.Contains(recommendation.LocationId))
+                {
+                    uniqueLocationIds.Add(recommendation.LocationId); 
+                    _context.Recommendation.Add(recommendation); 
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
             return recommendations;
         }
 
@@ -45,28 +64,17 @@ namespace DiscoverHSCountry.Services
 
             List<int> similarUsers = await FindSimilarUsersAsync(targetTouristId, visitedLocations, clickedLocations, highlyRatedLocations);
 
-            using (var _context = new DiscoverHSCountryContext())
-            {
+            
+
                 foreach (var userId in similarUsers)
                 {
-                    var visitedLocationsQuery = _context.VisitedLocations
-                        .Where(visitedLocation => visitedLocation.TouristId == userId)
-                        .Select(visitedLocation => visitedLocation.LocationId);
-
-                    var visitedLocationsForUser = await visitedLocationsQuery.ToListAsync();
 
 
-                    var locationVisitsQuery = _context.LocationVisits
-                        .Where(locationVisits => locationVisits.TouristId == userId && locationVisits.NumberOfVisits > 0)
-                        .Select(locationVisits => locationVisits.LocationId);
+                    var visitedLocationsForUser = await GetUserClickedLocationsAsync(userId);
 
-                    var locationVisitsForUser = await locationVisitsQuery.ToListAsync();
+                    var locationVisitsForUser = await GetUserClickedLocationsAsync(userId);
 
-                    var highlyRatedLocationsQuery = _context.Reviews
-                        .Where(review => review.TouristId == userId && review.Rate > 4.0)
-                        .Select(review => review.LocationId);
-
-                    var highlyRatedLocationsForUser = await highlyRatedLocationsQuery.ToListAsync();
+                    var highlyRatedLocationsForUser = await GetUserHighlyRatedLocationsAsync(userId);
 
                     var visitedLocationsEnumerable = visitedLocationsForUser.Select(locationId => (int?)locationId);
                     var locationVisitsEnumerable = locationVisitsForUser.Select(locationId => (int?)locationId);
@@ -87,7 +95,7 @@ namespace DiscoverHSCountry.Services
                         });
                     }
                 }
-            }
+            
 
 
             return recommendations;
@@ -96,7 +104,10 @@ namespace DiscoverHSCountry.Services
         private async Task<List<int>> FindSimilarUsersAsync(int targetTouristId, List<int?> visitedLocations, List<int?> clickedLocations, List<int?> highlyRatedLocations)
         {
             Dictionary<int, double> userSimilarityScores = new Dictionary<int, double>();
-            var allUsers = await _context.Tourists.ToListAsync();
+            List<Database.Tourist> allUsers;
+            
+                allUsers = await _context.Tourists.ToListAsync();
+            
 
             foreach (var user in allUsers)
             {
@@ -125,8 +136,8 @@ namespace DiscoverHSCountry.Services
 
         private async Task<double> CalculateCosineSimilarityAsync(Database.Tourist user, List<int?> visitedLocations, List<int?> clickedLocations, List<int?> highlyRatedLocations, int targetTouristId)
         {
-            var targetUser = await _context.Tourists.Where(tourist=> tourist.TouristId==targetTouristId).FirstOrDefaultAsync();
-           
+            var targetUser = await _context.Tourists.Where(tourist => tourist.TouristId == targetTouristId).FirstOrDefaultAsync();
+            
             double dotProduct = await CalculateDotProductAsync(user, visitedLocations, clickedLocations, highlyRatedLocations);
             double magnitudeUser =  CalculateVectorMagnitude(user, visitedLocations, clickedLocations, highlyRatedLocations);
             double magnitudeTarget = CalculateVectorMagnitude(targetUser, visitedLocations, clickedLocations, highlyRatedLocations);
@@ -141,42 +152,44 @@ namespace DiscoverHSCountry.Services
 
         private async Task<double> CalculateDotProductAsync(Database.Tourist user, List<int?> visitedLocations, List<int?> clickedLocations, List<int?> highlyRatedLocations)
         {
-            // Fetch the user's data from the database
-            var visitedLocationsForUser = await _context.VisitedLocations
+            double dotProduct = 0.0;
+
+            
+                // Fetch the user's data from the database
+                var visitedLocationsForUser = await _context.VisitedLocations
                 .Where(visitedLocation => visitedLocation.TouristId == user.UserId)
                 .Select(visitedLocation => (int?)visitedLocation.LocationId)
                 .ToListAsync();
 
-            var locationVisitsForUser = await _context.LocationVisits
-                .Where(locationVisits => locationVisits.TouristId == user.UserId)
-                .Where(locationVisits => locationVisits.NumberOfVisits > 0)
-                .Select(locationVisits => (int?)locationVisits.LocationId)
-                .ToListAsync();
+                var locationVisitsForUser = await _context.LocationVisits
+                    .Where(locationVisits => locationVisits.TouristId == user.UserId)
+                    .Where(locationVisits => locationVisits.NumberOfVisits > 0)
+                    .Select(locationVisits => (int?)locationVisits.LocationId)
+                    .ToListAsync();
 
-            var highlyRatedLocationsForUser = await _context.Reviews
-                .Where(review => review.TouristId == user.UserId && review.Rate > 4.0)
-                .Select(review => (int?)review.LocationId)
-                .ToListAsync();
+                var highlyRatedLocationsForUser = await _context.Reviews
+                    .Where(review => review.TouristId == user.UserId && review.Rate > 4.0)
+                    .Select(review => (int?)review.LocationId)
+                    .ToListAsync();
 
-            int vectorLength = Math.Max(Math.Max(visitedLocations.Count, locationVisitsForUser.Count), highlyRatedLocationsForUser.Count);
+                int vectorLength = Math.Max(Math.Max(visitedLocations.Count, locationVisitsForUser.Count), highlyRatedLocationsForUser.Count);
 
-            double dotProduct = 0.0;
 
-            for (int i = 0; i < vectorLength; i++)
-            {
-                double userVisited = i < visitedLocationsForUser.Count ? (double)visitedLocationsForUser[i] : 0.0;
-                double userClicked = i < locationVisitsForUser.Count ? (double)locationVisitsForUser[i] : 0.0;
-                double userHighlyRated = i < highlyRatedLocationsForUser.Count ? (double)highlyRatedLocationsForUser[i] : 0.0;
+                for (int i = 0; i < vectorLength; i++)
+                {
+                    double userVisited = i < visitedLocationsForUser.Count ? (double)visitedLocationsForUser[i] : 0.0;
+                    double userClicked = i < locationVisitsForUser.Count ? (double)locationVisitsForUser[i] : 0.0;
+                    double userHighlyRated = i < highlyRatedLocationsForUser.Count ? (double)highlyRatedLocationsForUser[i] : 0.0;
 
-                double targetVisited = i < visitedLocations.Count ? (double)visitedLocations[i] : 0.0;
-                double targetClicked = i < clickedLocations.Count ? (double)clickedLocations[i] : 0.0;
-                double targetHighlyRated = i < highlyRatedLocations.Count ? (double)highlyRatedLocations[i] : 0.0;
+                    double targetVisited = i < visitedLocations.Count ? (double)visitedLocations[i] : 0.0;
+                    double targetClicked = i < clickedLocations.Count ? (double)clickedLocations[i] : 0.0;
+                    double targetHighlyRated = i < highlyRatedLocations.Count ? (double)highlyRatedLocations[i] : 0.0;
 
-                double elementProduct = userVisited * targetVisited + userClicked * targetClicked + userHighlyRated * targetHighlyRated;
+                    double elementProduct = userVisited * targetVisited + userClicked * targetClicked + userHighlyRated * targetHighlyRated;
 
-                dotProduct += elementProduct;
-            }
-
+                    dotProduct += elementProduct;
+                }
+            
             return dotProduct;
         }
 
@@ -202,34 +215,36 @@ namespace DiscoverHSCountry.Services
 
 
 
-        private int maxUserId = 10;
-        private int maxLocationId = 15;
+        private int maxUserId = 2;
+        private int maxLocationId = 1019;
 
         private async Task<int[,]> CreateUserItemMatrixAsync()
         {
             int[,] userItemMatrix = new int[maxUserId + 1, maxLocationId + 1];
-            foreach (var user in _context.Tourists)
-            {
-                int userId = user.TouristId;
-                List<int?> visitedLocations = await GetUserVisitedLocationsAsync(userId);
-                List<int?> clickedLocations = await GetUserClickedLocationsAsync(userId);
-                List<int?> highlyRatedLocations = await GetUserHighlyRatedLocationsAsync(userId);
-
-                foreach (var locationId in visitedLocations)
+            
+                foreach (var user in _context.Tourists)
                 {
-                    userItemMatrix[userId, locationId.Value] = 1;
-                }
+                    int userId = user.TouristId;
+                    List<int?> visitedLocations = await GetUserVisitedLocationsAsync(userId);
+                    List<int?> clickedLocations = await GetUserClickedLocationsAsync(userId);
+                    List<int?> highlyRatedLocations = await GetUserHighlyRatedLocationsAsync(userId);
 
-                foreach (var locationId in clickedLocations)
-                {
-                    userItemMatrix[userId, locationId.Value] = 1;
-                }
+                    foreach (var locationId in visitedLocations)
+                    {
+                        userItemMatrix[userId, locationId.Value] = 1;
+                    }
 
-                foreach (var locationId in highlyRatedLocations)
-                {
-                    userItemMatrix[userId, locationId.Value] = 1;
+                    foreach (var locationId in clickedLocations)
+                    {
+                        userItemMatrix[userId, locationId.Value] = 1;
+                    }
+
+                    foreach (var locationId in highlyRatedLocations)
+                    {
+                        userItemMatrix[userId, locationId.Value] = 1;
+                    }
                 }
-            }
+            
 
             return userItemMatrix;
         }
@@ -237,40 +252,37 @@ namespace DiscoverHSCountry.Services
         private async Task<List<int?>> GetUserHighlyRatedLocationsAsync(int userId)
         {
             List<int?> highlyRatedLocations;
-            using (var _context = new DiscoverHSCountryContext())
-            {
+            
                 highlyRatedLocations = await _context.Reviews
                .Where(review => review.TouristId == userId && review.Rate > 4.0)
                .Select(review => (int?)review.LocationId)
                .ToListAsync();
-            }
+            
             return highlyRatedLocations;
         }
 
         private async Task<List<int?>> GetUserClickedLocationsAsync(int userId)
         {
             List<int?> clickedLocations;
-            using (var _context = new DiscoverHSCountryContext())
-            {
+            
                 clickedLocations = await _context.LocationVisits
                 .Where(locationVisits => locationVisits.TouristId == userId && locationVisits.NumberOfVisits > 0)
                 .Select(locationVisits => (int?)locationVisits.LocationId)
                 .ToListAsync();
-            }
+            
             return clickedLocations;
         }
 
         private async Task<List<int?>> GetUserVisitedLocationsAsync(int userId)
         {
             List<int?> visitedLocations;
-            using (var _context = new DiscoverHSCountryContext())
-            {
+            
                 visitedLocations = await _context.VisitedLocations
                     .Where(visitedLocation => visitedLocation.TouristId == userId)
                     .Select(visitedLocation => (int?)visitedLocation.LocationId)
                     .ToListAsync();
 
-            }
+            
             return visitedLocations;
 
         }

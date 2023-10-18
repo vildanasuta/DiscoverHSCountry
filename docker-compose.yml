@@ -20,7 +20,7 @@ services:
     build:
       context: .
     environment:
-      - ConnectionStrings:DefaultConnection=Server=discoverhscountry-sql,1433;Database=DiscoverHSCountry;User=sa;Password=QWElkj132!;ConnectRetryCount=0; TrustServerCertificate=True
+      - ConnectionStrings:DefaultConnection=Server=discoverhscountry-sql,1433;Database=DiscoverHSCountry;User=sa;Password=QWElkj132!;ConnectRetryCount=0; TrustServerCertificate=True; MultipleActiveResultSets=true
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - 7125:7125
