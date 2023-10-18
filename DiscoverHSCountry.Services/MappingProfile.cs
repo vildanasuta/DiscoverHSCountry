@@ -106,6 +106,10 @@ namespace DiscoverHSCountry.Services
             CreateMap<Database.LocationVisits, Model.LocationVisits>();
             CreateMap<Model.Requests.LocationVisitsCreateRequest, Database.LocationVisits>();
             CreateMap<Model.Requests.LocationVisitsUpdateRequest, Database.LocationVisits>();
+
+            CreateMap<Database.Recommendation, Model.Recommendation>();
+            CreateMap<Model.Requests.RecommendationCreateRequest, Database.Recommendation>();
+            CreateMap<Model.Requests.RecommendationUpdateRequest, Database.Recommendation>();
         }
     }
 } 

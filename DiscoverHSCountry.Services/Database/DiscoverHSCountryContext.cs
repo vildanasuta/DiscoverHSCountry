@@ -60,6 +60,8 @@ public partial class DiscoverHSCountryContext : DbContext
     public virtual DbSet<VisitedLocationImage> VisitedLocationImages { get; set; }
 
     public virtual DbSet<LocationVisits> LocationVisits { get; set; }
+    public virtual DbSet<Recommendation> Recommendation { get; set; }
+
 
 
     /*protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -636,6 +638,28 @@ public partial class DiscoverHSCountryContext : DbContext
                 .HasForeignKey(d => d.TouristId)
                 .HasConstraintName("FK_LocationVisits_Tourist");
         });
+
+        modelBuilder.Entity<Recommendation>(entity =>
+        {
+            entity.HasKey(e => e.RecommendationId).HasName("PK__Recommendation__123456");
+
+            entity.ToTable("Recommendation");
+
+            entity.Property(e => e.RecommendationId).HasColumnName("recommendation_id");
+            entity.Property(e => e.TouristId).HasColumnName("tourist_id");
+            entity.Property(e => e.LocationId).HasColumnName("location_id");
+
+            entity.HasOne(d => d.Tourist)
+                .WithMany()
+                .HasForeignKey(d => d.TouristId)
+                .HasConstraintName("FK_Recommendation_Tourist");
+
+            entity.HasOne(d => d.Location)
+                .WithMany()
+                .HasForeignKey(d => d.LocationId)
+                .HasConstraintName("FK_Recommendation_Location");
+        });
+
 
 
         OnModelCreatingPartial(modelBuilder);
