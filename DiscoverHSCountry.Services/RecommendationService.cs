@@ -29,6 +29,7 @@ namespace DiscoverHSCountry.Services
 
         public async Task<List<Database.Recommendation>> GenerateRecommendationsAsync(int touristId)
         {
+            List<Database.Recommendation> returnRecommended = new List<Database.Recommendation>();
             List<Database.Recommendation> recommendations = await GenerateRecommendationsBasedOnSimilarityAsync(touristId);
             recommendations.AddRange(await GenerateMatrixFactorizationRecommendationsAsync(touristId));
 
@@ -45,12 +46,13 @@ namespace DiscoverHSCountry.Services
                 {
                     uniqueLocationIds.Add(recommendation.LocationId); 
                     _context.Recommendation.Add(recommendation); 
+                    returnRecommended.Add(recommendation);
                 }
             }
 
             await _context.SaveChangesAsync();
 
-            return recommendations;
+            return returnRecommended;
         }
 
 
@@ -212,17 +214,13 @@ namespace DiscoverHSCountry.Services
 
             return magnitude;
         }
-
-
-
-        private int maxUserId = 2;
+        private int maxUserId = 1007;
         private int maxLocationId = 1019;
-
         private async Task<int[,]> CreateUserItemMatrixAsync()
         {
             int[,] userItemMatrix = new int[maxUserId + 1, maxLocationId + 1];
-            
-                foreach (var user in _context.Tourists)
+
+            foreach (var user in _context.Tourists)
                 {
                     int userId = user.TouristId;
                     List<int?> visitedLocations = await GetUserVisitedLocationsAsync(userId);

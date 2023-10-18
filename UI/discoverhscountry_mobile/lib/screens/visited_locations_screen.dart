@@ -44,7 +44,7 @@ class _VisitedLocationsScreenState extends State<VisitedLocationsScreen>
     visitedLocations = await getAllVisitedLocations(touristId!);
   }
 
-  Future<Location>? _getLocationById(int locationId) async {
+  Future<Location?>? _getLocationById(int locationId) async {
     return await getLocationById(locationId);
   }
 
@@ -88,7 +88,7 @@ class _VisitedLocationsScreenState extends State<VisitedLocationsScreen>
                     itemCount: visitedLocations.length,
                     itemBuilder: (context, index) {
                       final visitedLocation = visitedLocations[index];
-                      return FutureBuilder<Location>(
+                      return FutureBuilder<Location?>(
                           future: _getLocationById(visitedLocation.locationId),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==

@@ -2,7 +2,10 @@ import 'dart:convert';
 
 import 'package:discoverhscountry_mobile/common/data_fetcher.dart';
 import 'package:discoverhscountry_mobile/models/city_model.dart';
+import 'package:discoverhscountry_mobile/models/location_model.dart';
+import 'package:discoverhscountry_mobile/models/recommendation_model.dart';
 import 'package:discoverhscountry_mobile/models/user_model.dart';
+import 'package:discoverhscountry_mobile/screens/location_details_screen.dart';
 import 'package:discoverhscountry_mobile/screens/locations_by_city_screen.dart';
 import 'package:discoverhscountry_mobile/screens/report_an_issue_screen.dart';
 import 'package:discoverhscountry_mobile/widgets/tourist_drawer.dart';
@@ -24,6 +27,7 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
   List<City> searchResults = [];
   bool isLoading = true;
   bool _isSearching = false;
+  List<Location> locations = [];
 
   @override
   void initState() {
@@ -56,6 +60,8 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
       searchResults.clear();
     });
   }
+
+  bool _isCities = true;
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +99,38 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
         ],
       ),
       endDrawer: TouristDrawer(user: widget.user),
-      body: Stack(children: [
+      body: buildBody(),
+      bottomNavigationBar: BottomAppBar(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  _launchEmail(
+                      'support@discoverhscountry.com', 'Support Request', '');
+                },
+                child: const Text('Contact support'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          ReportAnIssueScreen(user: widget.user)));
+                },
+                child: const Text('Report issue'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  buildBody() {
+    if (_isCities) {
+      return Stack(children: [
         if (!_isSearching)
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -130,21 +167,20 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        //default look
+                        setState(() {
+                          _isCities = true;
+                        });
                       },
-                      child: const Text('All locations'),
+                      child: const Text('All cities'),
                     ),
                     ElevatedButton(
-                      onPressed: () {
-                        // Handle Recommended tap
+                      onPressed: () async {
+                        locations = await getRecommendationsForUser();
+                        setState(() {
+                          _isCities = false;
+                        });
                       },
-                      child: const Text('Recommended'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Handle Most Viewed tap
-                      },
-                      child: const Text('Most Viewed'),
+                      child: const Text('Recommended places'),
                     ),
                   ],
                 ),
@@ -249,33 +285,107 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
               ),
             ),
           ),
-      ]),
-      bottomNavigationBar: BottomAppBar(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  _launchEmail(
-                      'support@discoverhscountry.com', 'Support Request', '');
-                },
-                child: const Text('Contact support'),
+      ]);
+    } else {
+      return Stack(children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Image.asset('assets/dashboard-welcome.png'),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Where do you want to go?\nExplore now, ${widget.user.firstName}!',
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineMedium
+                    ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160)),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) =>
-                          ReportAnIssueScreen(user: widget.user)));
-                },
-                child: const Text('Report issue'),
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _isCities = true;
+                      });
+                    },
+                    child: const Text('All cities'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      locations.clear(); 
+                      locations = await getRecommendationsForUser();
+                      setState(() async{
+                        _isCities = false;
+                      });
+                    },
+                    child: const Text('Recommended places'),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+            if (!isLoading)
+              Expanded(
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: locations.length,
+                  itemBuilder: (context, index) {
+                    final location = locations[index];
+                    return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => LocationDetailsScreen(
+                                  user: widget.user,
+                                  location: location,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Stack(
+                            children: [
+                              Image.memory(
+                                base64Decode(location.coverImage),
+                                width: 200,
+                                height: 200,
+                                fit: BoxFit.cover,
+                              ),
+                              Positioned(
+                                bottom: 8,
+                                left: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  color: const Color.fromARGB(255, 1, 38, 160)
+                                      .withOpacity(0.7),
+                                  child: Text(
+                                    location.name,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ));
+                  },
+                ),
+              ),
+          ],
+        )
+      ]);
+    }
   }
 
   void _launchEmail(String toEmail, String subject, String body) async {
@@ -285,5 +395,19 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
     } else {
       throw 'Could not launch $url';
     }
+  }
+
+  Future<List<Location>> getRecommendationsForUser() async {
+    List<Recommendation> recommendations =
+        await getRecommendationByTouristId(widget.user.userId);
+    List<Location> locations = [];
+    if (recommendations.isNotEmpty) {
+      for (var recommendation in recommendations) {
+        var location = await getLocationById(recommendation.locationId);
+        if(location!=null){
+        locations.add(location);}
+      }
+    }
+    return locations;
   }
 }
