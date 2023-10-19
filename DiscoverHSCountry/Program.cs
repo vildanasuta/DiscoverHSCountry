@@ -9,7 +9,6 @@ using MathNet.Numerics;
 using RabbitMQ.Client;
 using System.Threading.Channels;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

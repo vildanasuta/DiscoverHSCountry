@@ -275,11 +275,11 @@ class _CartScreenState extends State<CartScreen> with DataFetcher {
 
   _sendConfirmationEmail(User user, Location location) async {
     final emailData = {
-      'sender': 'discoverhscountry@gmail.com',
+      'sender': 'cdiscoverhs@gmail.com',
       'recipient': user.email,
       'subject': 'Reservation confirmation for ${location.name}',
       'content':
-          'Dear ${user.firstName}, this email is confirmation of your reservation for ${location.name}',
+          "Dear ${user.firstName}, this email is confirmation of your reservation for ${location.name}. Thank you for using our app! (disclaimer: if you did not create reservation at ${location.name} be sure to reply to this email to report unusual activity)",
     };
 
     final response = await http.post(
@@ -287,11 +287,6 @@ class _CartScreenState extends State<CartScreen> with DataFetcher {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(emailData),
     );
-    
-
-    print(response.statusCode);
-    print(response.body);
-
     if (response.statusCode == 200) {
       print('Email sent successfully.');
     } else {

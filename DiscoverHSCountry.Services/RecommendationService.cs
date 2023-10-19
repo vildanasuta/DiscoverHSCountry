@@ -20,16 +20,21 @@ namespace DiscoverHSCountry.Services
     public class RecommendationService : BaseCRUDService<Model.Recommendation, Database.Recommendation, RecommendationSearchObject, RecommendationCreateRequest, RecommendationUpdateRequest>, IRecommendationService
     {
         private readonly DiscoverHSCountryContext _context;
+        private int maxUserId;
+        private int maxLocationId;
 
         public RecommendationService(DiscoverHSCountryContext context, IMapper mapper) : base(context, mapper)
         {
             _context = context;
+            var result = DetermineMaxUserAndLocationIdsAsync().Result;
+            maxUserId = result.Item1;
+            maxLocationId = result.Item2;
         }
 
 
         public async Task<List<Database.Recommendation>> GenerateRecommendationsAsync(int touristId)
         {
-            List<Database.Recommendation> returnRecommended = new List<Database.Recommendation>();
+            var updatedRecommendations = new List<Database.Recommendation>();
             List<Database.Recommendation> recommendations = await GenerateRecommendationsBasedOnSimilarityAsync(touristId);
             recommendations.AddRange(await GenerateMatrixFactorizationRecommendationsAsync(touristId));
 
@@ -45,14 +50,16 @@ namespace DiscoverHSCountry.Services
                 if (locationExists && !uniqueLocationIds.Contains(recommendation.LocationId) && !visitedLocations.Contains(recommendation.LocationId))
                 {
                     uniqueLocationIds.Add(recommendation.LocationId); 
-                    _context.Recommendation.Add(recommendation); 
-                    returnRecommended.Add(recommendation);
+                    _context.Recommendation.Add(recommendation);
+                    updatedRecommendations.Add(recommendation); 
                 }
             }
 
+            recommendations = updatedRecommendations;
+
             await _context.SaveChangesAsync();
 
-            return returnRecommended;
+            return recommendations;
         }
 
 
@@ -157,7 +164,6 @@ namespace DiscoverHSCountry.Services
             double dotProduct = 0.0;
 
             
-                // Fetch the user's data from the database
                 var visitedLocationsForUser = await _context.VisitedLocations
                 .Where(visitedLocation => visitedLocation.TouristId == user.UserId)
                 .Select(visitedLocation => (int?)visitedLocation.LocationId)
@@ -214,10 +220,32 @@ namespace DiscoverHSCountry.Services
 
             return magnitude;
         }
-        private int maxUserId = 1007;
-        private int maxLocationId = 1019;
+
+        private async Task<(int, int)> DetermineMaxUserAndLocationIdsAsync()
+        {
+            int maxUserId = 0;
+            int maxLocationId = 0;
+
+            var maxUserIdQuery = await _context.Tourists.MaxAsync(tourist => tourist.TouristId);
+
+            if (maxUserIdQuery != null)
+            {
+                maxUserId = maxUserIdQuery;
+            }
+
+            var maxLocationIdQuery = await _context.Locations.MaxAsync(location => location.LocationId);
+
+            if (maxLocationIdQuery != null)
+            {
+                maxLocationId = maxLocationIdQuery;
+            }
+
+            return (maxUserId, maxLocationId);
+        }
+
         private async Task<int[,]> CreateUserItemMatrixAsync()
         {
+
             int[,] userItemMatrix = new int[maxUserId + 1, maxLocationId + 1];
 
             foreach (var user in _context.Tourists)
@@ -305,7 +333,8 @@ namespace DiscoverHSCountry.Services
 
             return recommendations;
         }
-        private async Task<(double[], double[,])> PerformSVDAsync(int targetUserId)
+
+        private async Task<(Dictionary<int, double[]>, Dictionary<int, double[]>)> PerformSVDAsync(int targetUserId)
         {
             int numRows = maxUserId + 1;
             int numCols = maxLocationId + 1;
@@ -328,41 +357,48 @@ namespace DiscoverHSCountry.Services
 
             Matrix<double> userPreferences = svd.U;
             Vector<double> singularValues = svd.S;
-            Matrix<double> itemFeatures = svd.VT;
 
-            double[] userPreferencesArray = userPreferences.ToColumnMajorArray();
-            double[,] itemFeaturesArray = ConvertTo2DArray(itemFeatures.ToColumnMajorArray(), itemFeatures.RowCount, itemFeatures.ColumnCount);
+            var userPreferencesDict = new Dictionary<int, double[]>();
+            var itemFeatures = new Dictionary<int, double[]>();
 
-            return (userPreferencesArray, itemFeaturesArray);
-        }
-
-        private double[,] ConvertTo2DArray(double[] sourceArray, int numRows, int numCols)
-        {
-            double[,] resultArray = new double[numRows, numCols];
-            int index = 0;
-
-            for (int i = 0; i < numRows; i++)
+            for (int userIndex = 0; userIndex < numRows; userIndex++)
             {
-                for (int j = 0; j < numCols; j++)
+                double[] userPreferenceVector = new double[numCols]; 
+                for (int itemId = 0; itemId < numCols; itemId++)
                 {
-                    resultArray[i, j] = sourceArray[index];
-                    index++;
+                    if (userPreferencesDict.ContainsKey(itemId))
+                    {
+                        userPreferenceVector[itemId] = userPreferencesDict[itemId][userIndex];
+                    }
+                    else
+                    {
+                    }
                 }
+                userPreferencesDict[userIndex] = userPreferenceVector;
             }
 
-            return resultArray;
+            for (int itemId = 0; itemId < numCols; itemId++)
+            {
+                double[] itemFeatureVector = new double[numRows];
+                for (int userIndex = 0; userIndex < numRows; userIndex++)
+                {
+                    itemFeatureVector[userIndex] = svd.VT[itemId, userIndex];
+                }
+                itemFeatures[itemId] = itemFeatureVector;
+            }
+
+            return (userPreferencesDict, itemFeatures);
         }
 
-
-        private List<int> GetTopNRecommendations(double[] userPreferences, double[,] itemFeatures, int N)
+        private List<int> GetTopNRecommendations(Dictionary<int, double[]> userPreferences, Dictionary<int, double[]> itemFeatures, int N)
         {
             List<(int ItemId, double Score)> recommendationScores = new List<(int, double)>();
 
-            int numItems = itemFeatures.GetLength(0);
-
-            for (int itemId = 0; itemId < numItems; itemId++)
+            foreach (var kvp in itemFeatures)
             {
-                double score = CalculateRecommendationScore(userPreferences, itemFeatures, itemId);
+                int itemId = kvp.Key;
+                double[] itemFeatureVector = kvp.Value;
+                double score = CalculateRecommendationScore(userPreferences, itemFeatureVector);
                 recommendationScores.Add((itemId, score));
             }
 
@@ -375,19 +411,50 @@ namespace DiscoverHSCountry.Services
             return topNItems;
         }
 
-        private double CalculateRecommendationScore(double[] userPreferences, double[,] itemFeatures, int itemId)
+        private double CalculateRecommendationScore(Dictionary<int, double[]> userPreferences, double[] itemFeatureVector)
         {
-            int numUsers = userPreferences.Length;
             double score = 0.0;
 
-            for (int userIndex = 0; userIndex < numUsers; userIndex++)
+            foreach (var kvp in userPreferences)
             {
-                score += userPreferences[userIndex] * itemFeatures[itemId, userIndex];
+                int userIndex = kvp.Key;
+                double[] userPreferenceVector = kvp.Value;
+
+                double dotProduct = 0.0;
+                if (userPreferenceVector.Length == itemFeatureVector.Length)
+                {
+                    for (int i = 0; i < userPreferenceVector.Length; i++)
+                    {
+                        dotProduct += userPreferenceVector[i] * itemFeatureVector[i];
+                    }
+
+                    score += dotProduct;
+                }
+                else
+                {
+                    if (userPreferenceVector.Length > itemFeatureVector.Length)
+                    {
+                        for (int i = 0; i < itemFeatureVector.Length; i++)
+                        {
+                            dotProduct += userPreferenceVector[i] * itemFeatureVector[i];
+                        }
+
+                        score += dotProduct;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < userPreferenceVector.Length; i++)
+                        {
+                            dotProduct += userPreferenceVector[i] * itemFeatureVector[i];
+                        }
+
+                        score += dotProduct;
+                    }
+                }
             }
 
             return score;
         }
-
 
 
 

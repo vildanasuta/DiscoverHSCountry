@@ -28,58 +28,87 @@ namespace DiscoverHSCountry.Services
 
         public void StartListening()
         {
-            try
+            ConnectionFactory factory = new ConnectionFactory();
+            var uriString = "amqp://guest:guest@localhost:5672";
+
+            factory.Uri = new Uri(uriString);
+            factory.ClientProvidedName = "Rabbit Receiver1 App";
+
+            IConnection connection = factory.CreateConnection();
+            IModel channel = connection.CreateModel();
+
+            string exchangeName = "EmailExchange";
+            string routingKey = "email_queue";
+            string queueName = "EmailQueue";
+
+
+            channel.ExchangeDeclare(exchangeName, ExchangeType.Direct);
+            channel.QueueDeclare(queueName, false, false, false, null);
+            channel.QueueBind(queueName, exchangeName, routingKey, null);
+            channel.BasicQos(0, 1, false);
+
+
+
+            var consumer = new EventingBasicConsumer(channel);
+
+            consumer.Received += (sender, args) =>
             {
-                var consumer = new EventingBasicConsumer(_channel);
-                consumer.Received += (model, ea) =>
-                {
-                    var body = ea.Body.ToArray();
-                    var message = Encoding.UTF8.GetString(body);
-                    SendEmail(message);
-                    _channel.BasicAck(ea.DeliveryTag, false);
-                };
-                _channel.QueueDeclare(queue: "email_queue", durable: true, exclusive: false, autoDelete: false, arguments: null);
-                _channel.BasicConsume(queue: "email_queue", autoAck: true, consumer: consumer);
-            }
-            finally
-            {
-                _channel?.Dispose();
-            }
+                //Task.Delay(TimeSpan.FromSeconds(2)).Wait();
+                var body = args.Body.ToArray();
+                string message = Encoding.UTF8.GetString(body);
+
+                SendEmail(message);
+
+                Console.WriteLine($"Message received: {message}");
+
+                channel.BasicAck(args.DeliveryTag, false);
+            };
+
+            string consumerTag = channel.BasicConsume(queueName, false, consumer);
+
+
+            channel.BasicCancel(consumerTag);
+
+
+            channel.Close();
+            connection.Close();
         }
 
         private void SendEmail(string message)
         {
             try
             {
+                string smtpServer = "smtp.gmail.com";
+                int smtpPort = 587;
+
+
+                string fromMail = "cdiscoverhs@gmail.com";
+                string Password = "ircrhnghicdszqqu";
+
+
                 var emailData = JsonConvert.DeserializeObject<EmailModel>(message);
                 var senderEmail = emailData.Sender;
                 var recipientEmail = emailData.Recipient;
                 var subject = emailData.Subject;
                 var content = emailData.Content;
 
-                string smtpServer = "smtp.gmail.com";
-                int smtpPort = 587;
+                MailMessage MailMessageObj = new MailMessage();
 
-                string smtpUsername = "discoverhscountry@gmail.com";
-                string smtpPassword = "yhcsiqdqdefhjzje";
+                MailMessageObj.From = new MailAddress(fromMail);
+                MailMessageObj.Subject = subject;
+                MailMessageObj.To.Add(recipientEmail);
+                MailMessageObj.Body = content;
 
-                using (SmtpClient smtpClient = new SmtpClient(smtpServer))
+
+                var smtpClient = new SmtpClient()
                 {
-                    smtpClient.Port = smtpPort;
-                    smtpClient.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
-                    smtpClient.EnableSsl = true;
+                    Host = smtpServer,
+                    Port = smtpPort,
+                    Credentials = new NetworkCredential(fromMail, Password),
+                    EnableSsl = true
+                };
 
-                    using (MailMessage mailMessage = new MailMessage())
-                    {
-                        mailMessage.From = new MailAddress(senderEmail);
-                        mailMessage.To.Add(recipientEmail);
-                        mailMessage.Subject = subject;
-                        mailMessage.Body = content;
-                        mailMessage.IsBodyHtml = true;
-
-                        smtpClient.Send(mailMessage);
-                    }
-                }
+                smtpClient.Send(MailMessageObj);
             }
             catch (Exception ex)
             {
