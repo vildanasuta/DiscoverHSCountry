@@ -20,15 +20,11 @@ namespace DiscoverHSCountry.Services
     public class RecommendationService : BaseCRUDService<Model.Recommendation, Database.Recommendation, RecommendationSearchObject, RecommendationCreateRequest, RecommendationUpdateRequest>, IRecommendationService
     {
         private readonly DiscoverHSCountryContext _context;
-        private int maxUserId;
-        private int maxLocationId;
-
+        
         public RecommendationService(DiscoverHSCountryContext context, IMapper mapper) : base(context, mapper)
         {
             _context = context;
-            var result = DetermineMaxUserAndLocationIdsAsync().Result;
-            maxUserId = result.Item1;
-            maxLocationId = result.Item2;
+
         }
 
 
@@ -221,56 +217,39 @@ namespace DiscoverHSCountry.Services
             return magnitude;
         }
 
-        private async Task<(int, int)> DetermineMaxUserAndLocationIdsAsync()
+        
+
+        private async Task<Dictionary<int, Dictionary<int, int>>> CreateUserItemMatrixAsync()
         {
-            int maxUserId = 0;
-            int maxLocationId = 0;
-
-            var maxUserIdQuery = await _context.Tourists.MaxAsync(tourist => tourist.TouristId);
-
-            if (maxUserIdQuery != null)
-            {
-                maxUserId = maxUserIdQuery;
-            }
-
-            var maxLocationIdQuery = await _context.Locations.MaxAsync(location => location.LocationId);
-
-            if (maxLocationIdQuery != null)
-            {
-                maxLocationId = maxLocationIdQuery;
-            }
-
-            return (maxUserId, maxLocationId);
-        }
-
-        private async Task<int[,]> CreateUserItemMatrixAsync()
-        {
-
-            int[,] userItemMatrix = new int[maxUserId + 1, maxLocationId + 1];
+            var userItemMatrix = new Dictionary<int, Dictionary<int, int>>();
 
             foreach (var user in _context.Tourists)
+            {
+                int userId = user.TouristId;
+                List<int?> visitedLocations = await GetUserVisitedLocationsAsync(userId);
+                List<int?> clickedLocations = await GetUserClickedLocationsAsync(userId);
+                List<int?> highlyRatedLocations = await GetUserHighlyRatedLocationsAsync(userId);
+
+                if (!userItemMatrix.ContainsKey(userId))
                 {
-                    int userId = user.TouristId;
-                    List<int?> visitedLocations = await GetUserVisitedLocationsAsync(userId);
-                    List<int?> clickedLocations = await GetUserClickedLocationsAsync(userId);
-                    List<int?> highlyRatedLocations = await GetUserHighlyRatedLocationsAsync(userId);
-
-                    foreach (var locationId in visitedLocations)
-                    {
-                        userItemMatrix[userId, locationId.Value] = 1;
-                    }
-
-                    foreach (var locationId in clickedLocations)
-                    {
-                        userItemMatrix[userId, locationId.Value] = 1;
-                    }
-
-                    foreach (var locationId in highlyRatedLocations)
-                    {
-                        userItemMatrix[userId, locationId.Value] = 1;
-                    }
+                    userItemMatrix[userId] = new Dictionary<int, int>();
                 }
-            
+
+                foreach (var locationId in visitedLocations)
+                {
+                    userItemMatrix[userId][locationId.Value] = 1;
+                }
+
+                foreach (var locationId in clickedLocations)
+                {
+                    userItemMatrix[userId][locationId.Value] = 1;
+                }
+
+                foreach (var locationId in highlyRatedLocations)
+                {
+                    userItemMatrix[userId][locationId.Value] = 1;
+                }
+            }
 
             return userItemMatrix;
         }
@@ -336,59 +315,53 @@ namespace DiscoverHSCountry.Services
 
         private async Task<(Dictionary<int, double[]>, Dictionary<int, double[]>)> PerformSVDAsync(int targetUserId)
         {
-            int numRows = maxUserId + 1;
-            int numCols = maxLocationId + 1;
+            var userItemMatrix = await CreateUserItemMatrixAsync();
+
+            int numRows = userItemMatrix.Count;
+            int numCols = userItemMatrix.Values.SelectMany(dict => dict.Keys).Max() + 1;
 
             var doubleUserItemMatrix = new double[numRows, numCols];
-
-            int[,] intUserItemMatrix = await CreateUserItemMatrixAsync();
 
             for (int i = 0; i < numRows; i++)
             {
                 for (int j = 0; j < numCols; j++)
                 {
-                    doubleUserItemMatrix[i, j] = (double)intUserItemMatrix[i, j];
-                }
-            }
-
-            Matrix<double> userItemMatrix = DenseMatrix.OfArray(doubleUserItemMatrix);
-
-            Svd<double> svd = userItemMatrix.Svd(true);
-
-            Matrix<double> userPreferences = svd.U;
-            Vector<double> singularValues = svd.S;
-
-            var userPreferencesDict = new Dictionary<int, double[]>();
-            var itemFeatures = new Dictionary<int, double[]>();
-
-            for (int userIndex = 0; userIndex < numRows; userIndex++)
-            {
-                double[] userPreferenceVector = new double[numCols]; 
-                for (int itemId = 0; itemId < numCols; itemId++)
-                {
-                    if (userPreferencesDict.ContainsKey(itemId))
+                    if (userItemMatrix.TryGetValue(i, out var userRatings) && userRatings.TryGetValue(j, out var rating))
                     {
-                        userPreferenceVector[itemId] = userPreferencesDict[itemId][userIndex];
+                        doubleUserItemMatrix[i, j] = rating;
                     }
                     else
                     {
+                        doubleUserItemMatrix[i, j] = 0.0; 
                     }
                 }
+            }
+
+            Matrix<double> userItemMatrixS = DenseMatrix.OfArray(doubleUserItemMatrix);
+
+            Svd<double> svd = userItemMatrixS.Svd(true);
+
+            Matrix<double> userPreferences = svd.U;
+            Matrix<double> itemFeatures = svd.VT.Transpose(); 
+
+            var userPreferencesDict = new Dictionary<int, double[]>();
+            var itemFeaturesDict = new Dictionary<int, double[]>();
+
+            for (int userIndex = 0; userIndex < numRows; userIndex++)
+            {
+                double[] userPreferenceVector = userPreferences.Row(userIndex).ToArray();
                 userPreferencesDict[userIndex] = userPreferenceVector;
             }
 
             for (int itemId = 0; itemId < numCols; itemId++)
             {
-                double[] itemFeatureVector = new double[numRows];
-                for (int userIndex = 0; userIndex < numRows; userIndex++)
-                {
-                    itemFeatureVector[userIndex] = svd.VT[itemId, userIndex];
-                }
-                itemFeatures[itemId] = itemFeatureVector;
+                double[] itemFeatureVector = itemFeatures.Row(itemId).ToArray();
+                itemFeaturesDict[itemId] = itemFeatureVector;
             }
 
-            return (userPreferencesDict, itemFeatures);
+            return (userPreferencesDict, itemFeaturesDict);
         }
+
 
         private List<int> GetTopNRecommendations(Dictionary<int, double[]> userPreferences, Dictionary<int, double[]> itemFeatures, int N)
         {

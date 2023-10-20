@@ -39,13 +39,22 @@ builder.Services.AddTransient<ILocationVisitsService, LocationVisitsService>();
 builder.Services.AddTransient<IRecommendationService, RecommendationService>();
 
 
+//for docker:
+var factory = new ConnectionFactory
+{
+    HostName = "host.docker.internal",
+    Port = 5672,
+    UserName = "guest",
+    Password = "guest",
+};
+/* locally:
 var factory = new ConnectionFactory
 {
     HostName = "localhost",
     Port = 5672,
     UserName = "guest",
     Password = "guest",
-};
+};*/
 var connection = factory.CreateConnection();
 var channel = connection.CreateModel();
 

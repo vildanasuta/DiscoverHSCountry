@@ -287,6 +287,8 @@ class _CartScreenState extends State<CartScreen> with DataFetcher {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(emailData),
     );
+    print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
       print('Email sent successfully.');
     } else {

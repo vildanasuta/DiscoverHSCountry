@@ -29,8 +29,9 @@ namespace DiscoverHSCountry.Services
         public void StartListening()
         {
             ConnectionFactory factory = new ConnectionFactory();
-            var uriString = "amqp://guest:guest@localhost:5672";
-
+            // for docker: 
+            var uriString = "amqp://guest:guest@host.docker.internal:5672";
+            /* locally: var uriString = "amqp://guest:guest@localhost:5672";*/
             factory.Uri = new Uri(uriString);
             factory.ClientProvidedName = "Rabbit Receiver1 App";
 
