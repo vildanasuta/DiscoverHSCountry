@@ -1,12 +1,24 @@
+import 'dart:io';
+
 import 'package:discoverhscountry_desktop/main.dart';
+import 'package:discoverhscountry_desktop/models/location_model.dart';
 import 'package:discoverhscountry_desktop/models/reservation_model.dart';
+import 'package:discoverhscountry_desktop/models/reservation_service_model.dart';
+import 'package:discoverhscountry_desktop/models/service_model.dart';
 import 'package:discoverhscountry_desktop/models/tourist_model.dart';
 import 'package:discoverhscountry_desktop/models/user_model.dart';
 import 'package:discoverhscountry_desktop/screens/reservation_details.dart';
 import 'package:discoverhscountry_desktop/services/authentication_service.dart';
 import 'package:discoverhscountry_desktop/util/dataFetcher.dart';
 import 'package:discoverhscountry_desktop/widgets/common_app_bar.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:http/http.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:path_provider/path_provider.dart' as pp;
+
 
 class ViewReservations extends StatefulWidget {
   final User? user;
@@ -78,6 +90,15 @@ class _ViewReservationsState extends State<ViewReservations> with DataFetcher {
             child: isLoading?const Center(
               child: CircularProgressIndicator(), // Loading indicator
             ):buildReservationList(),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () {
+                showYearSelectionDialog(context, allReservations);
+              },
+              child: const Text('Generiši izvještaj'),
+            ),
           ),
         ],
       ),
@@ -235,9 +256,121 @@ class _ViewReservationsState extends State<ViewReservations> with DataFetcher {
               ),
             ),
             const Divider(),
+            
           ],
         );
       },
     );
   }
+
+
+ Future<void> showYearSelectionDialog(BuildContext context, List<Reservation> allReservations) async {
+    int? selectedYear;
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Unesite godinu za izvještaj'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FormBuilderTextField(
+                name: 'year',
+                decoration: const InputDecoration(
+                  labelText: 'Godina',
+                ),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(
+                    errorText: 'Ovo polje je obavezno!',
+                  ),
+                ]),
+                onChanged: (value) {
+                  selectedYear = int.tryParse(value!);
+                },
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                if (selectedYear != null) {
+                  generateAndSavePDFReport(selectedYear!, allReservations);
+                  
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('Generiši'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void generateAndSavePDFReport(int year, List<Reservation> allReservations) async {
+    List<Tourist> allTourists = [];
+    List<Location> allLocations = [];
+   for(var reservation in allReservations){
+    var details = await getReservationDetailsById(reservation.reservationId!);
+    for(var d in details){
+      if(d.startDate.year==year){
+         var tourist = await getTouristById(reservation.touristId!);
+    allTourists.add(tourist);
+    var location = await getLocationById(reservation.locationId!);
+    allLocations.add(location);
+      }
+    }
+
+   }
+ final pdf = pw.Document();
+
+  pdf.addPage(
+    pw.Page(
+      build: (pw.Context context) {
+        return pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text('Izvjestaj za godinu $year', style: pw.TextStyle(fontSize: 20)),
+            pw.SizedBox(height: 20),
+            pw.Table.fromTextArray(
+              context: context,
+              headers: ['Lokacija', 'Ime i prezime turiste', 'Cijena'],
+              data: [
+                for (var i = 0; i < allReservations.length; i++)
+                  [
+                    allLocations[i].name, 
+                    '${allTourists[i].firstName} ${allTourists[i].lastName}', 
+                    '${allReservations[i].price.toStringAsFixed(2)} BAM', 
+                  ],
+              ],
+            ),
+          ],
+        );
+      },
+    ),
+  );
+
+  final result = await FilePicker.platform.saveFile(
+    dialogTitle: 'Save PDF Report',
+    initialDirectory: await getApplicationDocumentsDirectory(),
+    allowedExtensions: ['pdf'],
+    fileName: 'reservation_report_$year.pdf',
+  );
+
+  if (result != null) {
+    final file = File(result);
+    await file.writeAsBytes(await pdf.save());
+  }
+
+
+  }
+  
+ Future<String> getApplicationDocumentsDirectory() async {
+  final directory = await pp.getApplicationDocumentsDirectory();
+  return directory.path;
 }
+}
+
+
+
+

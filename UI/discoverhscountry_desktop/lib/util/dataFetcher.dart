@@ -40,6 +40,35 @@ mixin DataFetcher {
     }
   }
 
+ Future<List<String>> fetchAllEmails() async {
+    final response = await http.get(Uri.parse('${ApiConstants.baseUrl}/User'));
+    if (response.statusCode == 200) {
+      var jsonData =
+          json.decode(response.body)['result']['\$values'] as List<dynamic>;
+      var users = <User>[];
+      for (var userData in jsonData) {
+        var user = User(
+          userId: userData['userId'] as int,
+          email: userData['email'] as String,
+          firstName: userData['firstName'] as String,
+          lastName: userData['lastName'] as String, 
+          profileImage: userData['profileImage'],
+        );
+        users.add(user);
+      }
+      List<String> emails=[];
+      for (var user in users){
+        emails.add(user.email);
+      }
+      return emails;
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+
+
+
   Future<List<Review>> getReviewByLocationId(int locationId) async {
     final Uri uri = Uri.parse('${ApiConstants.baseUrl}/Review');
     final response = await http.get(uri);

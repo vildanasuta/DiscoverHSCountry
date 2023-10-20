@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:discoverhscountry_desktop/api_constants.dart';
 import 'package:discoverhscountry_desktop/screens/login_screen.dart';
+import 'package:discoverhscountry_desktop/util/dataFetcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -13,14 +14,14 @@ import 'package:discoverhscountry_desktop/models/tourist_attraction_owner.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image/image.dart' as img;
 
-
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
   @override
   State<RegistrationScreen> createState() => _RegistrationScreenState();
 }
 
-class _RegistrationScreenState extends State<RegistrationScreen> {
+class _RegistrationScreenState extends State<RegistrationScreen>
+    with DataFetcher {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   // ignore: prefer_final_fields
   TextEditingController _firstNameController = TextEditingController();
@@ -33,6 +34,25 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   // ignore: prefer_final_fields
   TextEditingController _repeatPasswordController = TextEditingController();
   String? _profileImage;
+  List<String> emails = [];
+  @override
+  void initState() {
+    super.initState();
+    _fetchAllEmails();
+  }
+
+  _fetchAllEmails() async {
+    emails = await fetchAllEmails();
+  }
+
+  bool _checkIfEmailExists(String email) {
+    if (emails.contains(email)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -140,6 +160,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                         FormBuilderValidators.email(
                                             errorText:
                                                 'Email mora biti u formatu: primjer@primjer.com.'),
+                                        (value) {
+                                          if (_checkIfEmailExists(value!)) {
+                                            return 'Email već postoji. Odaberite drugi email.';
+                                          }
+                                          return null; // Return null if the email is unique
+                                        },
                                       ]),
                                     ),
                                     const SizedBox(height: 16),
@@ -206,8 +232,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                     // Resize the image to a smaller size
                                     img.Image resizedImage =
                                         img.decodeImage(imageBytes)!;
-                                    int maxWidth =
-                                        800; 
+                                    int maxWidth = 800;
                                     img.Image smallerImage = img.copyResize(
                                         resizedImage,
                                         width: maxWidth);
