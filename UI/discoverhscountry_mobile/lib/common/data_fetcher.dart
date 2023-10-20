@@ -460,8 +460,7 @@ mixin DataFetcher {
     final Uri uri = Uri.parse(
         '${ApiConstants.baseUrl}/Recommendation/Recommendations/$touristId');
     final response = await http.get(uri);
-    print(response.statusCode);
-    print(response.body);
+   
     if (response.statusCode == 200) {
       var jsonData = json.decode(response.body)['\$values'] as List<dynamic>;
       final recommendations = jsonData
