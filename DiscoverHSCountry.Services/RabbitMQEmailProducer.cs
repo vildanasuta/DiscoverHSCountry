@@ -33,11 +33,36 @@ namespace DiscoverHSCountry.Services
 
         public void SendConfirmationEmail(EmailModel emailModel)
         {
-                var messageBody = JsonConvert.SerializeObject(emailModel);
-                var body = Encoding.UTF8.GetBytes(messageBody);
-                _channel.QueueDeclare(queue: "email_queue", durable: true, exclusive: false, autoDelete: false, arguments: null);
-                _channel.BasicPublish(exchange: "", routingKey: "email_queue", basicProperties: null, body: body);
- 
+
+            //sender
+            ConnectionFactory factory = new ConnectionFactory();
+
+            // for docker: 
+            var uriString = "amqp://guest:guest@host.docker.internal:5672";
+            /* locally: var uriString = "amqp://guest:guest@localhost:5672";*/
+
+
+            factory.Uri = new Uri(uriString);
+            factory.ClientProvidedName = "Rabbit Test";
+
+            IConnection connection = factory.CreateConnection();
+            IModel channel = connection.CreateModel();
+
+            string exchangeName = "EmailExchange";
+            string routingKey = "email_queue";
+            string queueName = "EmailQueue";
+
+            channel.ExchangeDeclare(exchangeName, ExchangeType.Direct);
+            channel.QueueDeclare(queueName, false, false, false, null);
+            channel.QueueBind(queueName, exchangeName, routingKey, null);
+
+            string emailModelJson = JsonConvert.SerializeObject(emailModel);
+            byte[] messageBodyBytes = Encoding.UTF8.GetBytes(emailModelJson);
+            channel.BasicPublish(exchangeName, routingKey, null, messageBodyBytes);
+            //Thread.Sleep(TimeSpan.FromSeconds(1));
+
+            channel.Close();
+            connection.Close();
         }
     }
 

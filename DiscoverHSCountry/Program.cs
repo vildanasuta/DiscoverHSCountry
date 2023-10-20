@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 using MathNet.Numerics;
 using RabbitMQ.Client;
 using System.Threading.Channels;
-
+using Microsoft.AspNetCore.Cors;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,13 +40,22 @@ builder.Services.AddTransient<ILocationVisitsService, LocationVisitsService>();
 builder.Services.AddTransient<IRecommendationService, RecommendationService>();
 
 
+//for docker:
+var factory = new ConnectionFactory
+{
+    HostName = "host.docker.internal",
+    Port = 5672,
+    UserName = "guest",
+    Password = "guest",
+};
+/* locally:
 var factory = new ConnectionFactory
 {
     HostName = "localhost",
     Port = 5672,
     UserName = "guest",
     Password = "guest",
-};
+};*/
 var connection = factory.CreateConnection();
 var channel = connection.CreateModel();
 
@@ -64,6 +73,14 @@ builder.Services.AddControllers()
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder => builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
 
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -84,6 +101,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseCors("AllowAllOrigins");
 
 
 /*using (var scope = app.Services.CreateScope())

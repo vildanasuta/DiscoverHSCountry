@@ -1,10 +1,16 @@
+import 'dart:io';
 import 'package:discoverhscountry_mobile/common/data_fetcher.dart';
 import 'package:discoverhscountry_mobile/models/location_model.dart';
 import 'package:discoverhscountry_mobile/models/user_model.dart';
 import 'package:discoverhscountry_mobile/models/visited_location_model.dart';
 import 'package:discoverhscountry_mobile/screens/visited_location_details_screen.dart';
 import 'package:discoverhscountry_mobile/widgets/tourist_drawer.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:pdf/widgets.dart' as pw;
+// ignore: depend_on_referenced_packages
+import 'package:path_provider/path_provider.dart' as pp;
+import 'package:permission_handler/permission_handler.dart';
 
 // ignore: must_be_immutable
 class VisitedLocationsScreen extends StatefulWidget {
@@ -142,6 +148,94 @@ class _VisitedLocationsScreenState extends State<VisitedLocationsScreen>
                     },
                   ),
           ),
+          ElevatedButton(
+  onPressed: () {
+    // Call the function to generate and save the PDF report
+    generateAndSavePDFReport(visitedLocations);
+  },
+  child: const Text('Generate Report'),
+)
+
         ]));
   }
+
+Future<List<List<String>>> createTableData(List<VisitedLocation> visitedLocations) async {
+  final List<Future<List<String>>> dataFutures = visitedLocations.map((location) async {
+    var locationDetails = await _getLocationById(location.locationId);
+    return [
+      locationDetails!.name,
+      location.visitDate.toString(),
+      location.notes ?? 'N/A',
+    ];
+  }).toList();
+
+  final data = await Future.wait(dataFutures);
+  return data;
 }
+
+Future<void> generateAndSavePDFReport(List<VisitedLocation> visitedLocations) async {
+  final pdf = pw.Document();
+
+  List<List<String>> tableData = await createTableData(visitedLocations);
+
+  pdf.addPage(
+    pw.Page(
+      build: (pw.Context context) {
+        return pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(
+              'Visited Locations Report',
+              style: const pw.TextStyle(fontSize: 20),
+            ),
+            pw.SizedBox(height: 20),
+            pw.TableHelper.fromTextArray(
+              context: context,
+              headers: ['Name', 'Date', 'Notes'],
+              data: tableData,
+            ),
+          ],
+        );
+      },
+    ),
+  );
+  if(Platform.isAndroid){
+   var status = await Permission.storage.request();
+   if (status.isGranted ) {
+    final directory = await pp.getApplicationDocumentsDirectory();
+    final filePath = '${directory.path}/visited_locations_report.pdf';
+
+    final file = File(filePath);
+    await file.writeAsBytes(await pdf.save());
+
+    // ignore: avoid_print
+    print('PDF saved at: $filePath');
+  } else {
+    // ignore: avoid_print
+    print('Permission denied to save the PDF.');
+  }
+  } else{
+      final result = await FilePicker.platform.saveFile(
+    dialogTitle: 'Save PDF Report',
+    initialDirectory: await getApplicationDocumentsDirectory(),
+    allowedExtensions: ['pdf'],
+    fileName: 'visited_locations_report.pdf',
+  );
+
+  if (result != null) {
+    final file = File(result);
+    await file.writeAsBytes(await pdf.save());
+  }
+
+
+  }
+  
+ 
+  }
+  Future<String> getApplicationDocumentsDirectory() async {
+  final directory = await pp.getApplicationDocumentsDirectory();
+  return directory.path;
+}
+}
+
+

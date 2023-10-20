@@ -83,11 +83,11 @@ class _ViewLocationsState extends State<ViewLocations> with DataFetcher {
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ElevatedButton(
+                        /*ElevatedButton(
                           onPressed: () {
                           },
                           child: const Text('Uredi'),
-                        ),
+                        ),*/
                         const SizedBox(width: 8.0),
                         ElevatedButton(
                           onPressed: () {

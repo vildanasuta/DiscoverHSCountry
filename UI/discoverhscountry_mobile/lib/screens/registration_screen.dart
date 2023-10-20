@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:discoverhscountry_mobile/api_constants.dart';
+import 'package:discoverhscountry_mobile/common/data_fetcher.dart';
 import 'package:discoverhscountry_mobile/models/tourist_model.dart';
 import 'package:discoverhscountry_mobile/screens/login_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,7 +24,8 @@ class RegistrationScreen extends StatefulWidget {
   State<RegistrationScreen> createState() => _RegistrationScreenState();
 }
 
-class _RegistrationScreenState extends State<RegistrationScreen> {
+class _RegistrationScreenState extends State<RegistrationScreen>
+    with DataFetcher {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
@@ -32,9 +34,27 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _repeatPasswordController =
       TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-
+  List<String> emails = [];
   String? _profileImage;
   DateTime? dateTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAllEmails();
+  }
+
+  _fetchAllEmails() async {
+    emails = await fetchAllEmails();
+  }
+
+  bool _checkIfEmailExists(String email) {
+    if (emails.contains(email)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   @override
   void dispose() {
@@ -218,6 +238,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             FormBuilderValidators.email(
                                 errorText:
                                     'Email needs to be formatted like: example@example.com.'),
+                            (value) {
+                              if (_checkIfEmailExists(value!)) {
+                                return 'This email already exists. Choose another one.';
+                              }
+                              return null; // Return null if the email is unique
+                            },
                           ]),
                         ),
                       ),

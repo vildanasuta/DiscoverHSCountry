@@ -109,7 +109,7 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
               ElevatedButton(
                 onPressed: () {
                   _launchEmail(
-                      'support@discoverhscountry.com', 'Support Request', '');
+                      'cdiscoverhs@gmail.com', 'Support Request', '');
                 },
                 child: const Text('Contact support'),
               ),

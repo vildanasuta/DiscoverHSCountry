@@ -210,7 +210,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                                       3)
                                     Text(
                                       widget.location.name.split(' ').skip(3).join(
-                                          ' '), // Skip the first 3 words and display the rest on a new line
+                                          ' '),
                                       style: Theme.of(context)
                                           .textTheme
                                           .headlineSmall,
@@ -222,7 +222,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                                 child: IconButton(
                                   onPressed: () {
                                     _showVisitedLocationDialog(
-                                        context); // Call a function to show the dialog
+                                        context); 
                                   },
                                   icon: const Icon(
                                     CupertinoIcons.checkmark_alt_circle_fill,
@@ -645,17 +645,56 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
   }
 
   Future<void> _selectDate(
-      BuildContext context, TextEditingController controller) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(DateTime.now().year + 1),
-    );
-    if (picked != null && picked != DateTime.now()) {
+  BuildContext context,
+  TextEditingController controller,
+  bool reservation,
+) async {
+  final DateTime currentDate = DateTime.now();
+  DateTime firstDate;
+  DateTime lastDate;
+
+  if (reservation) {
+    // For reservations, allows dates only in the future
+    firstDate = currentDate;
+    lastDate = DateTime(currentDate.year + 1); // Limit to one year in the future
+  } else {
+    // For visited locations, allows dates only in the past
+    firstDate = DateTime(currentDate.year - 1); // Limit to one year in the past
+    lastDate = currentDate;
+  }
+
+  final DateTime? picked = await showDatePicker(
+    context: context,
+    initialDate: currentDate,
+    firstDate: firstDate,
+    lastDate: lastDate,
+  );
+
+  if (picked != null) {
       controller.text = picked.toLocal().toString().split(' ')[0];
+    } else {
+      // ignore: use_build_context_synchronously
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Invalid Date'),
+            content: const Text('Please select a date in the allowed range.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
+
+
 
   void _makeReservation(int serviceId, Service service) async {
     var startDateController = TextEditingController();
@@ -681,7 +720,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.calendar_today),
                       onPressed: () =>
-                          _selectDate(context, startDateController),
+                          _selectDate(context, startDateController, true),
                     ),
                   ),
                 ),
@@ -692,7 +731,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.calendar_today),
                         onPressed: () =>
-                            _selectDate(context, endDateController),
+                            _selectDate(context, endDateController, true),
                       ),
                     )),
                 TextField(
@@ -822,7 +861,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                   labelText: 'Select the date you visited this location',
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.calendar_today),
-                    onPressed: () => _selectDate(context, dateController),
+                    onPressed: () => _selectDate(context, dateController, false),
                   ),
                 ),
               ),

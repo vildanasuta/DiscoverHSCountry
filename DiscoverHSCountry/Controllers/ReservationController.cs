@@ -39,7 +39,10 @@ namespace DiscoverHSCountry.API.Controllers
         {
             try
             {
+
+                
                 _rabbitMQEmailProducer.SendConfirmationEmail(emailModel);
+               Thread.Sleep(TimeSpan.FromSeconds(15));
                 _emailService.StartListening();
                 return Ok();
             }
