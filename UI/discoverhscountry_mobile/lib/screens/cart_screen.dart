@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:discoverhscountry_mobile/api_constants.dart';
@@ -46,6 +47,10 @@ class _CartScreenState extends State<CartScreen> with DataFetcher {
     totalPriceFuture = calculateTotalPriceAsync();
     getTouristId();
   }
+  @override
+void dispose() {
+  super.dispose();
+}
 
   Future<void> getTouristId() async {
     touristId = await getTouristIdByUserId(widget.user.userId);
@@ -79,90 +84,90 @@ class _CartScreenState extends State<CartScreen> with DataFetcher {
         .firstWhere((service) => service.serviceId == serviceId);
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(0, 2, 89, 1.0),
-        foregroundColor: Colors.white,
-        actions: [
-          Builder(
-            builder: (context) {
-              return IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () {
-                  Scaffold.of(context).openEndDrawer();
-                },
-              );
-            },
-          ),
-        ],
-        title: Center(
-          child: Text(
-            widget.location.name,
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(color: Colors.white),
+        appBar: AppBar(
+          backgroundColor: const Color.fromRGBO(0, 2, 89, 1.0),
+          foregroundColor: Colors.white,
+          actions: [
+            Builder(
+              builder: (context) {
+                return IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () {
+                    Scaffold.of(context).openEndDrawer();
+                  },
+                );
+              },
+            ),
+          ],
+          title: Center(
+            child: Text(
+              widget.location.name,
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(color: Colors.white),
+            ),
           ),
         ),
-      ),
-      endDrawer: TouristDrawer(user: widget.user),
-      body: FutureBuilder<double>(
-          future: totalPriceFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else {
-              totalPrice = snapshot.data ?? 0.0;
-              return SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: widget.cartItems.length,
-                      itemBuilder: (context, index) {
-                        ReservationService reservationService =
-                            widget.cartItems[index];
-                        double itemTotalPrice =
-                            calculateTotalPrice(reservationService);
+        endDrawer: TouristDrawer(user: widget.user),
+        body: FutureBuilder<double>(
+            future: totalPriceFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else {
+                totalPrice = snapshot.data ?? 0.0;
+                return SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: widget.cartItems.length,
+                        itemBuilder: (context, index) {
+                          ReservationService reservationService =
+                              widget.cartItems[index];
+                          double itemTotalPrice =
+                              calculateTotalPrice(reservationService);
 
-                        Service service =
-                            getServiceById(reservationService.serviceId);
-                        return ListTile(
-                          title: Text('Service: ${service.serviceName}'),
-                          subtitle: Text(
-                              'Price: BAM${itemTotalPrice.toStringAsFixed(2)}'),
-                        );
-                      },
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'Total Price: BAM${totalPrice!.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                          Service service =
+                              getServiceById(reservationService.serviceId);
+                          return ListTile(
+                            title: Text('Service: ${service.serviceName}'),
+                            subtitle: Text(
+                                'Price: BAM${itemTotalPrice.toStringAsFixed(2)}'),
+                          );
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          'Total Price: BAM${totalPrice!.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: ElevatedButton(
-                          onPressed: () {
-                            _saveReservation();
-                          },
-                          child: const Text('Proceed to payment')),
-                    )
-                  ],
-                ),
-              );
-            }
-          }),
-    );
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: ElevatedButton(
+                            onPressed: () {
+                              _saveReservation();
+                            },
+                            child: const Text('Proceed to payment')),
+                      )
+                    ],
+                  ),
+                );
+              }
+            }));
   }
 
   _saveReservation() async {
@@ -203,74 +208,94 @@ class _CartScreenState extends State<CartScreen> with DataFetcher {
           print('Saved');
         }
       }
+              var newContext= context;
 
-      // ignore: use_build_context_synchronously
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (BuildContext context) => UsePaypal(
-            sandboxMode: true,
-            clientId:
-                "AZm31Q22LOFbOKAjxt86nZrQpk0zF8Rr3HFkcAPsh7HAZ_d8ED4leIldByNFyN4wV_UK0hCwzmTl_XDb",
-            secretKey:
-                "EIW1EkL15cHAmDPYud7sttMEcOvUg_HPpuKmvX8wn7q3h-_zVVm4AHSeEhzuGExWDNer6c_SS2s2tgXK",
-            returnURL: "https://samplesite.com/return",
-            cancelURL: "https://samplesite.com/cancel",
-            transactions: [
-              {
-                "amount": {
-                  "total": (totalPrice! * 0.5),
-                  "currency": "USD",
-                },
-                "description": "Payment for reservation #$newReservationId.",
-                "item_list": {
-                  "items": [
-                    for (var reservationservice in widget.cartItems)
-                      {
-                        "name": reservationservice.additionalDescription,
-                        "quantity": reservationservice.numberOfPeople,
-                        "price": ((calculateTotalPrice(reservationservice) /
-                                reservationservice.numberOfPeople) *
-                            0.5),
-                        "currency": "USD"
-                      }
-                  ],
+          final completer = Completer<bool>();
+
+        // ignore: use_build_context_synchronously
+        await Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (BuildContext context) => UsePaypal(
+              sandboxMode: true,
+              clientId:
+                  "AZm31Q22LOFbOKAjxt86nZrQpk0zF8Rr3HFkcAPsh7HAZ_d8ED4leIldByNFyN4wV_UK0hCwzmTl_XDb",
+              secretKey:
+                  "EIW1EkL15cHAmDPYud7sttMEcOvUg_HPpuKmvX8wn7q3h-_zVVm4AHSeEhzuGExWDNer6c_SS2s2tgXK",
+              returnURL: "https://samplesite.com/return",
+              cancelURL: "https://samplesite.com/cancel",
+              transactions: [
+                {
+                  "amount": {
+                    "total": (totalPrice! * 0.5),
+                    "currency": "USD",
+                  },
+                  "description": "Payment for reservation #$newReservationId.",
+                  "item_list": {
+                    "items": [
+                      for (var reservationservice in widget.cartItems)
+                        {
+                          "name": reservationservice.additionalDescription,
+                          "quantity": reservationservice.numberOfPeople,
+                          "price": ((calculateTotalPrice(reservationservice) /
+                                  reservationservice.numberOfPeople) *
+                              0.5),
+                          "currency": "USD"
+                        }
+                    ],
+                  }
                 }
-              }
-            ],
-            note: "Contact us for any questions on your order.",
-            onSuccess: (Map params) async {
-              print("onSuccess: $params");
-              print("sending email...");
-              _sendConfirmationEmail(user, location!);
-              _navigateToSuccessPage();
-            },
-            onError: (error) {
-              print("onError: $error");
-              /* Navigator.of(context).push(
- MaterialPageRoute(
-                              builder: (context) => PaymentCanceledPage(user: widget.user),
-                            ));*/
-            },
-            onCancel: (params) {
-              print('cancelled: $params');
-              /* Navigator.of(context).push(
- MaterialPageRoute(
-                              builder: (context) => PaymentCanceledPage(user: widget.user),
-                            ));*/
-            },
+              ],
+              note: "Contact us for any questions on your order.",
+              onSuccess: (Map params) async {
+                print("onSuccess: $params");
+                print("sending email...");
+                _sendConfirmationEmail(user, location!);
+                            completer.complete(true); 
+  Navigator.of(newContext).pop();
+  Navigator.of(newContext).push(
+    MaterialPageRoute(
+      builder: (newContext) => PaymentSuccessPage(user: widget.user),
+    ),
+  );
+                
+              },
+              onError: (error) {
+                print("onError: $error");
+               
+                                        completer.complete(false); 
+              },
+              onCancel: (params) {
+                print('cancelled: $params');
+                 
+              },
+            ),
           ),
-        ),
-      );
+        );
+    final result = await completer.future;
+
+    if (result) {
+      if (mounted) {
+        Navigator.of(newContext).push(
+          MaterialPageRoute(
+            builder: (newContext) => PaymentSuccessPage(user: widget.user),
+          ),
+        );
+      }
+    }
+    else{
+      if(mounted){
+         Navigator.of(newContext).push(
+          MaterialPageRoute(
+            builder: (newContext) => PaymentCanceledPage(user: widget.user),
+          ),
+        );
+      }
+    }
     }
     setState(() {
-      widget.cartItems = [];
+      if(mounted){
+      widget.cartItems = [];}
     });
-  }
-
-  void _navigateToSuccessPage() async {
-    await Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => PaymentSuccessPage(user: widget.user),
-    ));
   }
 
   _sendConfirmationEmail(User user, Location location) async {

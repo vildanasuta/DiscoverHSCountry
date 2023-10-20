@@ -18,6 +18,7 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage> {
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(0, 2, 89, 1.0),
         foregroundColor: Colors.white,
+                automaticallyImplyLeading: false, 
         actions: [
           Builder(
             builder: (context) {
