@@ -2,11 +2,13 @@
 using DiscoverHSCountry.Model.Requests;
 using DiscoverHSCountry.Model.SearchObjects;
 using DiscoverHSCountry.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace DiscoverHSCountry.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class ServiceController : BaseCRUDController<Model.Service, Model.SearchObjects.ServiceSearchObject, Model.Requests.ServiceCreateRequest, Model.Requests.ServiceUpdateRequest>

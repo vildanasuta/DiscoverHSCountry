@@ -3,8 +3,6 @@ import 'dart:io';
 import 'package:discoverhscountry_desktop/main.dart';
 import 'package:discoverhscountry_desktop/models/location_model.dart';
 import 'package:discoverhscountry_desktop/models/reservation_model.dart';
-import 'package:discoverhscountry_desktop/models/reservation_service_model.dart';
-import 'package:discoverhscountry_desktop/models/service_model.dart';
 import 'package:discoverhscountry_desktop/models/tourist_model.dart';
 import 'package:discoverhscountry_desktop/models/user_model.dart';
 import 'package:discoverhscountry_desktop/screens/reservation_details.dart';
@@ -15,7 +13,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:http/http.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart' as pp;
 
@@ -330,7 +327,7 @@ class _ViewReservationsState extends State<ViewReservations> with DataFetcher {
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Text('Izvjestaj za godinu $year', style: pw.TextStyle(fontSize: 20)),
+            pw.Text('Izvjestaj za godinu $year', style: const pw.TextStyle(fontSize: 20)),
             pw.SizedBox(height: 20),
             pw.Table.fromTextArray(
               context: context,

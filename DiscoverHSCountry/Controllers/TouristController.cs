@@ -2,6 +2,7 @@
 using DiscoverHSCountry.Model.Requests;
 using DiscoverHSCountry.Model.SearchObjects;
 using DiscoverHSCountry.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiscoverHSCountry.API.Controllers
@@ -18,7 +19,7 @@ namespace DiscoverHSCountry.API.Controllers
 
         }
 
-        [HttpPost("CreateTouristWithUserDetails")] // Specify the route path here
+        [HttpPost("CreateTouristWithUserDetails")] 
         public async Task<IActionResult> CreateTouristWithUserDetails([FromBody] TouristCreateRequest touristCreateRequest)
         {
             try
@@ -38,13 +39,13 @@ namespace DiscoverHSCountry.API.Controllers
             return base.Insert(insert);
         }
 
-
+        [Authorize]
         [HttpGet("GetTouristIdByUserId/{userId}")]
         public IActionResult GetTouristIdByUserId(int userId)
         {
             int touristId = _touristService.GetTouristIdByUserId(userId);
 
-            if (touristId != 0) // Check if a valid result was returned from the service
+            if (touristId != 0)
             {
                 return Ok(touristId);
             }

@@ -8,9 +8,11 @@ import 'package:discoverhscountry_desktop/screens/dashboard_admin.dart';
 import 'package:discoverhscountry_desktop/screens/dashboard_touristattractionowner.dart';
 import 'package:discoverhscountry_desktop/screens/registration_screen.dart';
 import 'package:discoverhscountry_desktop/services/authentication_service.dart';
+import 'package:discoverhscountry_desktop/util/dataFetcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:http/http.dart' as http;
 
@@ -21,7 +23,7 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with DataFetcher {
   final AuthenticationService authService = AuthenticationService();
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   // ignore: prefer_final_fields
@@ -139,13 +141,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                     Map<String, dynamic> responseBody =
                                         json.decode(response.body);
                                     // Extract the UserType field
+                                    String? token = responseBody['token'];
+                                    var storage = FlutterSecureStorage();
+                                    storage.write(key: 'token', value: token);
                                     String? userType = responseBody['userType'];
                                     if (userType != null) {
                                       int userId = responseBody['userId'];
                                       var getUserUrl = Uri.parse(
                                           '${ApiConstants.baseUrl}/User/$userId');
                                       var userResponse =
-                                          await http.get(getUserUrl);
+                                          await makeAuthenticatedRequest(
+                                        getUserUrl,
+                                        'GET',
+                                      );
+
                                       User? user;
                                       if (userResponse.statusCode == 200) {
                                         Map<String, dynamic> userBody =
@@ -161,25 +170,25 @@ class _LoginScreenState extends State<LoginScreen> {
                                       }
                                       if (userType ==
                                           'touristattractionowner') {
-                                        await authService
-                                            .login(); // Update isLoggedIn status
+                                        await authService.login(
+                                            token); // Update isLoggedIn status
                                         // ignore: use_build_context_synchronously
                                         Navigator.of(context).push(
                                           MaterialPageRoute(
                                             builder: (context) =>
                                                 DashboardTouristAttractionOwner(
-                                              user: user, userType: userType
-                                            ),
+                                                    user: user,
+                                                    userType: userType),
                                           ),
                                         );
                                       } else if (userType == "administrator") {
-                                        await authService
-                                            .login(); // Update isLoggedIn status
+                                        await authService.login(
+                                            token); // Update isLoggedIn status
                                         // ignore: use_build_context_synchronously
                                         Navigator.of(context)
                                             .push(MaterialPageRoute(
-                                          builder: (context) =>
-                                              DashboardAdmin(user: user, userType: userType),
+                                          builder: (context) => DashboardAdmin(
+                                              user: user, userType: userType),
                                         ));
                                       }
                                     } else {
@@ -197,11 +206,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                         backgroundColor: Colors.red,
                                         duration: const Duration(seconds: 3),
                                       ).show(context);
-                                    }
-                                    else if(response.body=="Invalid password."){
+                                    } else if (response.body ==
+                                        "Invalid password.") {
                                       // ignore: use_build_context_synchronously
                                       Flushbar(
-                                        message: "Netačna lozinka. Pokušajte ponovo!",
+                                        message:
+                                            "Netačna lozinka. Pokušajte ponovo!",
                                         backgroundColor: Colors.red,
                                         duration: const Duration(seconds: 3),
                                       ).show(context);

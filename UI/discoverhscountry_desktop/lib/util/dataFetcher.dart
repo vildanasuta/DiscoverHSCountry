@@ -16,12 +16,48 @@ import 'package:discoverhscountry_desktop/models/technical_issue_tourist.dart';
 import 'package:discoverhscountry_desktop/models/tourist_attraction_owner.dart';
 import 'package:discoverhscountry_desktop/models/tourist_model.dart';
 import 'package:discoverhscountry_desktop/models/user_model.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher_string.dart';
 
 mixin DataFetcher {
+  Future<http.Response> makeAuthenticatedRequest(
+    Uri uri,
+    String method, {
+    dynamic body,
+  }) async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+    final headers = {'Authorization': 'Bearer $token'
+    };
+
+    if (body != null) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    print(uri);
+    print(headers);
+
+    return await http.get(uri, headers: headers);
+
+    /*switch (method) {
+      case 'GET':
+        return await http.get(uri, headers: headers);
+      case 'POST':
+        return await http.post(uri, headers: headers, body: json.encode(body));
+      case 'PUT':
+        return await http.put(uri, headers: headers, body: json.encode(body));
+      case 'DELETE':
+        return await http.delete(uri, headers: headers);
+      default:
+        throw UnsupportedError('Unsupported HTTP method: $method');
+    }*/
+  }
+
+
   Future<List<City>> fetchCities() async {
-    final response = await http.get(Uri.parse('${ApiConstants.baseUrl}/City'));
+     final Uri uri = Uri.parse('${ApiConstants.baseUrl}/City');
+  final response = await makeAuthenticatedRequest(uri, 'GET');
     if (response.statusCode == 200) {
       var jsonData =
           json.decode(response.body)['result']['\$values'] as List<dynamic>;
@@ -41,8 +77,9 @@ mixin DataFetcher {
   }
 
  Future<List<String>> fetchAllEmails() async {
-    final response = await http.get(Uri.parse('${ApiConstants.baseUrl}/User'));
-    if (response.statusCode == 200) {
+final Uri uri = Uri.parse('${ApiConstants.baseUrl}/User');
+  final response = await makeAuthenticatedRequest(uri, 'GET');
+      if (response.statusCode == 200) {
       var jsonData =
           json.decode(response.body)['result']['\$values'] as List<dynamic>;
       var users = <User>[];
@@ -70,8 +107,8 @@ mixin DataFetcher {
 
 
   Future<List<Review>> getReviewByLocationId(int locationId) async {
-    final Uri uri = Uri.parse('${ApiConstants.baseUrl}/Review');
-    final response = await http.get(uri);
+     final Uri uri = Uri.parse('${ApiConstants.baseUrl}/Review');
+  final response = await makeAuthenticatedRequest(uri, 'GET');
 
     if (response.statusCode == 200) {
       var jsonData =
@@ -90,8 +127,8 @@ mixin DataFetcher {
 
   Future<List<LocationCategory>> fetchLocationCategories(
       bool isTouristAttractionOwner) async {
-    final response =
-        await http.get(Uri.parse('${ApiConstants.baseUrl}/LocationCategory'));
+    final Uri uri = Uri.parse('${ApiConstants.baseUrl}/LocationCategory');
+  final response = await makeAuthenticatedRequest(uri, 'GET');
     if (response.statusCode == 200) {
       var jsonData =
           json.decode(response.body)['result']['\$values'] as List<dynamic>;
@@ -122,9 +159,10 @@ mixin DataFetcher {
 
   Future<List<LocationSubcategory>> fetchLocationSubcategories(
       int categoryId) async {
-    final response = await http.get(Uri.parse(
-      '${ApiConstants.baseUrl}/LocationSubcategory/GetSubcategoriesByCategory/$categoryId',
-    ));
+    final Uri uri = Uri.parse(
+    '${ApiConstants.baseUrl}/LocationSubcategory/GetSubcategoriesByCategory/$categoryId',
+  );
+  final response = await makeAuthenticatedRequest(uri, 'GET');
     if (response.statusCode == 200) {
       var jsonData = json.decode(response.body) as Map<String, dynamic>;
       var subcategories = <LocationSubcategory>[];
@@ -146,8 +184,8 @@ mixin DataFetcher {
   }
 
   Future<List<EventCategory>> fetchEventCategories() async {
-    final response =
-        await http.get(Uri.parse('${ApiConstants.baseUrl}/EventCategory'));
+    final Uri uri = Uri.parse('${ApiConstants.baseUrl}/EventCategory');
+  final response = await makeAuthenticatedRequest(uri, 'GET');
     if (response.statusCode == 200) {
       var jsonData =
           json.decode(response.body)['result']['\$values'] as List<dynamic>;
@@ -167,10 +205,9 @@ mixin DataFetcher {
 
   Future<List<int>> fetchLocationIdsByTouristAttractionOwnerId(
       int taoId) async {
-    final response = await http.get(
-      Uri.parse(
-          '${ApiConstants.baseUrl}/LocationTouristAttractionOwner/GetLocationIdsByTouristAttractionOwnerId/$taoId'),
-    );
+    final Uri uri = Uri.parse(
+      '${ApiConstants.baseUrl}/LocationTouristAttractionOwner/GetLocationIdsByTouristAttractionOwnerId/$taoId');
+  final response = await makeAuthenticatedRequest(uri, 'GET');
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body)['\$values'];
@@ -194,9 +231,9 @@ mixin DataFetcher {
     final List<Map<String, dynamic>> locationsData = [];
 
     for (int id in locationIds) {
-      final response = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}/Location/$id'),
-      );
+      final Uri uri = Uri.parse('${ApiConstants.baseUrl}/Location/$id');
+    final response = await makeAuthenticatedRequest(uri, 'GET');
+
       if (response.statusCode == 200) {
         var jsonData = json.decode(response.body);
         final locationData = {
@@ -217,9 +254,9 @@ mixin DataFetcher {
     List<Location> locationsData = [];
 
     for (int id in locationIds) {
-      final response = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}/Location/$id'),
-      );
+     final Uri uri = Uri.parse('${ApiConstants.baseUrl}/Location/$id');
+    final response = await makeAuthenticatedRequest(uri, 'GET');
+
       if (response.statusCode == 200) {
         var jsonData = json.decode(response.body);
         var locationData = Location.fromJson(jsonData);
@@ -233,10 +270,10 @@ mixin DataFetcher {
 
   Future<List<Reservation>> fetchReservationsByLocationId(
       int locationId) async {
-    final response = await http.get(
-      Uri.parse(
-          '${ApiConstants.baseUrl}/Reservation/GetReservationByLocationId/$locationId'),
-    );
+     final Uri uri = Uri.parse(
+      '${ApiConstants.baseUrl}/Reservation/GetReservationByLocationId/$locationId');
+  final response = await makeAuthenticatedRequest(uri, 'GET');
+
 
     if (response.statusCode == 200) {
       try {
@@ -258,11 +295,11 @@ mixin DataFetcher {
   }
 
   Future<int?> getTouristAttractionOwnerIdByUserId(int userId) async {
-    final url = Uri.parse(
+    final Uri uri = Uri.parse(
         '${ApiConstants.baseUrl}/TouristAttractionOwner/GetTouristAttractionOwnerIdByUserId/$userId');
 
     try {
-      final response = await http.get(url);
+  final response = await makeAuthenticatedRequest(uri, 'GET');
       if (response.statusCode == 200) {
         return int.tryParse(response.body);
       } else {
@@ -278,9 +315,8 @@ mixin DataFetcher {
   }
 
   Future<Tourist> getTouristById(int touristId) async {
-    final response = await http.get(
-      Uri.parse('${ApiConstants.baseUrl}/Tourist/$touristId'),
-    );
+     final Uri uri = Uri.parse('${ApiConstants.baseUrl}/Tourist/$touristId');
+  final response = await makeAuthenticatedRequest(uri, 'GET');
     if (response.statusCode == 200) {
       try {
         var data = json.decode(response.body);
@@ -305,8 +341,8 @@ mixin DataFetcher {
     }
   }
 Future<Location> getLocationById(int locationId) async{
-  final Uri uri = Uri.parse('${ApiConstants.baseUrl}/Location/$locationId');
-    final response = await http.get(uri);
+final Uri uri = Uri.parse('${ApiConstants.baseUrl}/Location/$locationId');
+  final response = await makeAuthenticatedRequest(uri, 'GET');
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
       final location = Location.fromJson(jsonData);
@@ -316,9 +352,8 @@ Future<Location> getLocationById(int locationId) async{
     }
 }
   Future<User> getUserByUserId(int userId) async {
-    final response = await http.get(
-      Uri.parse('${ApiConstants.baseUrl}/User/$userId'),
-    );
+    final Uri uri = Uri.parse('${ApiConstants.baseUrl}/User/$userId');
+  final response = await makeAuthenticatedRequest(uri, 'GET');
     if (response.statusCode == 200) {
       try {
         var data = json.decode(response.body);
@@ -341,9 +376,8 @@ Future<Location> getLocationById(int locationId) async{
   }
 
   Future<Service> getServiceByServiceId(int serviceId) async {
-    final response = await http.get(
-      Uri.parse('${ApiConstants.baseUrl}/Service/$serviceId'),
-    );
+    final Uri uri = Uri.parse('${ApiConstants.baseUrl}/Service/$serviceId');
+  final response = await makeAuthenticatedRequest(uri, 'GET');
     if (response.statusCode == 200) {
       try {
         var data = json.decode(response.body);
@@ -367,9 +401,8 @@ Future<Location> getLocationById(int locationId) async{
   }
 
   Future<List<Location>> fetchAllDisapprovedLocations() async {
-    final response = await http.get(
-      Uri.parse('${ApiConstants.baseUrl}/Location'),
-    );
+    final Uri uri = Uri.parse('${ApiConstants.baseUrl}/Location');
+  final response = await makeAuthenticatedRequest(uri, 'GET');
 
     if (response.statusCode == 200) {
       try {
@@ -400,10 +433,11 @@ Future<Location> getLocationById(int locationId) async{
   }
 
   Future<List<TechnicalIssueOwner>> fetchAllTechnicalIssuesOwner() async {
-    final response = await http.get(
-      Uri.parse('${ApiConstants.baseUrl}/TechnicalIssueOwner'),
-    );
 
+    final Uri uri = Uri.parse('${ApiConstants.baseUrl}/TechnicalIssueOwner');
+  final response = await makeAuthenticatedRequest(uri, 'GET');
+  print(response.body);
+  print(response.statusCode);
     if (response.statusCode == 200) {
       try {
         var data = json.decode(response.body)['result']['\$values'];
@@ -425,9 +459,9 @@ Future<Location> getLocationById(int locationId) async{
   }
 
   Future<List<TechnicalIssueTourist>> fetchAllTechnicalIssuesTourist() async {
-  final response = await http.get(
-    Uri.parse('${ApiConstants.baseUrl}/TechnicalIssueTourist'),
-  );
+
+  final Uri uri = Uri.parse('${ApiConstants.baseUrl}/TechnicalIssueTourist');
+  final response = await makeAuthenticatedRequest(uri, 'GET');
 
   if (response.statusCode == 200) {
     try {
@@ -454,9 +488,8 @@ Future<Location> getLocationById(int locationId) async{
 
   Future<TouristAttractionOwner> getTouristAttractionOwnerById(
       int taoId) async {
-    final response = await http.get(
-      Uri.parse('${ApiConstants.baseUrl}/TouristAttractionOwner/$taoId'),
-    );
+  final Uri uri = Uri.parse('${ApiConstants.baseUrl}/TouristAttractionOwner/$taoId');
+  final response = await makeAuthenticatedRequest(uri, 'GET');
     if (response.statusCode == 200) {
       try {
         var data = json.decode(response.body);
@@ -482,7 +515,9 @@ Future<Location> getLocationById(int locationId) async{
 
 
 Future<List<ReservationService>> getReservationDetailsById(int reservationId) async {
-  final response = await http.get(Uri.parse('${ApiConstants.baseUrl}/ReservationService'));
+  final Uri uri = Uri.parse('${ApiConstants.baseUrl}/ReservationService');
+  final response = await makeAuthenticatedRequest(uri, 'GET');
+
   if (response.statusCode == 200) {
     final jsonData = json.decode(response.body);
 

@@ -80,7 +80,7 @@ namespace DiscoverHSCountry.API.Controllers
                             return BadRequest("Tourist Attraction Owners or Administrators cannot use the mobile app.");
                         } 
                     }
-                    return Ok(new { UserId = authenticationResponse.UserId, UserType = userType });
+                    return Ok(new { UserId = authenticationResponse.UserId, UserType = userType, Token = authenticationResponse.Token });
                 case Util.AuthenticationResult.UserNotFound:
                     return BadRequest("User not found.");
                 case Util.AuthenticationResult.InvalidPassword:

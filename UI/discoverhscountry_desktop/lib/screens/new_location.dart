@@ -18,7 +18,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
 
 class NewLocation extends StatefulWidget {
@@ -340,7 +339,8 @@ class _NewLocationState extends State<NewLocation> with DataFetcher {
                                                               newCategoryId;
                                                           subcategories =
                                                               fetchedSubcategories;
-                                                                    selectedSubcategory = null; // Reset the selected subcategory
+                                                          selectedSubcategory =
+                                                              null; // Reset the selected subcategory
                                                         });
                                                       },
                                                       items: categories
@@ -589,15 +589,11 @@ class _NewLocationState extends State<NewLocation> with DataFetcher {
                                                           var url = Uri.parse(
                                                               '${ApiConstants.baseUrl}/Location');
                                                           var response =
-                                                              await http.post(
+                                                              await makeAuthenticatedRequest(
                                                             url,
-                                                            headers: {
-                                                              'Content-Type':
-                                                                  'application/json',
-                                                            },
-                                                            body: jsonEncode(
-                                                                newLocation
-                                                                    .toJson()),
+                                                            'POST',
+                                                            body: newLocation
+                                                                .toJson(),
                                                           );
 
                                                           if (response

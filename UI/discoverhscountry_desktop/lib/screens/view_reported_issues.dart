@@ -3,7 +3,6 @@ import 'package:discoverhscountry_desktop/api_constants.dart';
 import 'package:discoverhscountry_desktop/main.dart';
 import 'package:discoverhscountry_desktop/models/technical_issue_owner.dart';
 import 'package:discoverhscountry_desktop/models/technical_issue_tourist.dart';
-import 'package:discoverhscountry_desktop/models/tourist_model.dart';
 import 'package:discoverhscountry_desktop/models/user_model.dart';
 import 'package:discoverhscountry_desktop/services/authentication_service.dart';
 import 'package:discoverhscountry_desktop/util/dataFetcher.dart';

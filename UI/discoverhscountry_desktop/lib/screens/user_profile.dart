@@ -6,10 +6,12 @@ import 'package:discoverhscountry_desktop/api_constants.dart';
 import 'package:discoverhscountry_desktop/main.dart';
 import 'package:discoverhscountry_desktop/models/user_model.dart';
 import 'package:discoverhscountry_desktop/services/authentication_service.dart';
+import 'package:discoverhscountry_desktop/util/dataFetcher.dart';
 import 'package:discoverhscountry_desktop/widgets/common_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;
@@ -19,14 +21,17 @@ class UserProfileScreen extends StatefulWidget {
   final User? user;
   final String? userType;
 
-  const UserProfileScreen({Key? key, required this.user, required this.userType}) : super(key: key);
+  const UserProfileScreen(
+      {Key? key, required this.user, required this.userType})
+      : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
   _UserProfileScreenState createState() => _UserProfileScreenState();
 }
 
-class _UserProfileScreenState extends State<UserProfileScreen> {
+class _UserProfileScreenState extends State<UserProfileScreen>
+    with DataFetcher {
   bool isHover = false;
   bool _showNewPassword = false;
   bool _showRepeatPassword = false;
@@ -217,7 +222,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           ClipOval(
                             child: Container(
                               color: Colors.white,
-                              child: (widget.user?.profileImage != '' && widget.user?.profileImage !='string')
+                              child: (widget.user?.profileImage != '' &&
+                                      widget.user?.profileImage != 'string')
                                   ? Image.memory(
                                       base64Decode(widget.user!.profileImage),
                                       width: 120,
@@ -258,16 +264,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                       '${ApiConstants.baseUrl}/User/UpdateProfilePhoto/${widget.user?.userId}'),
                                 );
 
-                                // Set the 'Content-Type' header to 'multipart/form-data'
                                 request.headers['Content-Type'] =
                                     'multipart/form-data';
+                                const storage = FlutterSecureStorage();
+                                final token = await storage.read(key: 'token');
 
+                                request.headers
+                                    .addAll({'Authorization': 'Bearer $token'});
                                 request.files.add(
                                   http.MultipartFile(
                                     'profileImage',
-                                    Stream.fromIterable([
-                                      smallerImageBytes
-                                    ]), // Convert List<int> to Stream<List<int>>
+                                    Stream.fromIterable([smallerImageBytes]),
                                     smallerImageBytes.length,
                                     filename: file.name,
                                   ),
@@ -275,11 +282,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
                                 var response = await request.send();
                                 if (response.statusCode == 200) {
-                                  // After successful update, retrieve the updated user data
-                                  var getUserResponse = await http.get(
-                                    Uri.parse(
-                                        '${ApiConstants.baseUrl}/User/${widget.user?.userId}'),
-                                  );
+                                  var url = Uri.parse(
+                                      '${ApiConstants.baseUrl}/User/${widget.user?.userId}');
+                                  var getUserResponse =
+                                      await makeAuthenticatedRequest(
+                                          url, 'GET');
 
                                   if (getUserResponse.statusCode == 200) {
                                     var userData =
@@ -306,14 +313,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             },
                             onHover: (isHovering) {
                               setState(() {
-                                isHover =
-                                    isHovering;
+                                isHover = isHovering;
                               });
                             },
                             child: ClipOval(
                               child: Visibility(
-                                visible:
-                                    isHover, 
+                                visible: isHover,
                                 child: Container(
                                   color: Colors.blue.withOpacity(0.8),
                                   padding: const EdgeInsets.all(8),
@@ -453,13 +458,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 );
                 var url = Uri.parse(
                     '${ApiConstants.baseUrl}/User/UpdateDetails/${editedUser.userId}');
-                var response = await http.put(
-                  url,
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: jsonEncode(editedUser.toJson()),
-                );
+                var response = await makeAuthenticatedRequest(url, 'PUT',
+                    body: editedUser.toJson());
+
                 if (response.statusCode == 200) {
                   // Show a dialog with a success message
                   // ignore: use_build_context_synchronously
@@ -478,8 +479,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               // Trigger a reload of the edit profile page
                               Navigator.of(context)
                                   .pushReplacement(MaterialPageRoute(
-                                builder: (context) =>
-                                    UserProfileScreen(user: editedUser, userType: widget.userType,),
+                                builder: (context) => UserProfileScreen(
+                                  user: editedUser,
+                                  userType: widget.userType,
+                                ),
                               ));
                             },
                             child: const Text('OK'),
@@ -513,124 +516,130 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       },
     );
   }
-}
 
-void sendChangePasswordRequest(int userId, String newPassword,
-    BuildContext context, String oldPassword) async {
-  var savePasswordUrl =
-      Uri.parse('${ApiConstants.baseUrl}/User/UpdatePassword/$userId');
+  void sendChangePasswordRequest(int userId, String newPassword,
+      BuildContext context, String oldPassword) async {
+    var savePasswordUrl =
+        Uri.parse('${ApiConstants.baseUrl}/User/UpdatePassword/$userId');
 
-  var response = await http.put(
-    savePasswordUrl,
-    headers: {'Content-Type': 'application/json'},
-    body: json.encode({'password': newPassword, 'oldPassword': oldPassword}),
-  );
+    var response = await makeAuthenticatedRequest(
+      savePasswordUrl,
+      'PUT',
+      body: {'password': newPassword, 'oldPassword': oldPassword},
+    );
 
-  if (response.statusCode == 200) {
-    // ignore: use_build_context_synchronously
-    Flushbar(
-      message: "Uspješno promijenjena lozinka!",
-      backgroundColor: Colors.green,
-      duration: const Duration(seconds: 3),
-    ).show(context);
-  } else {
-    // ignore: use_build_context_synchronously
-    Flushbar(
-      message: "Lozinka nije promijenjena. Provjerite polja za unos!",
-      backgroundColor: Colors.red,
-      duration: const Duration(seconds: 3),
-    ).show(context);
-  }
-}
-
-void deleteProfile(BuildContext context, int userId) async {
-  // Display a confirmation dialog
-  bool confirmDelete = await showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return WillPopScope(
-        onWillPop: () async {
-          Navigator.of(context).pop(false); // User cancelled delete
-          return false; // Prevent dialog from being popped by back button
-        },
-        child: AlertDialog(
-          title: const Text('Jeste li sigurni da želite obrisati Vaš profil?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false); // User cancelled delete
-              },
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                  return Colors.green;
-                }),
-                foregroundColor: MaterialStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                  return Colors.white;
-                }),
-              ),
-              child: const Text('Odustani'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true); // User confirmed delete
-              },
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                  return Colors.red;
-                }),
-                foregroundColor: MaterialStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                  return Colors.white;
-                }),
-              ),
-              child: const Text('Da'),
-            )
-          ],
-        ),
-      );
-    },
-  );
-
-  if (confirmDelete == true) {
-    int taoId = 0;
-    var getTAOId = Uri.parse(
-        '${ApiConstants.baseUrl}/TouristAttractionOwner/GetTouristAttractionOwnerIdByUserId/$userId');
-    var taoResponse = await http.get(getTAOId);
-    if (taoResponse.statusCode == 200) {
-      taoId = int.parse(taoResponse.body);
-    }
-
-    var deleteTAO =
-        Uri.parse('${ApiConstants.baseUrl}/TouristAttractionOwner/$taoId');
-    var deleteResponse = await http.delete(deleteTAO);
-
-    if (deleteResponse.statusCode == 200) {
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const FirstPage()),
-      );
-
-      // Show success message
+    if (response.statusCode == 200) {
       // ignore: use_build_context_synchronously
       Flushbar(
-        message: "Uspješno ste obrisali profil!",
+        message: "Uspješno promijenjena lozinka!",
         backgroundColor: Colors.green,
         duration: const Duration(seconds: 3),
       ).show(context);
     } else {
-      // Show error message
       // ignore: use_build_context_synchronously
       Flushbar(
-        message: "Profil nije obrisan!",
+        message: "Lozinka nije promijenjena. Provjerite polja za unos!",
         backgroundColor: Colors.red,
         duration: const Duration(seconds: 3),
       ).show(context);
     }
-  } else {
-    // User cancelled profile deletion or dismissed dialog
+  }
+
+  void deleteProfile(BuildContext context, int userId) async {
+    // Display a confirmation dialog
+    bool confirmDelete = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () async {
+            Navigator.of(context).pop(false); // User cancelled delete
+            return false; // Prevent dialog from being popped by back button
+          },
+          child: AlertDialog(
+            title:
+                const Text('Jeste li sigurni da želite obrisati Vaš profil?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false); // User cancelled delete
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                      (Set<MaterialState> states) {
+                    return Colors.green;
+                  }),
+                  foregroundColor: MaterialStateProperty.resolveWith<Color?>(
+                      (Set<MaterialState> states) {
+                    return Colors.white;
+                  }),
+                ),
+                child: const Text('Odustani'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true); // User confirmed delete
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                      (Set<MaterialState> states) {
+                    return Colors.red;
+                  }),
+                  foregroundColor: MaterialStateProperty.resolveWith<Color?>(
+                      (Set<MaterialState> states) {
+                    return Colors.white;
+                  }),
+                ),
+                child: const Text('Da'),
+              )
+            ],
+          ),
+        );
+      },
+    );
+
+    if (confirmDelete == true) {
+      int taoId = 0;
+      var getTAOId = Uri.parse(
+          '${ApiConstants.baseUrl}/TouristAttractionOwner/GetTouristAttractionOwnerIdByUserId/$userId');
+
+      var taoResponse = await makeAuthenticatedRequest(
+        getTAOId,
+        'GET',
+      );
+
+      if (taoResponse.statusCode == 200) {
+        taoId = int.parse(taoResponse.body);
+      }
+
+      var deleteTAO =
+          Uri.parse('${ApiConstants.baseUrl}/TouristAttractionOwner/$taoId');
+      var deleteResponse = await makeAuthenticatedRequest(deleteTAO, 'DELETE');
+
+      if (deleteResponse.statusCode == 200) {
+        // ignore: use_build_context_synchronously
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const FirstPage()),
+        );
+
+        // Show success message
+        // ignore: use_build_context_synchronously
+        Flushbar(
+          message: "Uspješno ste obrisali profil!",
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 3),
+        ).show(context);
+      } else {
+        // Show error message
+        // ignore: use_build_context_synchronously
+        Flushbar(
+          message: "Profil nije obrisan!",
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ).show(context);
+      }
+    } else {
+      // User cancelled profile deletion or dismissed dialog
+    }
   }
 }

@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:discoverhscountry_desktop/api_constants.dart';
 import 'package:discoverhscountry_desktop/main.dart';
@@ -11,7 +10,6 @@ import 'package:discoverhscountry_desktop/widgets/common_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:http/http.dart' as http;
 
 class ReportProblem extends StatefulWidget {
   final User? user;
@@ -29,20 +27,19 @@ class _ReportProblemState extends State<ReportProblem> with DataFetcher {
   int? taoID;
   bool isLoading = true;
 
- @override
-void initState() {
-  super.initState();
-  _getTAOid().then((_) {
-    setState(() {
-      isLoading = false;
+  @override
+  void initState() {
+    super.initState();
+    _getTAOid().then((_) {
+      setState(() {
+        isLoading = false;
+      });
     });
-  });
-}
+  }
 
-Future<void> _getTAOid() async {
-  taoID = await getTouristAttractionOwnerIdByUserId(widget.user!.userId);
-}
-
+  Future<void> _getTAOid() async {
+    taoID = await getTouristAttractionOwnerIdByUserId(widget.user!.userId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -194,15 +191,13 @@ Future<void> _getTAOid() async {
                                                                         var url =
                                                                             Uri.parse('${ApiConstants.baseUrl}/TechnicalIssueOwner');
                                                                         var response =
-                                                                            await http.post(
+                                                                            await makeAuthenticatedRequest(
                                                                           url,
-                                                                          headers: {
-                                                                            'Content-Type':
-                                                                                'application/json',
-                                                                          },
+                                                                          'POST',
                                                                           body:
-                                                                              jsonEncode(newIssue.toJson()),
+                                                                              newIssue.toJson(),
                                                                         );
+
                                                                         if (response.statusCode ==
                                                                             200) {
                                                                           // ignore: use_build_context_synchronously

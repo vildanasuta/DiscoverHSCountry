@@ -18,18 +18,19 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:image/image.dart' as img;
 // ignore: depend_on_referenced_packages
-import 'package:http/http.dart' as http;
 
 class NewHistoricalStory extends StatefulWidget {
   final User? user;
   final String? userType;
-  const NewHistoricalStory({super.key, required this.user, required this.userType});
+  const NewHistoricalStory(
+      {super.key, required this.user, required this.userType});
 
   @override
   State<NewHistoricalStory> createState() => _NewHistoricalStoryState();
 }
 
-class _NewHistoricalStoryState extends State<NewHistoricalStory> with DataFetcher {
+class _NewHistoricalStoryState extends State<NewHistoricalStory>
+    with DataFetcher {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   final AuthenticationService authService = AuthenticationService();
 
@@ -124,8 +125,14 @@ class _NewHistoricalStoryState extends State<NewHistoricalStory> with DataFetche
                                                         CrossAxisAlignment
                                                             .stretch,
                                                     children: [
-                                                    const Text('Napomena: Opis se popunjava na engleskom jeziku!', style: TextStyle(fontSize: 12),),
-                                                    const SizedBox(height: 16,),
+                                                      const Text(
+                                                        'Napomena: Opis se popunjava na engleskom jeziku!',
+                                                        style: TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 16,
+                                                      ),
                                                       FormBuilderTextField(
                                                         name: 'title',
                                                         controller:
@@ -212,86 +219,91 @@ class _NewHistoricalStoryState extends State<NewHistoricalStory> with DataFetche
                                                         height: 20,
                                                       ),
                                                       ElevatedButton(
-                                                      onPressed: () async {
-                                                        FilePickerResult?
-                                                            result =
-                                                            await FilePicker
-                                                                .platform
-                                                                .pickFiles(
-                                                          type: FileType.image,
-                                                        );
+                                                        onPressed: () async {
+                                                          FilePickerResult?
+                                                              result =
+                                                              await FilePicker
+                                                                  .platform
+                                                                  .pickFiles(
+                                                            type:
+                                                                FileType.image,
+                                                          );
 
-                                                        if (result != null &&
-                                                            result.files
-                                                                .isNotEmpty) {
-                                                          PlatformFile file =
-                                                              result
-                                                                  .files.first;
-                                                          File imageFile =
-                                                              File(file.path!);
-                                                          Uint8List imageBytes =
-                                                              await imageFile
-                                                                  .readAsBytes();
-                                                          img.Image
-                                                              resizedImage =
-                                                              img.decodeImage(
-                                                                  imageBytes)!;
-                                                          int maxWidth = 800;
-                                                          img.Image
-                                                              smallerImage =
-                                                              img.copyResize(
-                                                                  resizedImage,
-                                                                  width:
-                                                                      maxWidth);
+                                                          if (result != null &&
+                                                              result.files
+                                                                  .isNotEmpty) {
+                                                            PlatformFile file =
+                                                                result.files
+                                                                    .first;
+                                                            File imageFile =
+                                                                File(
+                                                                    file.path!);
+                                                            Uint8List
+                                                                imageBytes =
+                                                                await imageFile
+                                                                    .readAsBytes();
+                                                            img.Image
+                                                                resizedImage =
+                                                                img.decodeImage(
+                                                                    imageBytes)!;
+                                                            int maxWidth = 800;
+                                                            img.Image
+                                                                smallerImage =
+                                                                img.copyResize(
+                                                                    resizedImage,
+                                                                    width:
+                                                                        maxWidth);
 
-                                                          List<int>
-                                                              smallerImageBytes =
-                                                              img.encodeJpg(
-                                                                  smallerImage);
+                                                            List<int>
+                                                                smallerImageBytes =
+                                                                img.encodeJpg(
+                                                                    smallerImage);
 
-                                                          String base64Image =
-                                                              base64Encode(
-                                                                  smallerImageBytes);
-                                                          setState(() {
-                                                            historicalEventImage =
-                                                                base64Image;
-                                                          });
-                                                        }
-                                                      },
-                                                      style: ElevatedButton
-                                                          .styleFrom(
-                                                        backgroundColor:
-                                                            Colors.blue,
-                                                        foregroundColor:
-                                                            Colors.white,
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .symmetric(
-                                                                horizontal: 20,
-                                                                vertical: 10),
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
-                                                          side:
-                                                              const BorderSide(
-                                                                  color: Colors
-                                                                      .blue),
+                                                            String base64Image =
+                                                                base64Encode(
+                                                                    smallerImageBytes);
+                                                            setState(() {
+                                                              historicalEventImage =
+                                                                  base64Image;
+                                                            });
+                                                          }
+                                                        },
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          backgroundColor:
+                                                              Colors.blue,
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      20,
+                                                                  vertical: 10),
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                            side:
+                                                                const BorderSide(
+                                                                    color: Colors
+                                                                        .blue),
+                                                          ),
+                                                        ),
+                                                        child: const Row(
+                                                          children: [
+                                                            Icon(Icons
+                                                                .upload_file),
+                                                            SizedBox(
+                                                              height: 10,
+                                                            ),
+                                                            Text(
+                                                                'Izaberite naslovnu fotografiju događaja!')
+                                                          ],
                                                         ),
                                                       ),
-                                                      child: const Row(
-                                                        children: [
-                                                          Icon(Icons
-                                                              .upload_file),
-                                                          SizedBox(
-                                                            height: 10,
-                                                          ),
-                                                          Text(
-                                                              'Izaberite naslovnu fotografiju događaja!')
-                                                        ],
-                                                      ),
-                                                    ),
                                                       const SizedBox(
                                                           height: 32),
                                                       ElevatedButton(
@@ -299,7 +311,8 @@ class _NewHistoricalStoryState extends State<NewHistoricalStory> with DataFetche
                                                           if (_formKey
                                                               .currentState!
                                                               .validate()) {
-                                                            HistoricalEvent newEvent =
+                                                            HistoricalEvent
+                                                                newEvent =
                                                                 HistoricalEvent(
                                                               title:
                                                                   titleController
@@ -307,31 +320,22 @@ class _NewHistoricalStoryState extends State<NewHistoricalStory> with DataFetche
                                                               description:
                                                                   descriptionController
                                                                       .text,
-                                                              coverImage: historicalEventImage.toString(),
+                                                              coverImage:
+                                                                  historicalEventImage
+                                                                      .toString(),
                                                               cityId:
                                                                   selectedCityId,
-
                                                             );
-                                                            // ignore: avoid_print
                                                             var url = Uri.parse(
                                                                 '${ApiConstants.baseUrl}/HistoricalEvent');
                                                             var response =
-                                                                await http.post(
+                                                                await makeAuthenticatedRequest(
                                                               url,
-                                                              headers: {
-                                                                'Content-Type':
-                                                                    'application/json',
-                                                              },
-                                                              body: jsonEncode(
-                                                                  newEvent
-                                                                      .toJson()),
+                                                              'POST',
+                                                              body: newEvent
+                                                                  .toJson(),
                                                             );
-                                                            // ignore: avoid_print
-                                                            print(response
-                                                                .statusCode);
-                                                            // ignore: avoid_print
-                                                            print(
-                                                                response.body);
+
                                                             if (response
                                                                     .statusCode ==
                                                                 200) {

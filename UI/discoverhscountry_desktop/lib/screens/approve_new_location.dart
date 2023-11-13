@@ -9,7 +9,6 @@ import 'package:discoverhscountry_desktop/services/authentication_service.dart';
 import 'package:discoverhscountry_desktop/util/dataFetcher.dart';
 import 'package:discoverhscountry_desktop/widgets/common_app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 class ApproveNewLocation extends StatefulWidget {
   final User? user;
@@ -175,8 +174,11 @@ class _ApproveNewLocationState extends State<ApproveNewLocation>
                 foregroundColor: Colors.white,
               ),
               onPressed: () async {
-                final response = await http.put(Uri.parse(
-                    '${ApiConstants.baseUrl}/Location/Approve/${location.locationId}'));
+                final response = await makeAuthenticatedRequest(
+                  Uri.parse(
+                      '${ApiConstants.baseUrl}/Location/Approve/${location.locationId}'),
+                  'PUT',
+                );
                 if (response.statusCode == 200) {
                   // ignore: use_build_context_synchronously
                   Flushbar(
@@ -201,8 +203,11 @@ class _ApproveNewLocationState extends State<ApproveNewLocation>
                 foregroundColor: Colors.white,
               ),
               onPressed: () async {
-                final response = await http.delete(Uri.parse(
-                    '${ApiConstants.baseUrl}/Location/DeleteById/${location.locationId}'));
+                final response = await makeAuthenticatedRequest(
+                  Uri.parse(
+                      '${ApiConstants.baseUrl}/Location/DeleteById/${location.locationId}'),
+                  'DELETE',
+                );
                 if (response.statusCode == 200) {
                   // ignore: use_build_context_synchronously
                   Flushbar(
