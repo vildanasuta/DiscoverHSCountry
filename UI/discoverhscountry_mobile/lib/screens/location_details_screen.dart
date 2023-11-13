@@ -22,7 +22,6 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:url_launcher/url_launcher.dart';
 // ignore: depend_on_referenced_packages
-import 'package:http/http.dart' as http;
 
 // ignore: must_be_immutable
 class LocationDetailsScreen extends StatefulWidget {
@@ -97,16 +96,17 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
 
     if (locationVisits == null) {
       final newLocationVisit = LocationVisits(
-          locationId: widget.location.locationId!,
-          touristId: touristId!,
-          numberOfVisits: 0);
+        locationId: widget.location.locationId!,
+        touristId: touristId!,
+        numberOfVisits: 0,
+      );
+
       final requestBody = jsonEncode(newLocationVisit);
       final Uri uri = Uri.parse('${ApiConstants.baseUrl}/LocationVisits');
-      final response = await http.post(
+
+      final response = await makeAuthenticatedRequest(
         uri,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        'POST',
         body: requestBody,
       );
 
@@ -127,11 +127,9 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
     final Uri uri = Uri.parse(
         '${ApiConstants.baseUrl}/LocationVisits/${locationVisits!.locationVisitsId}');
 
-    final response = await http.put(
+    final response = await makeAuthenticatedRequest(
       uri,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      'PUT',
       body: jsonEncode({'numberOfVisits': numberOfVisits}),
     );
 
@@ -209,8 +207,10 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                                   if (widget.location.name.split(' ').length >
                                       3)
                                     Text(
-                                      widget.location.name.split(' ').skip(3).join(
-                                          ' '),
+                                      widget.location.name
+                                          .split(' ')
+                                          .skip(3)
+                                          .join(' '),
                                       style: Theme.of(context)
                                           .textTheme
                                           .headlineSmall,
@@ -221,8 +221,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                                 message: "Add to Visited Locations",
                                 child: IconButton(
                                   onPressed: () {
-                                    _showVisitedLocationDialog(
-                                        context); 
+                                    _showVisitedLocationDialog(context);
                                   },
                                   icon: const Icon(
                                     CupertinoIcons.checkmark_alt_circle_fill,
@@ -582,13 +581,12 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                       touristId: touristId!,
                       locationId: widget.location.locationId!);
                   var url = Uri.parse('${ApiConstants.baseUrl}/Review');
-                  var response = await http.post(
+                  var response = await makeAuthenticatedRequest(
                     url,
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
+                    'POST',
                     body: jsonEncode(newReview.toJson()),
                   );
+
                   if (response.statusCode == 200) {
                     // ignore: use_build_context_synchronously
                     showDialog(
@@ -645,32 +643,34 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
   }
 
   Future<void> _selectDate(
-  BuildContext context,
-  TextEditingController controller,
-  bool reservation,
-) async {
-  final DateTime currentDate = DateTime.now();
-  DateTime firstDate;
-  DateTime lastDate;
+    BuildContext context,
+    TextEditingController controller,
+    bool reservation,
+  ) async {
+    final DateTime currentDate = DateTime.now();
+    DateTime firstDate;
+    DateTime lastDate;
 
-  if (reservation) {
-    // For reservations, allows dates only in the future
-    firstDate = currentDate;
-    lastDate = DateTime(currentDate.year + 1); // Limit to one year in the future
-  } else {
-    // For visited locations, allows dates only in the past
-    firstDate = DateTime(currentDate.year - 1); // Limit to one year in the past
-    lastDate = currentDate;
-  }
+    if (reservation) {
+      // For reservations, allows dates only in the future
+      firstDate = currentDate;
+      lastDate =
+          DateTime(currentDate.year + 1); // Limit to one year in the future
+    } else {
+      // For visited locations, allows dates only in the past
+      firstDate =
+          DateTime(currentDate.year - 1); // Limit to one year in the past
+      lastDate = currentDate;
+    }
 
-  final DateTime? picked = await showDatePicker(
-    context: context,
-    initialDate: currentDate,
-    firstDate: firstDate,
-    lastDate: lastDate,
-  );
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: currentDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+    );
 
-  if (picked != null) {
+    if (picked != null) {
       controller.text = picked.toLocal().toString().split(' ')[0];
     } else {
       // ignore: use_build_context_synchronously
@@ -693,8 +693,6 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
       );
     }
   }
-
-
 
   void _makeReservation(int serviceId, Service service) async {
     var startDateController = TextEditingController();
@@ -861,7 +859,8 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                   labelText: 'Select the date you visited this location',
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.calendar_today),
-                    onPressed: () => _selectDate(context, dateController, false),
+                    onPressed: () =>
+                        _selectDate(context, dateController, false),
                   ),
                 ),
               ),
@@ -888,11 +887,9 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                     visitDate: DateTime.parse(dateController.text),
                     notes: notesController.text);
                 var url = Uri.parse('${ApiConstants.baseUrl}/VisitedLocation');
-                var response = await http.post(
+                var response = await makeAuthenticatedRequest(
                   url,
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
+                  'POST',
                   body: jsonEncode(newVisitedLocation.toJson()),
                 );
                 if (response.statusCode == 200) {
@@ -947,11 +944,10 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                                             image: base64Image);
                                     var url = Uri.parse(
                                         '${ApiConstants.baseUrl}/VisitedLocationImage');
-                                    var response = await http.post(
+                                    var response =
+                                        await makeAuthenticatedRequest(
                                       url,
-                                      headers: {
-                                        'Content-Type': 'application/json',
-                                      },
+                                      'POST',
                                       body: jsonEncode(
                                           newVisitedLocationImage.toJson()),
                                     );

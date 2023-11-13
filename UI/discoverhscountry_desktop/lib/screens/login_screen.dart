@@ -142,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> with DataFetcher {
                                         json.decode(response.body);
                                     // Extract the UserType field
                                     String? token = responseBody['token'];
-                                    var storage = FlutterSecureStorage();
+                                    var storage = const FlutterSecureStorage();
                                     storage.write(key: 'token', value: token);
                                     String? userType = responseBody['userType'];
                                     if (userType != null) {

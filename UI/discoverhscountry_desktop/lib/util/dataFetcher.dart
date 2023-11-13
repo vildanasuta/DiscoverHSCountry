@@ -35,12 +35,7 @@ mixin DataFetcher {
       headers['Content-Type'] = 'application/json';
     }
 
-    print(uri);
-    print(headers);
-
-    return await http.get(uri, headers: headers);
-
-    /*switch (method) {
+    switch (method) {
       case 'GET':
         return await http.get(uri, headers: headers);
       case 'POST':
@@ -51,7 +46,7 @@ mixin DataFetcher {
         return await http.delete(uri, headers: headers);
       default:
         throw UnsupportedError('Unsupported HTTP method: $method');
-    }*/
+    }
   }
 
 
@@ -436,8 +431,6 @@ final Uri uri = Uri.parse('${ApiConstants.baseUrl}/Location/$locationId');
 
     final Uri uri = Uri.parse('${ApiConstants.baseUrl}/TechnicalIssueOwner');
   final response = await makeAuthenticatedRequest(uri, 'GET');
-  print(response.body);
-  print(response.statusCode);
     if (response.statusCode == 200) {
       try {
         var data = json.decode(response.body)['result']['\$values'];

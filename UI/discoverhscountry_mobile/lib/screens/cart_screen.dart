@@ -16,8 +16,6 @@ import 'package:discoverhscountry_mobile/widgets/tourist_drawer.dart';
 import 'package:flutter_paypal/flutter_paypal.dart';
 import 'package:flutter/material.dart';
 
-// ignore: depend_on_referenced_packages
-import 'package:http/http.dart' as http;
 
 // ignore: must_be_immutable
 class CartScreen extends StatefulWidget {
@@ -175,16 +173,11 @@ void dispose() {
         touristId: touristId!,
         locationId: widget.location.locationId!,
         price: totalPrice!);
-    var url = Uri.parse('${ApiConstants.baseUrl}/Reservation');
-    var response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(newReservation.toJson()),
-    );
-    print(touristId);
+    
+    final Uri url = Uri.parse('${ApiConstants.baseUrl}/Reservation');
+    final Map<String, dynamic> requestBody = newReservation.toJson();
 
+    final response = await makeAuthenticatedRequest(url, 'POST', body: requestBody);
     var user = await getUserById(widget.user.userId);
     var location = await getLocationById(widget.location.locationId!);
 
@@ -194,13 +187,11 @@ void dispose() {
       for (var reservationService in widget.cartItems) {
         reservationService.reservationId = newReservationId;
         var url = Uri.parse('${ApiConstants.baseUrl}/ReservationService');
-        var response = await http.post(
-          url,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode(reservationService.toJson()),
-        );
+        var response = await makeAuthenticatedRequest(
+    url,
+    'POST',
+    body: jsonEncode(reservationService.toJson()),
+  );
         if (response.statusCode != 200) {
           print(response.body);
         } else {
@@ -307,11 +298,11 @@ void dispose() {
           "Dear ${user.firstName}, this email is confirmation of your reservation for ${location.name}. Thank you for using our app! (disclaimer: if you did not create reservation at ${location.name} be sure to reply to this email to report unusual activity)",
     };
 
-    final response = await http.post(
-      Uri.parse('${ApiConstants.baseUrl}/Reservation/SendConfirmationEmail'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(emailData),
-    );
+     final response = await makeAuthenticatedRequest(
+    Uri.parse('${ApiConstants.baseUrl}/Reservation/SendConfirmationEmail'),
+    'POST',
+    body: jsonEncode(emailData),
+  );
     print(response.statusCode);
     print(response.body);
     if (response.statusCode == 200) {

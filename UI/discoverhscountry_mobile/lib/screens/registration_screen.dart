@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 // ignore: depend_on_referenced_packages
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:image/image.dart' as img;
@@ -492,11 +491,9 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                         );
                         var url = Uri.parse(
                             '${ApiConstants.baseUrl}/Tourist/CreateTouristWithUserDetails');
-                        var response = await http.post(
+                        var response = await makeAuthenticatedRequest(
                           url,
-                          headers: {
-                            'Content-Type': 'application/json',
-                          },
+                          'POST',
                           body: jsonEncode(tourist.toJson()),
                         );
                         if (response.statusCode == 200) {
