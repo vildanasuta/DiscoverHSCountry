@@ -29,9 +29,12 @@ namespace DiscoverHSCountry.Services
         public void StartListening()
         {
             ConnectionFactory factory = new ConnectionFactory();
-            // for docker: 
-            var uriString = "amqp://guest:guest@host.docker.internal:5672";
-            /* locally: var uriString = "amqp://guest:guest@localhost:5672";*/
+            string rabbitHost = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "host.docker.internal";
+            int rabbitPort = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672");
+            string rabbitUsername = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? "user";
+            string rabbitPassword = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "password";
+
+            var uriString = $"amqp://{rabbitUsername}:{rabbitPassword}@{rabbitHost}:{rabbitPort}";
             factory.Uri = new Uri(uriString);
             factory.ClientProvidedName = "Rabbit Receiver1 App";
 
@@ -79,13 +82,10 @@ namespace DiscoverHSCountry.Services
         {
             try
             {
-                string smtpServer = "smtp.gmail.com";
-                int smtpPort = 587;
-
-
-                string fromMail = "cdiscoverhs@gmail.com";
-                string Password = "ircrhnghicdszqqu";
-
+                string smtpServer = Environment.GetEnvironmentVariable("SMTP_SERVER") ?? "smtp.gmail.com";
+                int smtpPort = int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT") ?? "587");
+                string fromMail = Environment.GetEnvironmentVariable("SMTP_USERNAME") ?? "cdiscoverhs@gmail.com";
+                string password = Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? "ircrhnghicdszqqu";
 
                 var emailData = JsonConvert.DeserializeObject<EmailModel>(message);
                 var senderEmail = emailData.Sender;
@@ -100,12 +100,11 @@ namespace DiscoverHSCountry.Services
                 MailMessageObj.To.Add(recipientEmail);
                 MailMessageObj.Body = content;
 
-
                 var smtpClient = new SmtpClient()
                 {
                     Host = smtpServer,
                     Port = smtpPort,
-                    Credentials = new NetworkCredential(fromMail, Password),
+                    Credentials = new NetworkCredential(fromMail, password),
                     EnableSsl = true
                 };
 
@@ -116,5 +115,6 @@ namespace DiscoverHSCountry.Services
                 Console.WriteLine($"Error sending email: {ex.Message}");
             }
         }
+
     }
 }

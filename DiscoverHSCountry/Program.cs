@@ -58,22 +58,13 @@ builder.Services.AddAuthentication(
     });
 
 
-//for docker:
 var factory = new ConnectionFactory
 {
-    HostName = "host.docker.internal",
-    Port = 5672,
-    UserName = "guest",
-    Password = "guest",
+    HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
+    Port = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672"),
+    UserName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? "guest",
+    Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest",
 };
-/*locally:
-var factory = new ConnectionFactory
-{
-    HostName = "localhost",
-    Port = 5672,
-    UserName = "guest",
-    Password = "guest",
-};*/
 var connection = factory.CreateConnection();
 var channel = connection.CreateModel();
 

@@ -22,6 +22,11 @@ services:
     environment:
       - ConnectionStrings:DefaultConnection=Server=discoverhscountry-sql,1433;Database=DiscoverHSCountry;User=sa;Password=QWElkj132!;ConnectRetryCount=0; TrustServerCertificate=True; MultipleActiveResultSets=true
       - ASPNETCORE_ENVIRONMENT=Development
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=user
+      - RABBITMQ_PASSWORD=password
+      - RABBITMQ_VIRTUALHOST=/
     ports:
       - 7125:7125
     networks:
