@@ -4,6 +4,7 @@ using DiscoverHSCountry.Model.SearchObjects;
 using DiscoverHSCountry.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RabbitMQ.Service;
 
 namespace DiscoverHSCountry.API.Controllers
 {

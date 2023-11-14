@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
-using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,11 +8,10 @@ using System.Net.Mail;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using System.Threading.Channels;
 
-namespace DiscoverHSCountry.Services
+namespace RabbitMQ.Service
 {
-    public class EmailService: IDisposable
+    public class EmailService : IDisposable
     {
         private readonly IModel _channel;
 
@@ -31,8 +30,8 @@ namespace DiscoverHSCountry.Services
             ConnectionFactory factory = new ConnectionFactory();
             string rabbitHost = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "host.docker.internal";
             int rabbitPort = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672");
-            string rabbitUsername = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? "user";
-            string rabbitPassword = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "password";
+            string rabbitUsername = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? "guest";
+            string rabbitPassword = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest";
 
             var uriString = $"amqp://{rabbitUsername}:{rabbitPassword}@{rabbitHost}:{rabbitPort}";
             factory.Uri = new Uri(uriString);

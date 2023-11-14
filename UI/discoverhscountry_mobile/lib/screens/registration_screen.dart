@@ -15,6 +15,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:image/image.dart' as img;
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
+// ignore: depend_on_referenced_packages
+import 'package:http/http.dart' as http;
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({Key? key}) : super(key: key);
@@ -491,9 +493,11 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                         );
                         var url = Uri.parse(
                             '${ApiConstants.baseUrl}/Tourist/CreateTouristWithUserDetails');
-                        var response = await makeAuthenticatedRequest(
+                        var response = await http.post(
                           url,
-                          'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
                           body: jsonEncode(tourist.toJson()),
                         );
                         if (response.statusCode == 200) {

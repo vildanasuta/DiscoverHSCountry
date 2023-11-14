@@ -24,11 +24,16 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
-      - RABBITMQ_USERNAME=user
-      - RABBITMQ_PASSWORD=password
-      - RABBITMQ_VIRTUALHOST=/
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - SMTP_SERVER=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USERNAME=cdiscoverhs@gmail.com
+      - SMTP_PASSWORD=ircrhnghicdszqqu
+      - API_HOST=localhost
+      - API_PORT=7125
     ports:
-      - 7125:7125
+      - 7125:7125 
     networks:
       - discoverhscountrynet
     links:
