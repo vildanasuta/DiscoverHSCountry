@@ -4,6 +4,7 @@ using DiscoverHSCountry.Model.SearchObjects;
 using DiscoverHSCountry.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RabbitMQ.Client;
 using RabbitMQ.Service;
 
 namespace DiscoverHSCountry.API.Controllers
@@ -15,13 +16,14 @@ namespace DiscoverHSCountry.API.Controllers
     {
         private readonly IReservationService _reservationService;
         private readonly RabbitMQEmailProducer _rabbitMQEmailProducer;
-        private readonly EmailService _emailService;
-        public ReservationController(ILogger<BaseController<Reservation, ReservationSearchObject>> logger, IReservationService service, RabbitMQEmailProducer rabbitMQEmailProducer, EmailService emailService) : base(logger, service)
+
+        public ReservationController(
+            ILogger<BaseController<Reservation, ReservationSearchObject>> logger,
+            IReservationService service,
+            RabbitMQEmailProducer rabbitMQEmailProducer) : base(logger, service)
         {
             _reservationService = service;
             _rabbitMQEmailProducer = rabbitMQEmailProducer;
-
-            _emailService = emailService;
         }
 
         [HttpGet("GetReservationByLocationId/{locationId}")]
@@ -42,19 +44,16 @@ namespace DiscoverHSCountry.API.Controllers
         {
             try
             {
-
-                
                 _rabbitMQEmailProducer.SendConfirmationEmail(emailModel);
-               Thread.Sleep(TimeSpan.FromSeconds(15));
-                _emailService.StartListening();
+                Thread.Sleep(TimeSpan.FromSeconds(15));
                 return Ok();
             }
             catch (Exception ex)
             {
-
                 return StatusCode(500, ex.Message);
             }
         }
+
 
     }
 }

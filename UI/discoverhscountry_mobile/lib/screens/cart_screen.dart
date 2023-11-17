@@ -169,6 +169,7 @@ void dispose() {
   }
 
   _saveReservation() async {
+    print('start');
     Reservation newReservation = Reservation(
         touristId: touristId!,
         locationId: widget.location.locationId!,
@@ -301,7 +302,7 @@ void dispose() {
      final response = await makeAuthenticatedRequest(
     Uri.parse('${ApiConstants.baseUrl}/Reservation/SendConfirmationEmail'),
     'POST',
-    body: jsonEncode(emailData),
+    body: emailData,
   );
     print(response.statusCode);
     print(response.body);

@@ -11,6 +11,13 @@ using System.Threading.Tasks;
 
 namespace RabbitMQ.Service
 {
+    public class EmailModelToParse
+    {
+        public string Sender { get; set; }
+        public string Recipient { get; set; }
+        public string Subject { get; set; }
+        public string Content { get; set; }
+    }
     public class EmailService : IDisposable
     {
         private readonly IModel _channel;
@@ -27,55 +34,56 @@ namespace RabbitMQ.Service
 
         public void StartListening()
         {
-            ConnectionFactory factory = new ConnectionFactory();
-            string rabbitHost = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "host.docker.internal";
-            int rabbitPort = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672");
-            string rabbitUsername = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? "guest";
-            string rabbitPassword = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest";
-
-            var uriString = $"amqp://{rabbitUsername}:{rabbitPassword}@{rabbitHost}:{rabbitPort}";
-            factory.Uri = new Uri(uriString);
-            factory.ClientProvidedName = "Rabbit Receiver1 App";
-
-            IConnection connection = factory.CreateConnection();
-            IModel channel = connection.CreateModel();
-
-            string exchangeName = "EmailExchange";
-            string routingKey = "email_queue";
-            string queueName = "EmailQueue";
-
-
-            channel.ExchangeDeclare(exchangeName, ExchangeType.Direct);
-            channel.QueueDeclare(queueName, false, false, false, null);
-            channel.QueueBind(queueName, exchangeName, routingKey, null);
-            channel.BasicQos(0, 1, false);
-
-
-
-            var consumer = new EventingBasicConsumer(channel);
-
-            consumer.Received += (sender, args) =>
+            try
             {
-                //Task.Delay(TimeSpan.FromSeconds(2)).Wait();
-                var body = args.Body.ToArray();
-                string message = Encoding.UTF8.GetString(body);
+                ConnectionFactory factory = new ConnectionFactory();
+                string rabbitHost = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
+                int rabbitPort = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672");
+                string rabbitUsername = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? "guest";
+                string rabbitPassword = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest";
 
-                SendEmail(message);
+                var uriString = $"amqp://{rabbitUsername}:{rabbitPassword}@{rabbitHost}:{rabbitPort}";
+                factory.Uri = new Uri(uriString);
+                factory.ClientProvidedName = "Rabbit Receiver1 App";
+                IConnection connection = factory.CreateConnection();
+                IModel channel = connection.CreateModel();
 
-                Console.WriteLine($"Message received: {message}");
-
-                channel.BasicAck(args.DeliveryTag, false);
-            };
-
-            string consumerTag = channel.BasicConsume(queueName, false, consumer);
-
-
-            channel.BasicCancel(consumerTag);
+                string exchangeName = "EmailExchange";
+                string routingKey = "email_queue";
+                string queueName = "EmailQueue";
 
 
-            channel.Close();
-            connection.Close();
+                channel.ExchangeDeclare(exchangeName, ExchangeType.Direct);
+                channel.QueueDeclare(queueName, true, false, false, null);
+                channel.QueueBind(queueName, exchangeName, routingKey, null);
+                channel.BasicQos(0, 1, false);
+
+
+
+                var consumer = new EventingBasicConsumer(channel);
+
+                consumer.Received += (sender, args) =>
+                {
+                    var body = args.Body.ToArray();
+                    string message = Encoding.UTF8.GetString(body);
+
+                    SendEmail(message);
+
+                    Console.WriteLine($"Message received: {message}");
+
+                    _channel.BasicAck(args.DeliveryTag, false);
+                };
+
+                string consumerTag = _channel.BasicConsume(queueName, true, consumer);
+
+                _channel.BasicCancel(consumerTag);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in StartListening: {ex.Message}");
+            }
         }
+
 
         private void SendEmail(string message)
         {
@@ -86,7 +94,7 @@ namespace RabbitMQ.Service
                 string fromMail = Environment.GetEnvironmentVariable("SMTP_USERNAME") ?? "cdiscoverhs@gmail.com";
                 string password = Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? "ircrhnghicdszqqu";
 
-                var emailData = JsonConvert.DeserializeObject<EmailModel>(message);
+                var emailData = JsonConvert.DeserializeObject<EmailModelToParse>(message);
                 var senderEmail = emailData.Sender;
                 var recipientEmail = emailData.Recipient;
                 var subject = emailData.Subject;

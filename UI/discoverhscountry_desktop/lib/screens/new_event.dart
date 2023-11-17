@@ -244,8 +244,13 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
                                                               OutlineInputBorder(),
                                                         ),
                                                         validator:
-                                                            FormBuilderValidators
-                                                                .required(),
+                                                             FormBuilderValidators
+                                                                .compose([
+                                                          FormBuilderValidators
+                                                              .required(
+                                                                  errorText:
+                                                                      'Ovo polje je obavezno!'),
+                                                        ]),
                                                         onChanged: (value) {
                                                           dateTime = DateTime(
                                                               value!.year,

@@ -2,8 +2,7 @@ import 'dart:async';
 import 'package:discoverhscountry_mobile/common/font_settings.dart';
 import 'package:discoverhscountry_mobile/screens/start_screen.dart';
 import 'package:flutter/material.dart';
-
-void main() {
+void main(){
   runApp(const MyApp());
 }
 

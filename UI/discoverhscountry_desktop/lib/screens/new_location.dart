@@ -112,7 +112,7 @@ class _NewLocationState extends State<NewLocation> with DataFetcher {
     "Hiking": "Planinarenje",
     "Parasailing and Paragliding": "Parasailing i paragliding",
     "Skiing": "Skijanje",
-    "Boutiques": "Prodajna mjesta/butici",
+    "Shops/Boutiques": "Prodajna mjesta/butici",
     "Unique Souvenirs": "Suvenirnice",
     "Local Produce": "Lokalni proizvodi",
     "Not specified": "Nije definisano"
