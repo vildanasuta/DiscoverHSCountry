@@ -15,7 +15,7 @@ using System.Text;
 using Util;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
-using RabbitMQ.Service;
+using DiscoverHSCountry.Services.RabbitMQ;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,18 +45,7 @@ builder.Services.AddTransient<IPublicCityServiceService, PublicCityServiceServic
 builder.Services.AddTransient<IReservationServiceService, ReservationServiceService>();
 builder.Services.AddTransient<ILocationVisitsService, LocationVisitsService>();
 builder.Services.AddTransient<IRecommendationService, RecommendationService>();
-var factory = new ConnectionFactory
-{
-    HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
-    Port = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672"),
-    UserName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? "guest",
-    Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest",
-};
-var connection = factory.CreateConnection();
-var channel = connection.CreateModel();
-
-builder.Services.AddTransient<IModel>(_ => (IModel)channel);
-builder.Services.AddTransient<RabbitMQEmailProducer>();
+builder.Services.AddScoped<IRabbitMQProducer, RabbitMQProducer>();
 
 
 builder.Services.AddAuthentication(

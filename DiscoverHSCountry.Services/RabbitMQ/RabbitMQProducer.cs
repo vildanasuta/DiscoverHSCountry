@@ -6,35 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiscoverHSCountry.Services
+namespace DiscoverHSCountry.Services.RabbitMQ
 {
-    public class EmailModel
+    public class RabbitMQProducer : IRabbitMQProducer
     {
-        public string Sender { get; set; }
-        public string Recipient { get; set; }
-        public string Subject { get; set; }
-        public string Content { get; set; }
-    }
-
-    public class RabbitMQEmailProducer : IDisposable
-    {
-        private readonly IModel _channel;
-
-        public RabbitMQEmailProducer(IModel channel)
-        {
-            _channel = channel;
-        }
-
-        public void Dispose()
-        {
-            _channel?.Dispose();
-        }
-
-        public void SendConfirmationEmail(EmailModel emailModel)
+        public void SendMessage<T>(T message)
         {
             var factory = new ConnectionFactory
             {
-                HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
+                HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "rabbitmq",
                 Port = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672"),
                 UserName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? "guest",
                 Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest",
@@ -52,14 +32,10 @@ namespace DiscoverHSCountry.Services
             channel.QueueDeclare(queueName, true, false, false, null);
             channel.QueueBind(queueName, exchangeName, routingKey, null);
 
-            string emailModelJson = JsonConvert.SerializeObject(emailModel);
+            string emailModelJson = JsonConvert.SerializeObject(message);
             byte[] messageBodyBytes = Encoding.UTF8.GetBytes(emailModelJson);
             channel.BasicPublish(exchangeName, routingKey, null, messageBodyBytes);
             //Thread.Sleep(TimeSpan.FromSeconds(1));
-
-            channel.Close();
-            connection.Close();
         }
     }
-
 }

@@ -29,11 +29,11 @@ namespace DiscoverHSCountry.Services
 
             query = AddInclude(query, search);
 
-            result.Count = await query.CountAsync();
+            result.Count = query.Count();
 
             if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
             {
-                query = query.Take(search.PageSize.Value).Skip(search.Page.Value * search.PageSize.Value);
+                query = query.Skip((int)((search?.Page - 1) * search?.PageSize)).Take((int)(search?.PageSize));
             }
 
             var list = await query.ToListAsync();

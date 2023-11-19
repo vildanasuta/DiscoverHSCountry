@@ -1,5 +1,6 @@
 import 'package:discoverhscountry_mobile/models/user_model.dart';
 import 'package:discoverhscountry_mobile/screens/all_cities_screen.dart';
+import 'package:discoverhscountry_mobile/screens/all_events_screen.dart';
 import 'package:discoverhscountry_mobile/screens/all_location_categories_screen.dart';
 import 'package:discoverhscountry_mobile/screens/dashboard_screen.dart';
 import 'package:discoverhscountry_mobile/screens/edit_profile_screen.dart';
@@ -96,6 +97,23 @@ class _TouristDrawerState extends State<TouristDrawer> {
           ),
           ListTile(
             leading: const Icon(
+              CupertinoIcons.calendar,
+              color: Colors.black,
+            ),
+            title: Text(
+              'Events',
+              style: Theme.of(context)
+                  .textTheme
+                  .displaySmall
+                  ?.copyWith(color: Colors.black),
+            ),
+            onTap: () {
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => AllEventsScreen(user: widget.user)));
+            },
+          ),
+          ListTile(
+            leading: const Icon(
               CupertinoIcons.folder,
               color: Colors.black,
             ),
@@ -162,7 +180,7 @@ class _TouristDrawerState extends State<TouristDrawer> {
             },
           ),
           const SizedBox(
-            height: 170,
+            height: 130,
           ),
 
           Padding(

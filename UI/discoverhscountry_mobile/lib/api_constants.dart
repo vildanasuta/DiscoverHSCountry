@@ -1,11 +1,13 @@
 // api_constants.dart
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class ApiConstants {
   static final String baseUrl = _getBaseUrl();
 
   static String _getBaseUrl() {
-    final String host = '192.168.31.123';
-    final String port = '7125';
+    final String host = dotenv.env['API_HOST']??'localhost';
+    final String port = dotenv.env['API_PORT']??'7125';
     return 'http://$host:$port';
   }
 }

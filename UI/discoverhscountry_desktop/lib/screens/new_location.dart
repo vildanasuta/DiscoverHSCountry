@@ -289,10 +289,8 @@ class _NewLocationState extends State<NewLocation> with DataFetcher {
                                                         });
                                                       },
                                                       items: cities.map((city) {
-                                                        cityIdMap[
-                                                            city
-                                                                .name] = city
-                                                            .id; // Store the mapping
+                                                        cityIdMap[city.name] =
+                                                            city.id;
                                                         return DropdownMenuItem<
                                                             String>(
                                                           value: city.name,
@@ -302,6 +300,17 @@ class _NewLocationState extends State<NewLocation> with DataFetcher {
                                                       }).toList(),
                                                       hint: const Text(
                                                           'Izaberi grad (obavezno polje)'),
+                                                    ),
+                                                    const SizedBox(height: 16),
+                                                    TextButton(
+                                                      child: const Text(
+                                                          'Ako grad nije na listi, klikni da dodaš isti',
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.grey)),
+                                                      onPressed: () => {
+                                                        showCityDialog(context)
+                                                      },
                                                     ),
                                                     const SizedBox(height: 16),
                                                     DropdownButton<String>(
@@ -674,5 +683,80 @@ class _NewLocationState extends State<NewLocation> with DataFetcher {
                                 ),
                               )
                             ]))))));
+  }
+
+  showCityDialog(var context) {
+    TextEditingController nameController = TextEditingController();
+    TextEditingController imageController = TextEditingController();
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Dodaj grad'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Ime grada'),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: imageController,
+                  decoration:
+                      const InputDecoration(labelText: 'URL fotografije grada'),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  String cityName = nameController.text;
+                  String imageUrl = imageController.text;
+                  Map<String, dynamic> newCity = {
+                    'name': cityName,
+                    'coverImage': imageUrl,
+                  };
+                  var url = Uri.parse('${ApiConstants.baseUrl}/City');
+                  var response = await makeAuthenticatedRequest(
+                    url,
+                    'POST',
+                    body: newCity,
+                  );
+                  print(response.statusCode);
+                  if (response.statusCode == 200) {
+                    // ignore: use_build_context_synchronously
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return const AlertDialog(
+                          title: Text('Uspješno dodan grad.'),
+                        );
+                      },
+                    );
+
+                    fetchCities().then((fetchedCities) {
+                      setState(() {
+                        cities = fetchedCities;
+                      });
+                    }).catchError((error) {
+                      // Handle error
+                    });
+                  }
+                  // ignore: use_build_context_synchronously
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Dodaj'),
+              ),
+            ],
+          );
+        });
   }
 }

@@ -23,7 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DiscoverHSCountry.Model\DiscoverHSCountry.Model.csproj" />
     <ProjectReference Include="..\DiscoverHSCountry.Services\DiscoverHSCountry.Services.csproj" />
-    <ProjectReference Include="..\RabbitMQ.Service\RabbitMQ.Service.csproj" />
+    <ProjectReference Include="..\RabbitMQConsumer\RabbitMQConsumer.csproj" />
   </ItemGroup>
 
 </Project>

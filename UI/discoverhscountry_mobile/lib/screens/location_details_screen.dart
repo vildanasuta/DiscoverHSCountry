@@ -890,7 +890,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                 var response = await makeAuthenticatedRequest(
                   url,
                   'POST',
-                  body: jsonEncode(newVisitedLocation.toJson()),
+                  body: newVisitedLocation,
                 );
                 if (response.statusCode == 200) {
                   // Parse the response JSON to get the ID
@@ -948,8 +948,8 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                                         await makeAuthenticatedRequest(
                                       url,
                                       'POST',
-                                      body: jsonEncode(
-                                          newVisitedLocationImage.toJson()),
+                                      body: 
+                                          newVisitedLocationImage,
                                     );
                                     if (response.statusCode == 200) {
                                       // ignore: use_build_context_synchronously

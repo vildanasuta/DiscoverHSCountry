@@ -150,7 +150,6 @@ class _VisitedLocationsScreenState extends State<VisitedLocationsScreen>
           ),
           ElevatedButton(
   onPressed: () {
-    // Call the function to generate and save the PDF report
     generateAndSavePDFReport(visitedLocations);
   },
   child: const Text('Generate Report'),

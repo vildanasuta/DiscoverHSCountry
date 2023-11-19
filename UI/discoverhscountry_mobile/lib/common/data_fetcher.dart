@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:discoverhscountry_mobile/api_constants.dart';
 import 'package:discoverhscountry_mobile/models/city_model.dart';
+import 'package:discoverhscountry_mobile/models/event_model.dart';
 import 'package:discoverhscountry_mobile/models/location_category_model.dart';
 import 'package:discoverhscountry_mobile/models/location_model.dart';
 import 'package:discoverhscountry_mobile/models/location_subcategory_model.dart';
@@ -83,7 +84,39 @@ Future<List<City>> fetchCities({int? page, int? pageSize}) async {
     throw Exception('Failed to make authenticated request: $error');
   }
 }
+Future<List<Event>> fetchEvents({int? page, int? pageSize}) async {
+  final Uri uri = Uri.parse('${ApiConstants.baseUrl}/Event');
+  final Map<String, dynamic> queryParameters = {};
 
+  if (page != null && pageSize != null) {
+    queryParameters['Page'] = page.toString();
+    queryParameters['PageSize'] = pageSize.toString();
+  }
+
+  try {
+    final response = await makeAuthenticatedRequest(
+      uri,
+      'GET',
+      queryParameters: queryParameters,
+    );
+
+    if (response.statusCode == 200) {
+      var jsonData =
+          json.decode(response.body)['result']['\$values'] as List<dynamic>;
+      final now = DateTime.now();
+      final events = jsonData
+          .map<Event>((json) => Event.fromJson(json))
+          .where((event) => event.date.isAfter(now))
+          .toList();
+
+      return events;
+    } else {
+      throw Exception('Failed to load data');
+    }
+  } catch (error) {
+    throw Exception('Failed to make authenticated request: $error');
+  }
+}
 
 
   Future<List<LocationCategory>> fetchLocationCategories() async {
@@ -479,6 +512,24 @@ Future<List<City>> fetchCities({int? page, int? pageSize}) async {
   }
 }
 
+Future<int?> getLocationIdByEventId(int eventId) async {
+  final Uri uri = Uri.parse('${ApiConstants.baseUrl}/EventLocation/$eventId');
+
+  try {
+    final response = await makeAuthenticatedRequest(uri, 'GET');
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      return jsonData['locationId'];
+    } else if (response.statusCode == 204) {
+      return null;
+    } else {
+      throw Exception('Failed to load data');
+    }
+  } catch (error) {
+    throw Exception('Failed to make authenticated request: $error');
+  }
+}
 
   Future<List<VisitedLocationImage>> getVisitedLocationImages(int visitedLocationId) async {
   final Uri uri = Uri.parse('${ApiConstants.baseUrl}/VisitedLocationImage');
