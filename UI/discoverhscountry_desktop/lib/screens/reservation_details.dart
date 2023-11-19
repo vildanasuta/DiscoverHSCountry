@@ -7,6 +7,7 @@ import 'package:discoverhscountry_desktop/services/authentication_service.dart';
 import 'package:discoverhscountry_desktop/util/dataFetcher.dart';
 import 'package:discoverhscountry_desktop/widgets/common_app_bar.dart';
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 
 

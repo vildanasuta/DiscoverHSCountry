@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:another_flushbar/flushbar.dart';
 import 'package:discoverhscountry_mobile/api_constants.dart';
+import 'package:discoverhscountry_mobile/common/data_fetcher.dart';
 import 'package:discoverhscountry_mobile/models/login_model.dart';
 import 'package:discoverhscountry_mobile/models/user_model.dart';
 import 'package:discoverhscountry_mobile/screens/dashboard_screen.dart';
@@ -10,6 +11,7 @@ import 'package:discoverhscountry_mobile/services/authentication_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 // ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
@@ -21,7 +23,7 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with DataFetcher {
   final AuthenticationService authService = AuthenticationService();
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   // ignore: prefer_final_fields
@@ -179,12 +181,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (response.statusCode == 200) {
                     Map<String, dynamic> responseBody =
                         json.decode(response.body);
+                    String? token = responseBody['token'];
+                    var storage = const FlutterSecureStorage();
+                    storage.write(key: 'token', value: token);
                     String? userType = responseBody['userType'];
                     if (userType != null) {
                       int userId = responseBody['userId'];
                       var getUserUrl =
                           Uri.parse('${ApiConstants.baseUrl}/User/$userId');
-                      var userResponse = await http.get(getUserUrl);
+                      var userResponse = await makeAuthenticatedRequest(
+                        getUserUrl,
+                        'GET',
+                      );
                       User? user;
                       if (userResponse.statusCode == 200) {
                         Map<String, dynamic> userBody =

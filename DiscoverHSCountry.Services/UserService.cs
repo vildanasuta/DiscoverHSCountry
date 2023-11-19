@@ -2,11 +2,16 @@
 using DiscoverHSCountry.Model.Requests;
 using DiscoverHSCountry.Model.SearchObjects;
 using DiscoverHSCountry.Services.Database;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Client;
+using Microsoft.IdentityModel.Tokens;
+using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http.Description;
@@ -17,8 +22,10 @@ namespace DiscoverHSCountry.Services
 
     public class UserService : BaseCRUDService<Model.User, Database.User, UserSearchObject, UserCreateRequest, UserUpdateRequest>, IUserService
     {
-        public UserService(DiscoverHSCountryContext dbContext, IMapper mapper) : base(dbContext, mapper)
+        private readonly IConfiguration _configuration;
+        public UserService(DiscoverHSCountryContext dbContext, IMapper mapper, IConfiguration configuration) : base(dbContext, mapper)
         {
+            _configuration = configuration;
         }
         public async Task<AuthenticationResponse> AuthenticateUser(string email, string password)
         {
@@ -34,8 +41,31 @@ namespace DiscoverHSCountry.Services
                 return new AuthenticationResponse { Result = Util.AuthenticationResult.InvalidPassword };
             }
 
-            return new AuthenticationResponse { Result = Util.AuthenticationResult.Success, UserId = user.UserId };
+            var token = CreateToken(user);
+
+            return new AuthenticationResponse { Result = Util.AuthenticationResult.Success, UserId = user.UserId, Token = token };
         }
+
+        private string CreateToken(User user)
+        {
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Email, user.Email),
+            };
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var token = new JwtSecurityToken(
+                claims: claims, 
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: creds
+                );
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return jwt;
+        }
+
+        
 
         public bool IsUserTouristAttractionOwner(int userId)
         {

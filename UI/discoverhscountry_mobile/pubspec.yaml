@@ -48,10 +48,10 @@ dependencies:
   flutter_paypal: ^0.2.0
   flutter_rating_bar: ^4.0.1
   carousel_slider: ^4.2.1
-  webview_flutter: ^4.4.1
   pdf: ^3.10.4
   permission_handler: ^11.0.1
-
+  flutter_secure_storage: ^9.0.0
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -87,6 +87,7 @@ flutter:
     - assets/heart.png
     - assets/heart_half.png
     - assets/heart_border.png
+    - .env
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

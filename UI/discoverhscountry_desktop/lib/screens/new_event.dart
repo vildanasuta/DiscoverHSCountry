@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:discoverhscountry_desktop/api_constants.dart';
 import 'package:discoverhscountry_desktop/main.dart';
@@ -17,7 +16,6 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
 
 class NewEvent extends StatefulWidget {
   final User? user;
@@ -69,26 +67,26 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
     }).catchError((error) {
       // Handle error
     });
-    
-int taoId = 0;
-getTouristAttractionOwnerIdByUserId(widget.user!.userId).then((id) async {
-  setState(() {
-    taoId = id!;
-    fetchLocationIdsByTouristAttractionOwnerId(taoId)
-        .then((fetchedIds) async {
+
+    int taoId = 0;
+    getTouristAttractionOwnerIdByUserId(widget.user!.userId).then((id) async {
       setState(() {
-        locationIds = fetchedIds;
+        taoId = id!;
+        fetchLocationIdsByTouristAttractionOwnerId(taoId)
+            .then((fetchedIds) async {
+          setState(() {
+            locationIds = fetchedIds;
+          });
+          return await fetchLocationsByIds(locationIds);
+        }).then((fetchedLocations) {
+          setState(() {
+            locations = fetchedLocations;
+          });
+        }).catchError((error) {
+          // Handle error
+        });
       });
-      return await fetchLocationsByIds(locationIds);
-    }).then((fetchedLocations) {
-      setState(() {
-        locations = fetchedLocations;
-      });
-    }).catchError((error) {
-      // Handle error
     });
-  });
-});
   }
 
   Map<String, String> eventCategoriesTranslations = {
@@ -173,8 +171,14 @@ getTouristAttractionOwnerIdByUserId(widget.user!.userId).then((id) async {
                                                         CrossAxisAlignment
                                                             .stretch,
                                                     children: [
-                                                    const Text('Napomena: Opis se popunjava na engleskom jeziku!', style: TextStyle(fontSize: 12),),
-                                                    const SizedBox(height: 16,),
+                                                      const Text(
+                                                        'Napomena: Opis se popunjava na engleskom jeziku!',
+                                                        style: TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 16,
+                                                      ),
                                                       FormBuilderTextField(
                                                         name: 'title',
                                                         controller:
@@ -240,8 +244,13 @@ getTouristAttractionOwnerIdByUserId(widget.user!.userId).then((id) async {
                                                               OutlineInputBorder(),
                                                         ),
                                                         validator:
-                                                            FormBuilderValidators
-                                                                .required(),
+                                                             FormBuilderValidators
+                                                                .compose([
+                                                          FormBuilderValidators
+                                                              .required(
+                                                                  errorText:
+                                                                      'Ovo polje je obavezno!'),
+                                                        ]),
                                                         onChanged: (value) {
                                                           dateTime = DateTime(
                                                               value!.year,
@@ -471,22 +480,13 @@ getTouristAttractionOwnerIdByUserId(widget.user!.userId).then((id) async {
                                                             var url = Uri.parse(
                                                                 '${ApiConstants.baseUrl}/Event');
                                                             var response =
-                                                                await http.post(
+                                                                await makeAuthenticatedRequest(
                                                               url,
-                                                              headers: {
-                                                                'Content-Type':
-                                                                    'application/json',
-                                                              },
-                                                              body: jsonEncode(
-                                                                  newEvent
-                                                                      .toJson()),
+                                                              'POST',
+                                                              body: newEvent
+                                                                  .toJson(),
                                                             );
-                                                            // ignore: avoid_print
-                                                            print(response
-                                                                .statusCode);
-                                                            // ignore: avoid_print
-                                                            print(
-                                                                response.body);
+
                                                             if (response
                                                                     .statusCode ==
                                                                 200) {

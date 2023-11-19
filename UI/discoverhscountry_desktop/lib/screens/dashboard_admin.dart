@@ -81,8 +81,6 @@ class _DashboardAdminState extends State<DashboardAdmin> {
                       Navigator.of(context).push(MaterialPageRoute(builder: (context)=> NewEvent(user: widget.user, userType: widget.userType)));
                     } else if (label == 'Dodaj novu historijsku priču') {
                       Navigator.of(context).push(MaterialPageRoute(builder: (context)=> NewHistoricalStory(user: widget.user, userType: widget.userType)));
-                    } else if (label == 'Dodaj novu korisnu informaciju') {
-                      // Navigate to Add New Service screen
                     } else if (label == 'Odobri nove lokacije') {
                       Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ApproveNewLocation(user: widget.user, userType: widget.userType)));
                     } else if (label == 'Pogledaj prijavljene probleme') {

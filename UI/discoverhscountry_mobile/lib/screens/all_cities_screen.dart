@@ -62,7 +62,7 @@ class _AllCitiesScreenState extends State<AllCitiesScreen> with DataFetcher {
   @override
   void initState() {
     super.initState();
-    _fetchCities(0, 6); // Load the initial page (page 0)
+    _fetchCities(1, 6); // Load the initial page (page 1)
   }
 
   @override
@@ -195,7 +195,7 @@ class _AllCitiesScreenState extends State<AllCitiesScreen> with DataFetcher {
           IconButton(
             onPressed: hasPreviousPage
                 ? () {
-                    _fetchCities(0, pageSize);
+                    _fetchCities(currentPage-1, pageSize);
                     setState(() {
                       currentPage -= 1;
                     });
@@ -212,7 +212,7 @@ class _AllCitiesScreenState extends State<AllCitiesScreen> with DataFetcher {
           IconButton(
             onPressed: currentPage < totalPages
                 ? () {
-                    _fetchCities(0, pageSize * 2);
+                    _fetchCities(currentPage+1, pageSize);
                     setState(() {
                       currentPage += 1;
                     });

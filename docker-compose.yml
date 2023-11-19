@@ -22,8 +22,18 @@ services:
     environment:
       - ConnectionStrings:DefaultConnection=Server=discoverhscountry-sql,1433;Database=DiscoverHSCountry;User=sa;Password=QWElkj132!;ConnectRetryCount=0; TrustServerCertificate=True; MultipleActiveResultSets=true
       - ASPNETCORE_ENVIRONMENT=Development
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - SMTP_SERVER=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USERNAME=cdiscoverhs@gmail.com
+      - SMTP_PASSWORD=ircrhnghicdszqqu
+      - API_HOST=192.168.31.123
+      - API_PORT=7125
     ports:
-      - 7125:7125
+      - 7125:7125 
     networks:
       - discoverhscountrynet
     links:
@@ -44,6 +54,28 @@ services:
       - discoverhscountrynet  
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+      
+  rabbitmq-service:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./RabbitMQConsumer/Dockerfile
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - SMTP_SERVER=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USERNAME=cdiscoverhs@gmail.com
+      - SMTP_PASSWORD=ircrhnghicdszqqu
+      - API_HOST=192.168.31.123
+      - API_PORT=7125
+    depends_on:
+      - rabbitmq
+    networks:
+      - discoverhscountrynet
+      
 volumes:
   rabbitmq_data:
   

@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:discoverhscountry_desktop/api_constants.dart';
 import 'package:discoverhscountry_desktop/main.dart';
@@ -13,28 +12,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:http/http.dart' as http;
-
 
 // ignore: must_be_immutable
 class AddService extends StatefulWidget {
   User user;
   String userType;
   int? locationId;
-  AddService({super.key, required this.user, required this.userType, required this.locationId});
+  AddService(
+      {super.key,
+      required this.user,
+      required this.userType,
+      required this.locationId});
 
   @override
   State<AddService> createState() => _AddServiceState();
 }
 
-class _AddServiceState extends State<AddService> with DataFetcher{
+class _AddServiceState extends State<AddService> with DataFetcher {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   final AuthenticationService authService = AuthenticationService();
   final TextEditingController nameController = TextEditingController();
-    final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
   final TextEditingController unitPriceController = TextEditingController();
   double? unitPrice;
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: CommonAppBar(
@@ -104,8 +105,14 @@ class _AddServiceState extends State<AddService> with DataFetcher{
                                                         CrossAxisAlignment
                                                             .stretch,
                                                     children: [
-                                                    const Text('Napomena: Opis se popunjava na engleskom jeziku!', style: TextStyle(fontSize: 12),),
-                                                    const SizedBox(height: 16,),
+                                                      const Text(
+                                                        'Napomena: Opis se popunjava na engleskom jeziku!',
+                                                        style: TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 16,
+                                                      ),
                                                       FormBuilderTextField(
                                                         name: 'name',
                                                         controller:
@@ -207,9 +214,10 @@ class _AddServiceState extends State<AddService> with DataFetcher{
                                                               serviceDescription:
                                                                   descriptionController
                                                                       .text,
-                                                              unitPrice:unitPrice!,
-                                                              locationId:
-                                                                  widget.locationId!,
+                                                              unitPrice:
+                                                                  unitPrice!,
+                                                              locationId: widget
+                                                                  .locationId!,
                                                             );
                                                             // ignore: avoid_print
                                                             print(newService
@@ -217,22 +225,13 @@ class _AddServiceState extends State<AddService> with DataFetcher{
                                                             var url = Uri.parse(
                                                                 '${ApiConstants.baseUrl}/Service');
                                                             var response =
-                                                                await http.post(
+                                                                await makeAuthenticatedRequest(
                                                               url,
-                                                              headers: {
-                                                                'Content-Type':
-                                                                    'application/json',
-                                                              },
-                                                              body: jsonEncode(
-                                                                  newService
-                                                                      .toJson()),
+                                                              'POST',
+                                                              body: newService
+                                                                  .toJson(),
                                                             );
-                                                            // ignore: avoid_print
-                                                            print(response
-                                                                .statusCode);
-                                                            // ignore: avoid_print
-                                                            print(
-                                                                response.body);
+
                                                             if (response
                                                                     .statusCode ==
                                                                 200) {

@@ -2,10 +2,12 @@
 using DiscoverHSCountry.Model.Requests;
 using DiscoverHSCountry.Model.SearchObjects;
 using DiscoverHSCountry.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiscoverHSCountry.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class LocationController : BaseCRUDController<Model.Location, Model.SearchObjects.LocationSearchObject, Model.Requests.LocationCreateRequest, Model.Requests.LocationUpdateRequest>

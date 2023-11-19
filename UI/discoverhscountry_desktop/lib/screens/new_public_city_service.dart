@@ -16,7 +16,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
 
 // ignore: must_be_immutable
@@ -29,13 +28,14 @@ class NewPublicCityService extends StatefulWidget {
   State<NewPublicCityService> createState() => _NewPublicCityServiceState();
 }
 
-class _NewPublicCityServiceState extends State<NewPublicCityService> with DataFetcher {
+class _NewPublicCityServiceState extends State<NewPublicCityService>
+    with DataFetcher {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   final AuthenticationService authService = AuthenticationService();
 
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController descriptionController= TextEditingController();
-  final TextEditingController addressController= TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
 
   City? selectedCity;
   int selectedCityId = 0;
@@ -54,7 +54,6 @@ class _NewPublicCityServiceState extends State<NewPublicCityService> with DataFe
       // Handle error
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -126,8 +125,14 @@ class _NewPublicCityServiceState extends State<NewPublicCityService> with DataFe
                                                         CrossAxisAlignment
                                                             .stretch,
                                                     children: [
-                                                      const Text('Napomena: Opis se popunjava na engleskom jeziku!', style: TextStyle(fontSize: 12),),
-                                                      const SizedBox(height: 16,),
+                                                      const Text(
+                                                        'Napomena: Opis se popunjava na engleskom jeziku!',
+                                                        style: TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 16,
+                                                      ),
                                                       FormBuilderTextField(
                                                         name: 'name',
                                                         controller:
@@ -179,16 +184,16 @@ class _NewPublicCityServiceState extends State<NewPublicCityService> with DataFe
                                                       const SizedBox(
                                                           height: 16),
                                                       FormBuilderTextField(
-                                                        name: 'address',
-                                                        controller:
-                                                            addressController,
-                                                        decoration:
-                                                            const InputDecoration(
-                                                          labelText: 'Adresa (opcionalno)',
-                                                          border:
-                                                              OutlineInputBorder(),
-                                                            )),
-                                                        
+                                                          name: 'address',
+                                                          controller:
+                                                              addressController,
+                                                          decoration:
+                                                              const InputDecoration(
+                                                            labelText:
+                                                                'Adresa (opcionalno)',
+                                                            border:
+                                                                OutlineInputBorder(),
+                                                          )),
                                                       const SizedBox(
                                                           height: 16),
                                                       DropdownButton<String>(
@@ -227,86 +232,91 @@ class _NewPublicCityServiceState extends State<NewPublicCityService> with DataFe
                                                         height: 20,
                                                       ),
                                                       ElevatedButton(
-                                                      onPressed: () async {
-                                                        FilePickerResult?
-                                                            result =
-                                                            await FilePicker
-                                                                .platform
-                                                                .pickFiles(
-                                                          type: FileType.image,
-                                                        );
+                                                        onPressed: () async {
+                                                          FilePickerResult?
+                                                              result =
+                                                              await FilePicker
+                                                                  .platform
+                                                                  .pickFiles(
+                                                            type:
+                                                                FileType.image,
+                                                          );
 
-                                                        if (result != null &&
-                                                            result.files
-                                                                .isNotEmpty) {
-                                                          PlatformFile file =
-                                                              result
-                                                                  .files.first;
-                                                          File imageFile =
-                                                              File(file.path!);
-                                                          Uint8List imageBytes =
-                                                              await imageFile
-                                                                  .readAsBytes();
-                                                          img.Image
-                                                              resizedImage =
-                                                              img.decodeImage(
-                                                                  imageBytes)!;
-                                                          int maxWidth = 800;
-                                                          img.Image
-                                                              smallerImage =
-                                                              img.copyResize(
-                                                                  resizedImage,
-                                                                  width:
-                                                                      maxWidth);
+                                                          if (result != null &&
+                                                              result.files
+                                                                  .isNotEmpty) {
+                                                            PlatformFile file =
+                                                                result.files
+                                                                    .first;
+                                                            File imageFile =
+                                                                File(
+                                                                    file.path!);
+                                                            Uint8List
+                                                                imageBytes =
+                                                                await imageFile
+                                                                    .readAsBytes();
+                                                            img.Image
+                                                                resizedImage =
+                                                                img.decodeImage(
+                                                                    imageBytes)!;
+                                                            int maxWidth = 800;
+                                                            img.Image
+                                                                smallerImage =
+                                                                img.copyResize(
+                                                                    resizedImage,
+                                                                    width:
+                                                                        maxWidth);
 
-                                                          List<int>
-                                                              smallerImageBytes =
-                                                              img.encodeJpg(
-                                                                  smallerImage);
+                                                            List<int>
+                                                                smallerImageBytes =
+                                                                img.encodeJpg(
+                                                                    smallerImage);
 
-                                                          String base64Image =
-                                                              base64Encode(
-                                                                  smallerImageBytes);
-                                                          setState(() {
-                                                            coverImage =
-                                                                base64Image;
-                                                          });
-                                                        }
-                                                      },
-                                                      style: ElevatedButton
-                                                          .styleFrom(
-                                                        backgroundColor:
-                                                            Colors.blue,
-                                                        foregroundColor:
-                                                            Colors.white,
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .symmetric(
-                                                                horizontal: 20,
-                                                                vertical: 10),
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
-                                                          side:
-                                                              const BorderSide(
-                                                                  color: Colors
-                                                                      .blue),
+                                                            String base64Image =
+                                                                base64Encode(
+                                                                    smallerImageBytes);
+                                                            setState(() {
+                                                              coverImage =
+                                                                  base64Image;
+                                                            });
+                                                          }
+                                                        },
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          backgroundColor:
+                                                              Colors.blue,
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      20,
+                                                                  vertical: 10),
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                            side:
+                                                                const BorderSide(
+                                                                    color: Colors
+                                                                        .blue),
+                                                          ),
+                                                        ),
+                                                        child: const Row(
+                                                          children: [
+                                                            Icon(Icons
+                                                                .upload_file),
+                                                            SizedBox(
+                                                              height: 10,
+                                                            ),
+                                                            Text(
+                                                                'Izaberite fotografiju javnog servisa!')
+                                                          ],
                                                         ),
                                                       ),
-                                                      child: const Row(
-                                                        children: [
-                                                          Icon(Icons
-                                                              .upload_file),
-                                                          SizedBox(
-                                                            height: 10,
-                                                          ),
-                                                          Text(
-                                                              'Izaberite fotografiju javnog servisa!')
-                                                        ],
-                                                      ),
-                                                    ),
                                                       const SizedBox(
                                                           height: 32),
                                                       ElevatedButton(
@@ -314,7 +324,8 @@ class _NewPublicCityServiceState extends State<NewPublicCityService> with DataFe
                                                           if (_formKey
                                                               .currentState!
                                                               .validate()) {
-                                                            PublicCityService newPublicCityService =
+                                                            PublicCityService
+                                                                newPublicCityService =
                                                                 PublicCityService(
                                                               name:
                                                                   nameController
@@ -322,26 +333,26 @@ class _NewPublicCityServiceState extends State<NewPublicCityService> with DataFe
                                                               description:
                                                                   descriptionController
                                                                       .text,
-                                                              address: addressController.text,
-                                                              coverImage: coverImage.toString(),
+                                                              address:
+                                                                  addressController
+                                                                      .text,
+                                                              coverImage:
+                                                                  coverImage
+                                                                      .toString(),
                                                               cityId:
                                                                   selectedCityId,
-
                                                             );
-                                                            // ignore: avoid_print
                                                             var url = Uri.parse(
                                                                 '${ApiConstants.baseUrl}/PublicCityService');
                                                             var response =
-                                                                await http.post(
+                                                                await makeAuthenticatedRequest(
                                                               url,
-                                                              headers: {
-                                                                'Content-Type':
-                                                                    'application/json',
-                                                              },
-                                                              body: jsonEncode(
+                                                              'POST',
+                                                              body:
                                                                   newPublicCityService
-                                                                      .toJson()),
+                                                                      .toJson(),
                                                             );
+
                                                             if (response
                                                                     .statusCode ==
                                                                 200) {
@@ -419,6 +430,4 @@ class _NewPublicCityServiceState extends State<NewPublicCityService> with DataFe
                               )
                             ]))))));
   }
-
-
 }

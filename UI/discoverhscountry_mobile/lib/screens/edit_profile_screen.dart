@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:discoverhscountry_mobile/api_constants.dart';
+import 'package:discoverhscountry_mobile/common/data_fetcher.dart';
 import 'package:discoverhscountry_mobile/screens/dashboard_screen.dart';
 import 'package:discoverhscountry_mobile/widgets/tourist_drawer.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:image/image.dart' as img;
 // ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
@@ -23,7 +25,7 @@ class EditProfile extends StatefulWidget {
   State<EditProfile> createState() => _EditProfileState();
 }
 
-class _EditProfileState extends State<EditProfile> {
+class _EditProfileState extends State<EditProfile> with DataFetcher {
   bool isHover = false;
   bool _showNewPassword = false;
   bool _showRepeatPassword = false;
@@ -87,7 +89,7 @@ class _EditProfileState extends State<EditProfile> {
                                   FormBuilderValidators.match(
                                       r'^(?=.*[a-zščćžđ])(?=.*[A-ZŠŽČĆŽĐ])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-zžščćžđŠŽČĆŽĐ\d@$!%*?&.]+$',
                                       errorText:
-                                  'The password must contain at least one uppercase letter, a number, and a symbol.'),
+                                          'The password must contain at least one uppercase letter, a number, and a symbol.'),
                                 ],
                               ),
                             ),
@@ -111,8 +113,8 @@ class _EditProfileState extends State<EditProfile> {
                               obscureText: !_showRepeatPassword,
                               validator: FormBuilderValidators.compose([
                                 FormBuilderValidators.required(
-                                    errorText: 'This field is required!',
-                                  ),
+                                  errorText: 'This field is required!',
+                                ),
                                 (val) {
                                   if (val != _passwordController.text) {
                                     return 'Passwords aren not matching!';
@@ -174,30 +176,28 @@ class _EditProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(0, 2, 89, 1.0),
-        foregroundColor: Colors.white,
-        actions: [
-  Builder(
-    builder: (context) {
-      return IconButton(
-        icon: const Icon(Icons.menu), 
-        onPressed: () {
-          Scaffold.of(context).openEndDrawer();
-        },
-      );
-    },
-  ),
-],
-
-      ),
-      endDrawer: TouristDrawer(user: widget.user),
-          body: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Center(
-                    child: Padding(
+        appBar: AppBar(
+          backgroundColor: const Color.fromRGBO(0, 2, 89, 1.0),
+          foregroundColor: Colors.white,
+          actions: [
+            Builder(
+              builder: (context) {
+                return IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () {
+                    Scaffold.of(context).openEndDrawer();
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+        endDrawer: TouristDrawer(user: widget.user),
+        body: Column(children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Center(
+                child: Padding(
                   padding: const EdgeInsets.fromLTRB(16.0, 60.0, 16.0, 60.0),
                   child: Card(
                     elevation: 5,
@@ -218,7 +218,8 @@ class _EditProfileState extends State<EditProfile> {
                                   color: Colors.white,
                                   child: widget.user.profileImage != ''
                                       ? Image.memory(
-                                          base64Decode(widget.user.profileImage),
+                                          base64Decode(
+                                              widget.user.profileImage),
                                           width: 120,
                                           height: 120,
                                         )
@@ -235,18 +236,19 @@ class _EditProfileState extends State<EditProfile> {
                                     type: FileType.image,
                                   );
 
-                                  if (result != null && result.files.isNotEmpty) {
+                                  if (result != null &&
+                                      result.files.isNotEmpty) {
                                     PlatformFile file = result.files.first;
                                     File imageFile = File(file.path!);
                                     Uint8List imageBytes =
                                         await imageFile.readAsBytes();
 
-                                    // Resize the image to a smaller size
                                     img.Image resizedImage =
                                         img.decodeImage(imageBytes)!;
                                     int maxWidth = 800;
-                                    img.Image smallerImage = img
-                                        .copyResize(resizedImage, width: maxWidth);
+                                    img.Image smallerImage = img.copyResize(
+                                        resizedImage,
+                                        width: maxWidth);
 
                                     List<int> smallerImageBytes =
                                         img.encodeJpg(smallerImage);
@@ -256,17 +258,19 @@ class _EditProfileState extends State<EditProfile> {
                                       Uri.parse(
                                           '${ApiConstants.baseUrl}/User/UpdateProfilePhoto/${widget.user.userId}'),
                                     );
-
-                                    // Set the 'Content-Type' header to 'multipart/form-data'
+                                    var storage = const FlutterSecureStorage();
+                                    final token =
+                                        await storage.read(key: 'token');
+                                    request.headers['Authorization'] =
+                                        'Bearer $token';
                                     request.headers['Content-Type'] =
                                         'multipart/form-data';
 
                                     request.files.add(
                                       http.MultipartFile(
                                         'profileImage',
-                                        Stream.fromIterable([
-                                          smallerImageBytes
-                                        ]), // Convert List<int> to Stream<List<int>>
+                                        Stream.fromIterable(
+                                            [smallerImageBytes]),
                                         smallerImageBytes.length,
                                         filename: file.name,
                                       ),
@@ -275,9 +279,11 @@ class _EditProfileState extends State<EditProfile> {
                                     var response = await request.send();
                                     if (response.statusCode == 200) {
                                       // After successful update, retrieve the updated user data
-                                      var getUserResponse = await http.get(
+                                      final getUserResponse =
+                                          await makeAuthenticatedRequest(
                                         Uri.parse(
                                             '${ApiConstants.baseUrl}/User/${widget.user.userId}'),
+                                        'GET',
                                       );
 
                                       if (getUserResponse.statusCode == 200) {
@@ -303,14 +309,12 @@ class _EditProfileState extends State<EditProfile> {
                                 },
                                 onHover: (isHovering) {
                                   setState(() {
-                                    isHover =
-                                        isHovering;
+                                    isHover = isHovering;
                                   });
                                 },
                                 child: ClipOval(
                                   child: Visibility(
-                                    visible:
-                                        isHover, 
+                                    visible: isHover,
                                     child: Container(
                                       color: Colors.blue.withOpacity(0.8),
                                       padding: const EdgeInsets.all(8),
@@ -326,59 +330,75 @@ class _EditProfileState extends State<EditProfile> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            '${widget.user.firstName} ${widget.user.lastName}', style: Theme.of(context)
+                            '${widget.user.firstName} ${widget.user.lastName}',
+                            style: Theme.of(context)
                                 .textTheme
                                 .headlineMedium
-                                ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160)),
-                           
+                                ?.copyWith(
+                                    color:
+                                        const Color.fromARGB(255, 1, 38, 160)),
                           ),
                           Text(
                             widget.user.email,
                             style: Theme.of(context)
                                 .textTheme
                                 .displaySmall
-                                ?.copyWith(color: Colors.grey,),
+                                ?.copyWith(
+                                  color: Colors.grey,
+                                ),
                           ),
                           const SizedBox(height: 25),
                           ElevatedButton(
-                            onPressed: () {
-                              _showEditPopup(context);
-                            },
-                            child: Text('Edit your details',style: Theme.of(context)
-                                .textTheme
-                                .displaySmall
-                                ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160),))
-                          ),
+                              onPressed: () {
+                                _showEditPopup(context);
+                              },
+                              child: Text('Edit your details',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .displaySmall
+                                      ?.copyWith(
+                                        color: const Color.fromARGB(
+                                            255, 1, 38, 160),
+                                      ))),
                           const SizedBox(height: 20),
                           ElevatedButton(
-                            onPressed: () {
-                              _changePassword();
-                            },
-                            child:  Text('Change password', style: Theme.of(context)
-                                .textTheme
-                                .displaySmall
-                                ?.copyWith(color: const Color.fromARGB(255, 1, 38, 160),),)
-                          ),
+                              onPressed: () {
+                                _changePassword();
+                              },
+                              child: Text(
+                                'Change password',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displaySmall
+                                    ?.copyWith(
+                                      color:
+                                          const Color.fromARGB(255, 1, 38, 160),
+                                    ),
+                              )),
                           const SizedBox(height: 32),
                           TextButton(
-                            onPressed: () {
-                              deleteProfile(context, widget.user.userId);
-                            },
-                            style: ButtonStyle(
-                              foregroundColor:
-                                  MaterialStateProperty.resolveWith<Color?>(
-                                (Set<MaterialState> states) {
-                                  if (states.contains(MaterialState.pressed)) {
-                                    return Colors.red.withOpacity(0.8);
-                                  }
-                                  return Colors.red;
-                                },
+                              onPressed: () {
+                                deleteProfile(context, widget.user.userId);
+                              },
+                              style: ButtonStyle(
+                                foregroundColor:
+                                    MaterialStateProperty.resolveWith<Color?>(
+                                  (Set<MaterialState> states) {
+                                    if (states
+                                        .contains(MaterialState.pressed)) {
+                                      return Colors.red.withOpacity(0.8);
+                                    }
+                                    return Colors.red;
+                                  },
+                                ),
                               ),
-                            ),
-                            child: Text('Delete your profile' ,style: Theme.of(context)
-                                .textTheme
-                                .displaySmall?.copyWith(color:Colors.red),)
-                          )
+                              child: Text(
+                                'Delete your profile',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displaySmall
+                                    ?.copyWith(color: Colors.red),
+                              ))
                         ],
                       ),
                     ),
@@ -387,7 +407,7 @@ class _EditProfileState extends State<EditProfile> {
               ),
             ),
           ),
-    ]));
+        ]));
   }
 
   void _showEditPopup(BuildContext context) {
@@ -459,11 +479,10 @@ class _EditProfileState extends State<EditProfile> {
                 );
                 var url = Uri.parse(
                     '${ApiConstants.baseUrl}/User/UpdateDetails/${editedUser.userId}');
-                var response = await http.put(
+
+                var response = await makeAuthenticatedRequest(
                   url,
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
+                  'PUT',
                   body: jsonEncode(editedUser.toJson()),
                 );
                 if (response.statusCode == 200) {
@@ -519,121 +538,124 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
+  void sendChangePasswordRequest(int userId, String newPassword,
+      BuildContext context, String oldPassword) async {
+    var savePasswordUrl =
+        Uri.parse('${ApiConstants.baseUrl}/User/UpdatePassword/$userId');
 
-void sendChangePasswordRequest(int userId, String newPassword,
-    BuildContext context, String oldPassword) async {
-  var savePasswordUrl =
-      Uri.parse('${ApiConstants.baseUrl}/User/UpdatePassword/$userId');
-
-  var response = await http.put(
-    savePasswordUrl,
-    headers: {'Content-Type': 'application/json'},
-    body: json.encode({'password': newPassword, 'oldPassword': oldPassword}),
-  );
-
-  if (response.statusCode == 200) {
-    // ignore: use_build_context_synchronously
-    Flushbar(
-      message: "Password is changed!",
-      backgroundColor: Colors.green,
-      duration: const Duration(seconds: 3),
-    ).show(context);
-  } else {
-    // ignore: use_build_context_synchronously
-    Flushbar(
-      message: "Password is not changed. Check your input fields!",
-      backgroundColor: Colors.red,
-      duration: const Duration(seconds: 3),
-    ).show(context);
-  }
-}
-
-void deleteProfile(BuildContext context, int userId) async {
-  // Display a confirmation dialog
-  bool confirmDelete = await showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return WillPopScope(
-        onWillPop: () async {
-          Navigator.of(context).pop(false); 
-          return false;
-        },
-        child: AlertDialog(
-          title: const Text('Are you sure you want to delete your profile?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false); 
-              },
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                  return Colors.green;
-                }),
-                foregroundColor: MaterialStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                  return Colors.white;
-                }),
-              ),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                  return Colors.red;
-                }),
-                foregroundColor: MaterialStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                  return Colors.white;
-                }),
-              ),
-              child: const Text('Yes'),
-            )
-          ],
-        ),
-      );
-    },
-  );
-
-  if (confirmDelete == true) {
-    int touristId = 0;
-    var getTouristId = Uri.parse(
-        '${ApiConstants.baseUrl}/Tourist/GetTouristIdByUserId/$userId');
-    var response = await http.get(getTouristId);
+    var response = await makeAuthenticatedRequest(
+      savePasswordUrl,
+      'PUT',
+      body: jsonEncode({'password': newPassword, 'oldPassword': oldPassword}),
+    );
     if (response.statusCode == 200) {
-      touristId = int.parse(response.body);
-    }
-
-    var deleteTourist =
-        Uri.parse('${ApiConstants.baseUrl}/Tourist/$touristId');
-    var deleteResponse = await http.delete(deleteTourist);
-
-    if (deleteResponse.statusCode == 200) {
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => DashboardScreen(user: widget.user,)),
-      );
-
       // ignore: use_build_context_synchronously
       Flushbar(
-        message: "Your profile is deleted!",
+        message: "Password is changed!",
         backgroundColor: Colors.green,
         duration: const Duration(seconds: 3),
       ).show(context);
     } else {
       // ignore: use_build_context_synchronously
       Flushbar(
-        message: "Profile is not deleted!",
+        message: "Password is not changed. Check your input fields!",
         backgroundColor: Colors.red,
         duration: const Duration(seconds: 3),
       ).show(context);
     }
-  } else {
-    // User cancelled profile deletion or dismissed dialog
   }
-}}
+
+  void deleteProfile(BuildContext context, int userId) async {
+    // Display a confirmation dialog
+    bool confirmDelete = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () async {
+            Navigator.of(context).pop(false);
+            return false;
+          },
+          child: AlertDialog(
+            title: const Text('Are you sure you want to delete your profile?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                      (Set<MaterialState> states) {
+                    return Colors.green;
+                  }),
+                  foregroundColor: MaterialStateProperty.resolveWith<Color?>(
+                      (Set<MaterialState> states) {
+                    return Colors.white;
+                  }),
+                ),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                      (Set<MaterialState> states) {
+                    return Colors.red;
+                  }),
+                  foregroundColor: MaterialStateProperty.resolveWith<Color?>(
+                      (Set<MaterialState> states) {
+                    return Colors.white;
+                  }),
+                ),
+                child: const Text('Yes'),
+              )
+            ],
+          ),
+        );
+      },
+    );
+
+    if (confirmDelete == true) {
+      int touristId = 0;
+      var getTouristId = Uri.parse(
+          '${ApiConstants.baseUrl}/Tourist/GetTouristIdByUserId/$userId');
+      var response = await makeAuthenticatedRequest(getTouristId, 'GET');
+      if (response.statusCode == 200) {
+        touristId = int.parse(response.body);
+      }
+
+      var deleteTourist =
+          Uri.parse('${ApiConstants.baseUrl}/Tourist/$touristId');
+      var deleteResponse =
+          await makeAuthenticatedRequest(deleteTourist, 'DELETE');
+
+      if (deleteResponse.statusCode == 200) {
+        // ignore: use_build_context_synchronously
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => DashboardScreen(
+                    user: widget.user,
+                  )),
+        );
+
+        // ignore: use_build_context_synchronously
+        Flushbar(
+          message: "Your profile is deleted!",
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 3),
+        ).show(context);
+      } else {
+        // ignore: use_build_context_synchronously
+        Flushbar(
+          message: "Profile is not deleted!",
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ).show(context);
+      }
+    } else {
+      // User cancelled profile deletion or dismissed dialog
+    }
+  }
+}

@@ -2,6 +2,7 @@
 using DiscoverHSCountry.Model.Requests;
 using DiscoverHSCountry.Model.SearchObjects;
 using DiscoverHSCountry.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DiscoverHSCountry.API.Controllers
@@ -36,6 +37,7 @@ namespace DiscoverHSCountry.API.Controllers
             return base.Insert(insert);
         }
 
+        [Authorize]
         [HttpGet("GetTouristAttractionOwnerIdByUserId/{userId}")]
         public IActionResult GetTouristAttractionOwnerIdByUserId(int userId)
         {
