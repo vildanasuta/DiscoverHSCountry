@@ -50,9 +50,9 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
     city = await getCityById(cityId);
   }
 
-  _getServicesByLocationId(int locationId) async {
+  _getServicesByLocationId(int? locationId) async {
     try {
-      services = await getServicesByLocationId(locationId);
+      services = await getServicesByLocationId(locationId!);
     } catch (e) {
       // ignore: avoid_print
       print('Error fetching services: $e');
@@ -61,7 +61,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
 
   Future<void> _loadData() {
     return _getCityById(widget.location.cityId)
-        .then((_) => _getServicesByLocationId(widget.location.locationId!))
+        .then((_) => _getServicesByLocationId(widget.location.locationId))
         .then((_) => _getTouristId())
         .then((_) => _getReviews())
         .then((_) => _getLocationVisitsByLocationIdAndTouristId())
@@ -93,21 +93,18 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
   Future<void> _getLocationVisitsByLocationIdAndTouristId() async {
     locationVisits = await getLocationVisitsByLocationIdAndTouristId(
         widget.location.locationId!, touristId!);
-
     if (locationVisits == null) {
-      final newLocationVisit = LocationVisits(
-        locationId: widget.location.locationId!,
-        touristId: touristId!,
-        numberOfVisits: 0,
-      );
+      final newLocationVisit = {
+        'locationId': widget.location.locationId!,
+        'touristId': touristId!,
+        'numberOfVisits': 1,
+      };
 
-      final requestBody = jsonEncode(newLocationVisit);
       final Uri uri = Uri.parse('${ApiConstants.baseUrl}/LocationVisits');
-
       final response = await makeAuthenticatedRequest(
         uri,
         'POST',
-        body: requestBody,
+        body: newLocationVisit,
       );
 
       if (response.statusCode == 200) {
@@ -130,7 +127,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
     final response = await makeAuthenticatedRequest(
       uri,
       'PUT',
-      body: jsonEncode({'numberOfVisits': numberOfVisits}),
+      body: {'numberOfVisits': numberOfVisits},
     );
 
     if (response.statusCode == 200) {
@@ -948,8 +945,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                                         await makeAuthenticatedRequest(
                                       url,
                                       'POST',
-                                      body: 
-                                          newVisitedLocationImage,
+                                      body: newVisitedLocationImage,
                                     );
                                     if (response.statusCode == 200) {
                                       // ignore: use_build_context_synchronously
