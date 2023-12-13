@@ -275,7 +275,6 @@ class _EditProfileState extends State<EditProfile> with DataFetcher {
                                         filename: file.name,
                                       ),
                                     );
-
                                     var response = await request.send();
                                     if (response.statusCode == 200) {
                                       // After successful update, retrieve the updated user data
@@ -475,7 +474,7 @@ class _EditProfileState extends State<EditProfile> with DataFetcher {
                   email: emailController.text,
                   firstName: firstNameController.text,
                   lastName: lastNameController.text,
-                  profileImage: profileImage,
+                  profileImage: widget.user.profileImage,
                 );
                 var url = Uri.parse(
                     '${ApiConstants.baseUrl}/User/UpdateDetails/${editedUser.userId}');
@@ -483,7 +482,7 @@ class _EditProfileState extends State<EditProfile> with DataFetcher {
                 var response = await makeAuthenticatedRequest(
                   url,
                   'PUT',
-                  body: jsonEncode(editedUser.toJson()),
+                  body: editedUser.toJson(),
                 );
                 if (response.statusCode == 200) {
                   // ignore: use_build_context_synchronously
