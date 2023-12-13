@@ -14,6 +14,8 @@ services:
       - 1433
     networks:
       - discoverhscountrynet
+    volumes:
+      - ./DiscoverHSCountry-database.bacpac:/docker-entrypoint-initdb.d/DiscoverHSCountry-database.bacpac
 
   discoverhscountry-api:
     restart: unless-stopped
