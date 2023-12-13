@@ -1,8 +1,9 @@
 version: '3'
 services:
-#mssql docker
   discoverhscountry-sql:
-    image: mcr.microsoft.com/mssql/server:2017-latest-ubuntu
+    build:
+      context: .
+      dockerfile: Dockerfile.sqlserver
     restart: unless-stopped
     environment:
       - ACCEPT_EULA=Y
@@ -14,9 +15,7 @@ services:
       - 1433
     networks:
       - discoverhscountrynet
-    volumes:
-      - ./script.sql:/docker-entrypoint-initdb.d/script.sql
-
+      
   discoverhscountry-api:
     restart: unless-stopped
     build:
@@ -75,6 +74,8 @@ services:
       - API_PORT=7125
     depends_on:
       - rabbitmq
+      - discoverhscountry-api
+      - discoverhscountry-sql
     networks:
       - discoverhscountrynet
       
