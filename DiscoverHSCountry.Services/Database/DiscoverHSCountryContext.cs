@@ -324,7 +324,6 @@ public partial class DiscoverHSCountryContext : DbContext
             entity.ToTable("PublicCityService");
 
             entity.Property(e => e.PublicCityServiceId)
-                .ValueGeneratedNever()
                 .HasColumnName("public_city_service_id");
             entity.Property(e => e.Address).HasColumnName("address");
             entity.Property(e => e.CityId).HasColumnName("city_id");
