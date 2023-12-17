@@ -76,6 +76,14 @@ Future<List<City>> fetchCities({int? page, int? pageSize}) async {
       final cities = jsonData.map<City>((json) {
         return City.fromJson(json);
       }).toList();
+
+      for(var c in cities){
+        if(c.coverImage=="" || c.coverImage=='' || c.coverImage ==" " || c.coverImage==' '){
+          c.coverImage="https://cdn3.iconfinder.com/data/icons/online-states/150/Photos-512.png";
+        }
+      }
+
+
       return cities;
     } else {
       throw Exception('Failed to load data');
