@@ -6,7 +6,7 @@ part 'city_model.g.dart';
 class City {
   final int cityId;
   final String name;
-  final String coverImage;
+  String coverImage;
 
   City({
     required this.cityId,

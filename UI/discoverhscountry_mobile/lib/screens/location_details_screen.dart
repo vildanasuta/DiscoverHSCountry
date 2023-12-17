@@ -581,7 +581,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                   var response = await makeAuthenticatedRequest(
                     url,
                     'POST',
-                    body: jsonEncode(newReview.toJson()),
+                    body: newReview.toJson(),
                   );
 
                   if (response.statusCode == 200) {
@@ -595,6 +595,9 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                             actions: <Widget>[
                               TextButton(
                                 onPressed: () {
+                                  
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
                                   Navigator.of(context).pushReplacement(
                                     MaterialPageRoute(
                                       builder: (context) =>
