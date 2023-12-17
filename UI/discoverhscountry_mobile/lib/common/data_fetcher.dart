@@ -704,7 +704,6 @@ Future<List<Recommendation>> getRecommendationByTouristId(int userId) async {
 
   try {
     final response = await makeAuthenticatedRequest(uri, 'GET');
-
     if (response.statusCode == 200) {
       var jsonData =
           json.decode(response.body)['result']['\$values'] as List<dynamic>;
@@ -719,7 +718,6 @@ Future<List<Recommendation>> getRecommendationByTouristId(int userId) async {
         );
         users.add(user);
       }
-
       List<String> emails = [];
       for (var user in users) {
         emails.add(user.email);

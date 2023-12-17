@@ -138,6 +138,7 @@ class _EditProfileState extends State<EditProfile> with DataFetcher {
                                         _passwordController.text,
                                         context,
                                         oldPasswordFromForm);
+                                        Navigator.of(context).pop();
                                   } else {
                                     // ignore: use_build_context_synchronously
                                     Flushbar(
@@ -219,7 +220,7 @@ class _EditProfileState extends State<EditProfile> with DataFetcher {
                                   child: widget.user.profileImage != ''
                                       ? Image.memory(
                                           base64Decode(
-                                              widget.user.profileImage),
+                                              widget.user.profileImage!),
                                           width: 120,
                                           height: 120,
                                         )
@@ -545,7 +546,7 @@ class _EditProfileState extends State<EditProfile> with DataFetcher {
     var response = await makeAuthenticatedRequest(
       savePasswordUrl,
       'PUT',
-      body: jsonEncode({'password': newPassword, 'oldPassword': oldPassword}),
+      body: {'password': newPassword, 'oldPassword': oldPassword},
     );
     if (response.statusCode == 200) {
       // ignore: use_build_context_synchronously

@@ -1,4 +1,5 @@
-import 'dart:convert';
+
+import 'dart:async';
 
 import 'package:discoverhscountry_mobile/api_constants.dart';
 import 'package:discoverhscountry_mobile/common/data_fetcher.dart';
@@ -12,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 // ignore: depend_on_referenced_packages
-import 'package:http/http.dart' as http;
 
 class ReportAnIssueScreen extends StatefulWidget {
   final User? user;
@@ -89,22 +89,19 @@ class _ReportAnIssueScreenState extends State<ReportAnIssueScreen>
                                           MainAxisAlignment.center,
                                       children: [
                                         Container(
-                                            constraints:
-                                                const BoxConstraints(
-                                                    maxWidth: 700),
+                                            constraints: const BoxConstraints(
+                                                maxWidth: 700),
                                             child: Card(
                                                 color: Colors.white,
                                                 elevation: 50,
-                                                shape:
-                                                    RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(
-                                                                    12)),
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12)),
                                                 child: Padding(
                                                     padding:
-                                                        const EdgeInsets
-                                                            .all(16.0),
+                                                        const EdgeInsets.all(
+                                                            16.0),
                                                     child: Column(
                                                         crossAxisAlignment:
                                                             CrossAxisAlignment
@@ -118,7 +115,6 @@ class _ReportAnIssueScreenState extends State<ReportAnIssueScreen>
                                                                 const InputDecoration(
                                                               labelText:
                                                                   'Title',
-                                                              
                                                             ),
                                                             validator:
                                                                 FormBuilderValidators
@@ -128,8 +124,7 @@ class _ReportAnIssueScreenState extends State<ReportAnIssueScreen>
                                                                       errorText:
                                                                           'This field is required!'),
                                                               FormBuilderValidators
-                                                                  .minLength(
-                                                                      3,
+                                                                  .minLength(3,
                                                                       errorText:
                                                                           'Headline needs to contain minimum of 3 characters.'),
                                                             ]),
@@ -137,15 +132,13 @@ class _ReportAnIssueScreenState extends State<ReportAnIssueScreen>
                                                           const SizedBox(
                                                               height: 16),
                                                           FormBuilderTextField(
-                                                            name:
-                                                                'description',
+                                                            name: 'description',
                                                             controller:
                                                                 descriptionController,
                                                             decoration:
                                                                 const InputDecoration(
                                                               labelText:
                                                                   'Description',
-                                                             
                                                             ),
                                                             validator:
                                                                 FormBuilderValidators
@@ -155,15 +148,15 @@ class _ReportAnIssueScreenState extends State<ReportAnIssueScreen>
                                                                       errorText:
                                                                           'This field is required!'),
                                                               FormBuilderValidators
-                                                                  .minLength(
-                                                                      3,
+                                                                  .minLength(3,
                                                                       errorText:
                                                                           'Description needs to contain minimum of 3 characters.'),
                                                             ]),
                                                           ),
-                                                          const SizedBox(height: 20,),
-                                                          DropdownButton<
-                                                              int>(
+                                                          const SizedBox(
+                                                            height: 20,
+                                                          ),
+                                                          DropdownButton<int>(
                                                             value:
                                                                 selectedLocationId,
                                                             items: [
@@ -171,7 +164,11 @@ class _ReportAnIssueScreenState extends State<ReportAnIssueScreen>
                                                                   int>(
                                                                 value: null,
                                                                 child: Text(
-                                                                    "Choose a location related (optional)", style : Theme.of(context).textTheme.displaySmall),
+                                                                    "Choose a location related (optional)",
+                                                                    style: Theme.of(
+                                                                            context)
+                                                                        .textTheme
+                                                                        .displaySmall),
                                                               ),
                                                               ...locations.map(
                                                                   (Location
@@ -200,38 +197,35 @@ class _ReportAnIssueScreenState extends State<ReportAnIssueScreen>
                                                             onPressed:
                                                                 () async {
                                                               var idTourist =
-                                                                  await getTouristIdByUserId(widget
-                                                                      .user!
-                                                                      .userId);
+                                                                  await getTouristIdByUserId(
+                                                                      widget
+                                                                          .user!
+                                                                          .userId);
                                                               if (_formKey
                                                                   .currentState!
                                                                   .validate()) {
                                                                 TechnicalIssueTourist
                                                                     newIssue =
                                                                     TechnicalIssueTourist(
-                                                                  title: titleController
-                                                                      .text,
+                                                                  title:
+                                                                      titleController
+                                                                          .text,
                                                                   description:
                                                                       descriptionController
                                                                           .text,
                                                                   touristId:
                                                                       idTourist,
-                                                                  locationId: selectedLocationId,
+                                                                  locationId:
+                                                                      selectedLocationId,
                                                                 );
-                                                                var url = Uri
-                                                                    .parse(
-                                                                        '${ApiConstants.baseUrl}/TechnicalIssueTourist');
-                                                                var response =
-                                                                    await http
-                                                                        .post(
+                                                                var url = Uri.parse(
+                                                                    '${ApiConstants.baseUrl}/TechnicalIssueTourist');
+                                                                final response =
+                                                                    await makeAuthenticatedRequest(
                                                                   url,
-                                                                  headers: {
-                                                                    'Content-Type':
-                                                                        'application/json',
-                                                                  },
-                                                                  body: jsonEncode(
-                                                                      newIssue
-                                                                          .toJson()),
+                                                                  'POST',
+                                                                  body: newIssue
+                                                                      .toJson(),
                                                                 );
                                                                 if (response
                                                                         .statusCode ==
@@ -241,9 +235,11 @@ class _ReportAnIssueScreenState extends State<ReportAnIssueScreen>
                                                                       context:
                                                                           context,
                                                                       builder:
-                                                                          (BuildContext context) {
+                                                                          (BuildContext
+                                                                              context) {
                                                                         return AlertDialog(
-                                                                          title: const Text('You have successfully reported an issue.'),
+                                                                          title:
+                                                                              const Text('You have successfully reported an issue.'),
                                                                           actions: <Widget>[
                                                                             TextButton(
                                                                               onPressed: () {
@@ -264,9 +260,11 @@ class _ReportAnIssueScreenState extends State<ReportAnIssueScreen>
                                                                       context:
                                                                           context,
                                                                       builder:
-                                                                          (BuildContext context) {
+                                                                          (BuildContext
+                                                                              context) {
                                                                         return AlertDialog(
-                                                                          title: const Text('Issue is not reported. Check your input fields.'),
+                                                                          title:
+                                                                              const Text('Issue is not reported. Check your input fields.'),
                                                                           actions: <Widget>[
                                                                             TextButton(
                                                                               onPressed: () {
