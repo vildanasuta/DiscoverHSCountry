@@ -191,7 +191,7 @@ void dispose() {
         var response = await makeAuthenticatedRequest(
     url,
     'POST',
-    body: jsonEncode(reservationService.toJson()),
+    body: reservationService.toJson(),
   );
         if (response.statusCode != 200) {
           print(response.body);

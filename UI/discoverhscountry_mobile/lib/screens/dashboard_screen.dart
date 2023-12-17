@@ -70,10 +70,17 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
         title: Row(
           children: [
             CircleAvatar(
-              backgroundImage: MemoryImage(
-                base64Decode(widget.user.profileImage),
+              child: Container(
+                color: Colors.white,
+                child: widget.user.profileImage != ''
+                    ? Image.memory(
+                        base64Decode(widget.user.profileImage!),
+                        width: 120,
+                        height: 120,
+                      )
+                    : Image.asset('assets/default-user.png',
+                        width: 120, height: 120),
               ),
-              radius: 20,
             ),
             const SizedBox(width: 8),
             Text(
@@ -108,8 +115,7 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
             children: [
               ElevatedButton(
                 onPressed: () {
-                  _launchEmail(
-                      'cdiscoverhs@gmail.com', 'Support Request', '');
+                  _launchEmail('cdiscoverhs@gmail.com', 'Support Request', '');
                 },
                 child: const Text('Contact support'),
               ),
@@ -175,9 +181,13 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
                     ),
                     ElevatedButton(
                       onPressed: () async {
+                        setState(() {
+                          isLoading=true;
+                        });
                         locations = await getRecommendationsForUser();
                         setState(() {
                           _isCities = false;
+                          isLoading=false;
                         });
                       },
                       child: const Text('Recommended places'),
@@ -236,6 +246,11 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
                     },
                   ),
                 ),
+              if(isLoading)
+              Container(
+                padding: EdgeInsets.fromLTRB(120, 80, 120, 0),
+                child: const CircularProgressIndicator(),
+                )
             ],
           ),
         if (_isSearching)
@@ -320,9 +335,9 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      locations.clear(); 
+                      locations.clear();
                       locations = await getRecommendationsForUser();
-                      setState(() async{
+                      setState(() async {
                         _isCities = false;
                       });
                     },
@@ -404,8 +419,9 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
     if (recommendations.isNotEmpty) {
       for (var recommendation in recommendations) {
         var location = await getLocationById(recommendation.locationId);
-        if(location!=null){
-        locations.add(location);}
+        if (location != null) {
+          locations.add(location);
+        }
       }
     }
     return locations;
