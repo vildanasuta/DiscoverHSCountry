@@ -67,9 +67,11 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
     }).catchError((error) {
       // Handle error
     });
-
+    
+    if(widget.userType=="touristattractionowner"){
     int taoId = 0;
-    getTouristAttractionOwnerIdByUserId(widget.user!.userId).then((id) async {
+
+   getTouristAttractionOwnerIdByUserId(widget.user!.userId).then((id) async {
       setState(() {
         taoId = id!;
         fetchLocationIdsByTouristAttractionOwnerId(taoId)
@@ -87,6 +89,29 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
         });
       });
     });
+    }
+    else if(widget.userType=="administrator"){
+      int userId = 0;
+
+      getAdministratorIdByUserId(widget.user!.userId).then((id) async {
+      setState(() {
+        userId = id!;
+        fetchLocationIdsByTouristAttractionOwnerId(userId)
+            .then((fetchedIds) async {
+          setState(() {
+            locationIds = fetchedIds;
+          });
+          return await fetchLocationsByIds(locationIds);
+        }).then((fetchedLocations) {
+          setState(() {
+            locations = fetchedLocations;
+          });
+        }).catchError((error) {
+          // Handle error
+        });
+      });
+    });
+    }
   }
 
   Map<String, String> eventCategoriesTranslations = {
@@ -103,6 +128,7 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
 
   @override
   Widget build(BuildContext context) {
+        print(widget.userType);
     return Scaffold(
         appBar: CommonAppBar(
           isLoggedIn: true,

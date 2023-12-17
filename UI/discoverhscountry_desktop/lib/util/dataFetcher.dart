@@ -309,6 +309,26 @@ final Uri uri = Uri.parse('${ApiConstants.baseUrl}/User');
     }
   }
 
+  Future<int?> getAdministratorIdByUserId(int userId) async {
+    final Uri uri = Uri.parse(
+        '${ApiConstants.baseUrl}/Administrator/GetAdministratorIdByUserId/$userId');
+
+    try {
+  final response = await makeAuthenticatedRequest(uri, 'GET');
+      if (response.statusCode == 200) {
+        return int.tryParse(response.body);
+      } else {
+        // ignore: avoid_print
+        print('Request failed with status: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error: $e');
+      return null;
+    }
+  }
+
   Future<Tourist> getTouristById(int touristId) async {
      final Uri uri = Uri.parse('${ApiConstants.baseUrl}/Tourist/$touristId');
   final response = await makeAuthenticatedRequest(uri, 'GET');
