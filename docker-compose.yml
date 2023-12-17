@@ -31,7 +31,7 @@ services:
       - SMTP_PORT=587
       - SMTP_USERNAME=cdiscoverhs@gmail.com
       - SMTP_PASSWORD=ircrhnghicdszqqu
-      - API_HOST=192.168.31.123
+      - API_HOST=localhost
       - API_PORT=7125
     ports:
       - 7125:7125 
@@ -70,7 +70,7 @@ services:
       - SMTP_PORT=587
       - SMTP_USERNAME=cdiscoverhs@gmail.com
       - SMTP_PASSWORD=ircrhnghicdszqqu
-      - API_HOST=192.168.31.123
+      - API_HOST=localhost
       - API_PORT=7125
     depends_on:
       - rabbitmq
