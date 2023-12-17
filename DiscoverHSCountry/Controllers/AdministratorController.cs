@@ -38,5 +38,21 @@ namespace DiscoverHSCountry.API.Controllers
         {
             return base.Insert(insert);
         }
+
+        [Authorize]
+        [HttpGet("GetAdministratorIdByUserId/{userId}")]
+        public IActionResult GetAdministratorIdByUserId(int userId)
+        {
+            int taoId = _administratorService.GetAdministratorIdByUserId(userId);
+
+            if (taoId != 0)
+            {
+                return Ok(taoId);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
     }
 }

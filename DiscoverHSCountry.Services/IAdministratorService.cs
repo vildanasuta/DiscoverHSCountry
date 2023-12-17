@@ -10,5 +10,6 @@ namespace DiscoverHSCountry.Services
     public interface IAdministratorService: ICRUDService<Model.Administrator, Model.SearchObjects.AdministratorSearchObject, Model.Requests.AdministratorCreateRequest, Model.Requests.AdministratorUpdateRequest>
     {
         public Task<Database.Administrator> InsertAdministratorWithUserDetails(AdministratorCreateRequest administratorCreateRequest);
+        public int GetAdministratorIdByUserId(int userId);
     }
 }

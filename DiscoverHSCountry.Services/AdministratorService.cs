@@ -84,5 +84,12 @@ namespace DiscoverHSCountry.Services
                 }
             }
         }
+
+        public int GetAdministratorIdByUserId(int userId)
+        {
+            var admin = _context.Administrators.FirstOrDefault(t => t.UserId == userId);
+            return admin.AdministratorId;
+        }
+        
     }
 }
