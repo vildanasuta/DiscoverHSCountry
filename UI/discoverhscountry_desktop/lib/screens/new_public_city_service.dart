@@ -226,7 +226,7 @@ class _NewPublicCityServiceState extends State<NewPublicCityService>
                                                           );
                                                         }).toList(),
                                                         hint: const Text(
-                                                            'Izaberi grad (opcionalno)'),
+                                                            'Izaberi grad'),
                                                       ),
                                                       const SizedBox(
                                                         height: 20,
