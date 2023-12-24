@@ -410,6 +410,7 @@ class _EditProfileState extends State<EditProfile> with DataFetcher {
   }
 
   void _showEditPopup(BuildContext context) {
+        final _formKey = GlobalKey<FormBuilderState>();
     TextEditingController firstNameController =
         TextEditingController(text: widget.user.firstName);
     TextEditingController lastNameController =
@@ -422,24 +423,46 @@ class _EditProfileState extends State<EditProfile> with DataFetcher {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Edit your details'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'First name'),
-                  controller: firstNameController,
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Last name'),
-                  controller: lastNameController,
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  controller: emailController,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
+          content: Container(
+              height: 300,
+              child: FormBuilder(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                key: _formKey,
+                child: Column(
+                  children: [
+                    FormBuilderTextField(
+                      name: 'firstName',
+                      decoration: const InputDecoration(labelText: 'First name'),
+                      controller: firstNameController,
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                          errorText: 'This field is required!',
+                        ),
+                      ]),
+                    ),
+                    FormBuilderTextField(
+                      name: 'lastName',
+                      decoration: const InputDecoration(labelText: 'Last name'),
+                      controller: lastNameController,
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                          errorText: 'This field is required!',
+                        ),
+                      ]),
+                    ),
+                    FormBuilderTextField(
+                      name: 'email',
+                      decoration: const InputDecoration(labelText: 'Email'),
+                      controller: emailController,
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                          errorText: 'This field is required!',
+                        ),
+                        FormBuilderValidators.email(
+                          errorText: 'Check the email format!',
+                        ),
+                      ]),
+                    ),
                 ElevatedButton(
                   onPressed: () async {
                     FilePickerResult? result =
@@ -465,10 +488,11 @@ class _EditProfileState extends State<EditProfile> with DataFetcher {
                 ),
               ],
             ),
-          ),
+          )),
           actions: [
             ElevatedButton(
               onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
                 User editedUser = User(
                   userId: widget.user.userId,
                   email: emailController.text,
@@ -512,7 +536,7 @@ class _EditProfileState extends State<EditProfile> with DataFetcher {
                     },
                   );
                 }
-              },
+              }},
               style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green, foregroundColor: Colors.white),
               child: const Text('Save'),

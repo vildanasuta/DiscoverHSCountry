@@ -366,7 +366,7 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
                                                           );
                                                         }).toList(),
                                                         hint: const Text(
-                                                            'Izaberi grad (opcionalno)'),
+                                                            'Izaberi grad'),
                                                       ),
                                                       const SizedBox(
                                                         height: 16,

@@ -390,6 +390,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
   }
 
   void _showEditPopup(BuildContext context) {
+    final _formKey = GlobalKey<FormBuilderState>();
     TextEditingController firstNameController =
         TextEditingController(text: widget.user?.firstName);
     TextEditingController lastNameController =
@@ -402,103 +403,128 @@ class _UserProfileScreenState extends State<UserProfileScreen>
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Uredi detalje'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Ime'),
-                  controller: firstNameController,
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Prezime'),
-                  controller: lastNameController,
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  controller: emailController,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    FilePickerResult? result =
-                        await FilePicker.platform.pickFiles(
-                      type: FileType.image,
-                    );
+          content: Container(
+              height: 300,
+              child: FormBuilder(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                key: _formKey,
+                child: Column(
+                  children: [
+                    FormBuilderTextField(
+                      name: 'firstName',
+                      decoration: const InputDecoration(labelText: 'Ime'),
+                      controller: firstNameController,
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                          errorText: 'Ime je obavezno polje!',
+                        ),
+                      ]),
+                    ),
+                    FormBuilderTextField(
+                      name: 'lastName',
+                      decoration: const InputDecoration(labelText: 'Prezime'),
+                      controller: lastNameController,
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                          errorText: 'Prezime je obavezno polje!',
+                        ),
+                      ]),
+                    ),
+                    FormBuilderTextField(
+                      name: 'email',
+                      decoration: const InputDecoration(labelText: 'Email'),
+                      controller: emailController,
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                          errorText: 'Email je obavezno polje!',
+                        ),
+                        FormBuilderValidators.email(
+                          errorText: 'Unesite ispravnu email adresu!',
+                        ),
+                      ]),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        FilePickerResult? result =
+                            await FilePicker.platform.pickFiles(
+                          type: FileType.image,
+                        );
 
-                    if (result != null && result.files.isNotEmpty) {
-                      PlatformFile file = result.files.first;
-                      File imageFile = File(file.path!);
-                      Uint8List imageBytes = await imageFile.readAsBytes();
-                      // Resize the image to a smaller size
-                      img.Image resizedImage = img.decodeImage(imageBytes)!;
-                      int maxWidth = 800;
-                      img.Image smallerImage =
-                          img.copyResize(resizedImage, width: maxWidth);
-                      List<int> smallerImageBytes = img.encodeJpg(smallerImage);
-                      String base64Image = base64Encode(smallerImageBytes);
-                      profileImage = base64Image;
-                    }
-                  },
-                  child: const Text('Promijeni profilnu sliku'),
+                        if (result != null && result.files.isNotEmpty) {
+                          PlatformFile file = result.files.first;
+                          File imageFile = File(file.path!);
+                          Uint8List imageBytes = await imageFile.readAsBytes();
+                          // Resize the image to a smaller size
+                          img.Image resizedImage = img.decodeImage(imageBytes)!;
+                          int maxWidth = 800;
+                          img.Image smallerImage =
+                              img.copyResize(resizedImage, width: maxWidth);
+                          List<int> smallerImageBytes =
+                              img.encodeJpg(smallerImage);
+                          String base64Image = base64Encode(smallerImageBytes);
+                          profileImage = base64Image;
+                        }
+                      },
+                      child: const Text('Promijeni profilnu sliku'),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              )),
           actions: [
             ElevatedButton(
               onPressed: () async {
-                User editedUser = User(
-                  userId: widget.user!.userId,
-                  email: emailController.text,
-                  firstName: firstNameController.text,
-                  lastName: lastNameController.text,
-                  profileImage: profileImage,
-                );
-                var url = Uri.parse(
-                    '${ApiConstants.baseUrl}/User/UpdateDetails/${editedUser.userId}');
-                var response = await makeAuthenticatedRequest(url, 'PUT',
-                    body: editedUser.toJson());
-
-                if (response.statusCode == 200) {
-                  // Show a dialog with a success message
-                  // ignore: use_build_context_synchronously
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: const Text('Uspješno spašene promjene'),
-                        actions: [
-                          ElevatedButton(
-                            onPressed: () {
-                              // Close the dialog
-                              Navigator.of(context).pop();
-                              // Close the edit dialog
-                              Navigator.of(context).pop();
-                              // Trigger a reload of the edit profile page
-                              Navigator.of(context)
-                                  .pushReplacement(MaterialPageRoute(
-                                builder: (context) => UserProfileScreen(
-                                  user: editedUser,
-                                  userType: widget.userType,
-                                ),
-                              ));
-                            },
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      );
-                    },
+                if (_formKey.currentState!.validate()) {
+                  User editedUser = User(
+                    userId: widget.user!.userId,
+                    email: emailController.text,
+                    firstName: firstNameController.text,
+                    lastName: lastNameController.text,
+                    profileImage: profileImage,
                   );
+                  var url = Uri.parse(
+                      '${ApiConstants.baseUrl}/User/UpdateDetails/${editedUser.userId}');
+                  var response = await makeAuthenticatedRequest(url, 'PUT',
+                      body: editedUser.toJson());
+
+                  if (response.statusCode == 200) {
+                    // Show a dialog with a success message
+                    // ignore: use_build_context_synchronously
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Uspješno spašene promjene'),
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () {
+                                // Close the dialog
+                                Navigator.of(context).pop();
+                                // Close the edit dialog
+                                Navigator.of(context).pop();
+                                // Trigger a reload of the edit profile page
+                                Navigator.of(context)
+                                    .pushReplacement(MaterialPageRoute(
+                                  builder: (context) => UserProfileScreen(
+                                    user: editedUser,
+                                    userType: widget.userType,
+                                  ),
+                                ));
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
                 }
               },
               style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green, foregroundColor: Colors.white),
               child: const Text('Spremi'),
-            ),
-            const SizedBox(
-              width: 20,
             ),
             ElevatedButton(
               onPressed: () {

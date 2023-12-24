@@ -213,7 +213,7 @@ class _NewHistoricalStoryState extends State<NewHistoricalStory>
                                                           );
                                                         }).toList(),
                                                         hint: const Text(
-                                                            'Izaberi grad (opcionalno)'),
+                                                            'Izaberi grad'),
                                                       ),
                                                       const SizedBox(
                                                         height: 20,
