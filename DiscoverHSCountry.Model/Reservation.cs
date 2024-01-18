@@ -12,6 +12,8 @@ namespace DiscoverHSCountry.Model
         public int? LocationId { get; set; }
 
         public decimal Price { get; set; }
+        public bool IsPaid { get; set; } = false;
+        public bool IsConfirmed { get; set; } = false;
 
         public virtual Location? Location { get; set; }
 

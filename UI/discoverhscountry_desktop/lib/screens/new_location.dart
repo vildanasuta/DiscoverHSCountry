@@ -271,7 +271,13 @@ class _NewLocationState extends State<NewLocation> with DataFetcher {
                                                       ]),
                                                     ),
                                                     const SizedBox(height: 16),
-                                                    DropdownButton<String>(
+                                                    DropdownButtonFormField<String>(
+                                                      validator:  FormBuilderValidators
+                                                                .compose([
+                                                          FormBuilderValidators
+                                                              .required(
+                                                                  errorText:
+                                                                      'Ovo polje je obavezno!'),]),
                                                       value: selectedCity !=
                                                               null
                                                           ? selectedCity!.name
@@ -313,7 +319,13 @@ class _NewLocationState extends State<NewLocation> with DataFetcher {
                                                       },
                                                     ),
                                                     const SizedBox(height: 16),
-                                                    DropdownButton<String>(
+                                                    DropdownButtonFormField<String>(
+                                                      validator:  FormBuilderValidators
+                                                                .compose([
+                                                          FormBuilderValidators
+                                                              .required(
+                                                                  errorText:
+                                                                      'Ovo polje je obavezno!'),]),
                                                       value: selectedCategory !=
                                                               null
                                                           ? categoryTranslations[
@@ -375,8 +387,14 @@ class _NewLocationState extends State<NewLocation> with DataFetcher {
                                                           'Izaberi kategoriju (obavezno polje)'),
                                                     ),
                                                     const SizedBox(height: 16),
-                                                    DropdownButton<
+                                                    DropdownButtonFormField<
                                                         LocationSubcategory>(
+                                                          validator:  FormBuilderValidators
+                                                                .compose([
+                                                          FormBuilderValidators
+                                                              .required(
+                                                                  errorText:
+                                                                      'Ovo polje je obavezno!'),]),
                                                       value:
                                                           selectedSubcategory,
                                                       onChanged:
@@ -729,7 +747,6 @@ class _NewLocationState extends State<NewLocation> with DataFetcher {
                     'POST',
                     body: newCity,
                   );
-                  print(response.statusCode);
                   if (response.statusCode == 200) {
                     // ignore: use_build_context_synchronously
                     showDialog(
@@ -751,6 +768,7 @@ class _NewLocationState extends State<NewLocation> with DataFetcher {
                   }
                   // ignore: use_build_context_synchronously
                   Navigator.of(context).pop();
+                  // ignore: use_build_context_synchronously
                   Navigator.of(context).pop();
                 },
                 child: const Text('Dodaj'),

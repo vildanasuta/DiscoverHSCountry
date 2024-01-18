@@ -45,6 +45,7 @@ builder.Services.AddTransient<IPublicCityServiceService, PublicCityServiceServic
 builder.Services.AddTransient<IReservationServiceService, ReservationServiceService>();
 builder.Services.AddTransient<ILocationVisitsService, LocationVisitsService>();
 builder.Services.AddTransient<IRecommendationService, RecommendationService>();
+builder.Services.AddTransient<ICountryService, CountryService>();
 builder.Services.AddScoped<IRabbitMQProducer, RabbitMQProducer>();
 
 

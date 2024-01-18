@@ -78,8 +78,9 @@ class _PublicCityServiceDetailsScreenState
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Image.memory(
-                          base64.decode(widget.publicCityService.coverImage)),
+                      widget.publicCityService.coverImage=="null" || widget.publicCityService.coverImage==null ?Image.network("https://cms.uitp.org/thumbor/fit-in/1024x/--/uploads/2022/07/Copyright-CCR-Metro-Bahia-3-scaled-e1658341124673.jpg"):Image.memory(
+                                  base64.decode(widget.publicCityService.coverImage),
+                                ),
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Text(
@@ -97,7 +98,7 @@ class _PublicCityServiceDetailsScreenState
                         child: InkWell(
                           onTap: () {
                             launchMaps(
-                                '${widget.publicCityService.address} ${city!.name}');
+                                '${widget.publicCityService.address} ${city!.name}', context);
                           },
                           child: Row(
                             children: [

@@ -6,14 +6,14 @@ class User {
   final int userId;
   String firstName;
   String lastName;
-  String profileImage;
+  String? profileImage;
   final String email;
 
   User({
     required this.userId,
     required this.firstName,
     required this.lastName,
-    required this.profileImage,
+    this.profileImage,
     required this.email,
   });
   factory User.fromJson(Map<String, dynamic> json) =>

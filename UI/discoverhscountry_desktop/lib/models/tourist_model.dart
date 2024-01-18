@@ -8,8 +8,9 @@ class Tourist {
   final int userId;
   final String firstName;
   final String lastName;
-  final String profileImage;
+  String? profileImage;
   final String email;
+  final int countryId;
 
   Tourist({
     required this.touristId,
@@ -17,8 +18,9 @@ class Tourist {
     required this.userId,
     required this.firstName,
     required this.lastName,
-    required this.profileImage,
+    this.profileImage,
     required this.email,
+    required this.countryId,
   });
    factory Tourist.fromJson(Map<String, dynamic> json) =>
       _$TouristFromJson(json);

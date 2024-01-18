@@ -9,6 +9,7 @@ namespace DiscoverHSCountry.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class TouristController : BaseCRUDController<Model.Tourist, Model.SearchObjects.TouristSearchObject, Model.Requests.TouristCreateRequest, Model.Requests.TouristUpdateRequest>
     {
         private readonly ITouristService _touristService;
@@ -19,7 +20,8 @@ namespace DiscoverHSCountry.API.Controllers
 
         }
 
-        [HttpPost("CreateTouristWithUserDetails")] 
+        [HttpPost("CreateTouristWithUserDetails")]
+        [AllowAnonymous]
         public async Task<IActionResult> CreateTouristWithUserDetails([FromBody] TouristCreateRequest touristCreateRequest)
         {
             try
@@ -39,7 +41,6 @@ namespace DiscoverHSCountry.API.Controllers
             return base.Insert(insert);
         }
 
-        [Authorize]
         [HttpGet("GetTouristIdByUserId/{userId}")]
         public IActionResult GetTouristIdByUserId(int userId)
         {

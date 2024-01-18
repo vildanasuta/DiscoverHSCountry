@@ -9,6 +9,7 @@ namespace DiscoverHSCountry.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class TouristAttractionOwnerController : BaseCRUDController<Model.TouristAttractionOwner, Model.SearchObjects.TouristAttractionOwnerSearchObject, Model.Requests.TouristAttractionOwnerCreateRequest, Model.Requests.TouristAttractionOwnerUpdateRequest>
     {
         private readonly ITouristAttractionOwnerService _touristAttractionOwnerService;
@@ -17,7 +18,8 @@ namespace DiscoverHSCountry.API.Controllers
             _touristAttractionOwnerService = service;
         }
 
-        [HttpPost("CreateTouristAttractionOwnerWithUserDetails")] // Specify the route path here
+        [HttpPost("CreateTouristAttractionOwnerWithUserDetails")] 
+        [AllowAnonymous]
         public async Task<IActionResult> CreateTouristAttractionOwnerWithUserDetails([FromBody] TouristAttractionOwnerCreateRequest touristAttractionOwnerCreateRequest)
         {
             try
@@ -37,7 +39,6 @@ namespace DiscoverHSCountry.API.Controllers
             return base.Insert(insert);
         }
 
-        [Authorize]
         [HttpGet("GetTouristAttractionOwnerIdByUserId/{userId}")]
         public IActionResult GetTouristAttractionOwnerIdByUserId(int userId)
         {

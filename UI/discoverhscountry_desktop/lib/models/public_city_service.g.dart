@@ -8,6 +8,7 @@ part of 'public_city_service.dart';
 
 PublicCityService _$PublicCityServiceFromJson(Map<String, dynamic> json) =>
     PublicCityService(
+      publicCityServiceId: json['publicCityServiceId'] as int?,
       name: json['name'] as String,
       description: json['description'] as String,
       address: json['address'] as String?,
@@ -17,6 +18,7 @@ PublicCityService _$PublicCityServiceFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$PublicCityServiceToJson(PublicCityService instance) =>
     <String, dynamic>{
+      'publicCityServiceId': instance.publicCityServiceId,
       'name': instance.name,
       'description': instance.description,
       'address': instance.address,

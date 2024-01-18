@@ -10,6 +10,8 @@ public partial class Tourist
     public DateTime? DateOfBirth { get; set; }
 
     public int? UserId { get; set; }
+    public int? CountryId { get; set; }
+    public virtual Country? Country { get; set; }
 
     public virtual ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
 

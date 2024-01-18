@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:another_flushbar/flushbar.dart';
 import 'package:discoverhscountry_mobile/api_constants.dart';
 import 'package:discoverhscountry_mobile/common/data_fetcher.dart';
 import 'package:discoverhscountry_mobile/models/city_model.dart';
@@ -238,7 +239,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                       child: InkWell(
                         onTap: () {
                           launchMaps(
-                              '${widget.location.address} ${city!.name}');
+                              '${widget.location.address} ${city!.name}', context);
                         },
                         child: Row(
                           children: [
@@ -581,7 +582,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                   var response = await makeAuthenticatedRequest(
                     url,
                     'POST',
-                    body: jsonEncode(newReview.toJson()),
+                    body: newReview.toJson(),
                   );
 
                   if (response.statusCode == 200) {
@@ -595,6 +596,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                             actions: <Widget>[
                               TextButton(
                                 onPressed: () {
+                                  Navigator.of(context).pop(); // Close the dialog
                                   Navigator.of(context).pushReplacement(
                                     MaterialPageRoute(
                                       builder: (context) =>
@@ -696,6 +698,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
     var endDateController = TextEditingController();
     var numberOfPeopleController = TextEditingController();
     var additionalDescriptionController = TextEditingController();
+    bool sameReservationAlreadyExists = false;
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -751,84 +754,114 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 String startDate = startDateController.text;
                 String endDate = endDateController.text;
                 int numberOfPeople =
                     int.tryParse(numberOfPeopleController.text) ?? 0;
                 String additionalDescription =
                     additionalDescriptionController.text;
-
-                ReservationService reservationService = ReservationService(
-                  startDate: DateTime.parse(startDate),
-                  endDate: DateTime.parse(endDate),
-                  numberOfPeople: numberOfPeople,
-                  additionalDescription: additionalDescription,
-                  reservationId:
-                      0, // Replace with the actual reservation ID later on
-                  serviceId: serviceId,
-                );
-
-                cartItems.add(reservationService);
-                addedToCartServices.add(service);
-                Navigator.of(context).pop();
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text('Added to Cart',
-                          style: Theme.of(context)
-                              .textTheme
-                              .displayMedium
-                              ?.copyWith(
-                                color: Colors.black,
-                              )),
-                      content: Text(
-                          'Do you want to proceed to checkout or add another service from this location?',
-                          style: Theme.of(context)
-                              .textTheme
-                              .displaySmall
-                              ?.copyWith(
-                                color: Colors.black,
-                              )),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CartScreen(
-                                    user: widget.user,
-                                    location: widget.location,
-                                    cartItems: cartItems,
-                                    addedToCartServices: addedToCartServices),
-                              ),
-                            );
-                          },
-                          child: Text('Proceed to Checkout',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displayMedium
-                                  ?.copyWith(
-                                    color: Colors.black,
-                                  )),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text('Add Another Service',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displayMedium
-                                  ?.copyWith(
-                                    color: Colors.black,
-                                  )),
-                        ),
-                      ],
-                    );
-                  },
-                );
+                var touristReservation =
+                    await getReservationsForTourist(touristId!);
+                for (var reservation in touristReservation) {
+                  if (reservation.locationId == widget.location.locationId) {
+                    var reservationServices =
+                        await getReservationServicesByReservationId(
+                            reservation.reservationId!);
+                    for (var reservationService in reservationServices) {
+                      if (reservationService.startDate
+                              .isAtSameMomentAs(DateTime.parse(startDate)) &&
+                          reservationService.endDate
+                              .isAtSameMomentAs(DateTime.parse(endDate)) &&
+                          reservationService.serviceId == serviceId) {
+                        sameReservationAlreadyExists = true;
+                      }
+                    }
+                  }
+                }
+                if (!sameReservationAlreadyExists) {
+                  ReservationService reservationService = ReservationService(
+                    startDate: DateTime.parse(startDate),
+                    endDate: DateTime.parse(endDate),
+                    numberOfPeople: numberOfPeople,
+                    additionalDescription: additionalDescription,
+                    reservationId:
+                        0, // Replace with the actual reservation ID later on
+                    serviceId: serviceId,
+                  );
+                  cartItems.add(reservationService);
+                  addedToCartServices.add(service);
+                  // ignore: use_build_context_synchronously
+                  Navigator.of(context).pop();
+                  // ignore: use_build_context_synchronously
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Added to Cart',
+                            style: Theme.of(context)
+                                .textTheme
+                                .displayMedium
+                                ?.copyWith(
+                                  color: Colors.black,
+                                )),
+                        content: Text(
+                            'Do you want to proceed to checkout or add another service from this location?',
+                            style: Theme.of(context)
+                                .textTheme
+                                .displaySmall
+                                ?.copyWith(
+                                  color: Colors.black,
+                                )),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CartScreen(
+                                      user: widget.user,
+                                      location: widget.location,
+                                      cartItems: cartItems,
+                                      addedToCartServices: addedToCartServices),
+                                ),
+                              );
+                            },
+                            child: Text('Proceed to Checkout',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displayMedium
+                                    ?.copyWith(
+                                      color: Colors.black,
+                                    )),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text('Add Another Service',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displayMedium
+                                    ?.copyWith(
+                                      color: Colors.black,
+                                    )),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                } else {
+                  // ignore: use_build_context_synchronously
+                  Navigator.of(context).pop();
+                  // ignore: use_build_context_synchronously
+                  return Flushbar(
+                    message:
+                        "Same reservation already exists, please don't make duplicate reservations!",
+                    duration: const Duration(seconds: 3),
+                    backgroundColor: Colors.red,
+                  ).show(context);
+                }
               },
               child: const Text('Confirm'),
             ),

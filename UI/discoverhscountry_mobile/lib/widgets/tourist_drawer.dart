@@ -6,6 +6,8 @@ import 'package:discoverhscountry_mobile/screens/dashboard_screen.dart';
 import 'package:discoverhscountry_mobile/screens/edit_profile_screen.dart';
 import 'package:discoverhscountry_mobile/screens/login_screen.dart';
 import 'package:discoverhscountry_mobile/screens/report_an_issue_screen.dart';
+import 'package:discoverhscountry_mobile/screens/view_historical_stories.dart';
+import 'package:discoverhscountry_mobile/screens/view_my_reservations.dart';
 import 'package:discoverhscountry_mobile/screens/visited_locations_screen.dart';
 import 'package:discoverhscountry_mobile/screens/visitor_services_hub_screen.dart';
 import 'package:discoverhscountry_mobile/services/authentication_service.dart';
@@ -80,6 +82,23 @@ class _TouristDrawerState extends State<TouristDrawer> {
           ),
           ListTile(
             leading: const Icon(
+              CupertinoIcons.calendar,
+              color: Colors.black,
+            ),
+            title: Text(
+              'View my Reservations',
+              style: Theme.of(context)
+                  .textTheme
+                  .displaySmall
+                  ?.copyWith(color: Colors.black),
+            ),
+            onTap: () {
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => ViewMyReservations(user: widget.user)));
+            },
+          ),
+          ListTile(
+            leading: const Icon(
               CupertinoIcons.location_circle,
               color: Colors.black,
             ),
@@ -118,7 +137,7 @@ class _TouristDrawerState extends State<TouristDrawer> {
               color: Colors.black,
             ),
             title: Text(
-              'Location categories',
+              'Location Categories',
               style: Theme.of(context).textTheme.displaySmall?.copyWith(
                     color: Colors.black,
                   ),
@@ -126,23 +145,6 @@ class _TouristDrawerState extends State<TouristDrawer> {
             onTap: () {
               Navigator.of(context).pushReplacement(MaterialPageRoute(
                   builder: (context) => AllLocationCategoriesScreen(user: widget.user)));
-            },
-          ),
-          ListTile(
-            leading: const Icon(
-              CupertinoIcons.info,
-              color: Colors.black,
-            ),
-            title: Text(
-              'Visitor Services Hub',
-              style: Theme.of(context)
-                  .textTheme
-                  .displaySmall
-                  ?.copyWith(color: Colors.black),
-            ),
-            onTap: () {
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => VisitorServicesHubScreen(user: widget.user)));
             },
           ),
           ListTile(
@@ -164,11 +166,45 @@ class _TouristDrawerState extends State<TouristDrawer> {
           ),
           ListTile(
             leading: const Icon(
+              CupertinoIcons.info,
+              color: Colors.black,
+            ),
+            title: Text(
+              'Visitor Services Hub',
+              style: Theme.of(context)
+                  .textTheme
+                  .displaySmall
+                  ?.copyWith(color: Colors.black),
+            ),
+            onTap: () {
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => VisitorServicesHubScreen(user: widget.user)));
+            },
+          ),
+          ListTile(
+            leading: const Icon(
+              CupertinoIcons.news,
+              color: Colors.black,
+            ),
+            title: Text(
+              'View Historical Stories',
+              style: Theme.of(context)
+                  .textTheme
+                  .displaySmall
+                  ?.copyWith(color: Colors.black),
+            ),
+            onTap: () {
+             Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => ViewHistoricalStories(user: widget.user)));
+            },
+          ),
+          ListTile(
+            leading: const Icon(
               CupertinoIcons.gear,
               color: Colors.black,
             ),
             title: Text(
-              'Report an issue',
+              'Report an Issue',
               style: Theme.of(context)
                   .textTheme
                   .displaySmall
@@ -180,9 +216,8 @@ class _TouristDrawerState extends State<TouristDrawer> {
             },
           ),
           const SizedBox(
-            height: 130,
+            height: 80,
           ),
-
           Padding(
             padding: const EdgeInsets.symmetric(
                 horizontal: 20, vertical: 10),

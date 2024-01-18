@@ -5,6 +5,7 @@ import 'package:discoverhscountry_desktop/models/user_model.dart';
 import 'package:discoverhscountry_desktop/screens/new_event.dart';
 import 'package:discoverhscountry_desktop/screens/new_location.dart';
 import 'package:discoverhscountry_desktop/screens/report_problem.dart';
+import 'package:discoverhscountry_desktop/screens/view_events_for_tao.dart';
 import 'package:discoverhscountry_desktop/screens/view_locations.dart';
 import 'package:discoverhscountry_desktop/screens/view_reservations.dart';
 import 'package:discoverhscountry_desktop/screens/view_reviews.dart';
@@ -114,6 +115,27 @@ class _DashboardTouristAttractionOwnerState extends State<DashboardTouristAttrac
                 ));
               }).toList(),
  ),
+          ),
+        ),
+         Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                     Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ViewEventsForTAO(
+                                  user: widget.user!,
+                                  userType: widget.userType!)));
+
+                  },
+                  child: const Text('Pogledaj događaje na svojim lokacijama'),
+                ),
+              ],
+            ),
           ),
         ),
       ],

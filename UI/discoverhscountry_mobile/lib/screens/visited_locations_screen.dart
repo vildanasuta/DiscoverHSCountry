@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:another_flushbar/flushbar.dart';
 import 'package:discoverhscountry_mobile/common/data_fetcher.dart';
 import 'package:discoverhscountry_mobile/models/location_model.dart';
 import 'package:discoverhscountry_mobile/models/user_model.dart';
@@ -83,14 +84,16 @@ class _VisitedLocationsScreenState extends State<VisitedLocationsScreen>
           ),
         ),
         endDrawer: TouristDrawer(user: widget.user),
-        body: Column(children: [
-          const SizedBox(height: 10,),
-          Expanded(
-            child: isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : ListView.builder(
+        body: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : Column(children: [
+                const SizedBox(
+                  height: 10,
+                ),
+                Expanded(
+                  child: ListView.builder(
                     itemCount: visitedLocations.length,
                     itemBuilder: (context, index) {
                       final visitedLocation = visitedLocations[index];
@@ -105,136 +108,154 @@ class _VisitedLocationsScreenState extends State<VisitedLocationsScreen>
                             } else {
                               final location = snapshot.data;
                               return GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) =>
-                                          VisitedLocationDetailsScreen(
-                                            user: widget.user,
-                                            visitedLocation: visitedLocation,
-                                            location: location
-                                          )));
-                                },
-                                child: Column(children: [
-                                  const SizedBox(height: 10,),
-                                  Container(
-                                  padding: const EdgeInsets.all(16.0),
-                                  decoration: BoxDecoration(
-                                    color: const Color.fromARGB(255, 49, 50, 102),
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Row(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                VisitedLocationDetailsScreen(
+                                                    user: widget.user,
+                                                    visitedLocation:
+                                                        visitedLocation,
+                                                    location: location)));
+                                  },
+                                  child: Column(children: [
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.all(16.0),
+                                      decoration: BoxDecoration(
+                                        color: const Color.fromARGB(
+                                            255, 49, 50, 102),
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
-                                          Text(
-                                            'Location name: ${location!.name}',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineSmall
-                                                ?.copyWith(color: Colors.white, fontStyle: FontStyle.italic),
-                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                'Location name: ${location!.name}',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .headlineSmall
+                                                    ?.copyWith(
+                                                        color: Colors.white,
+                                                        fontStyle:
+                                                            FontStyle.italic),
+                                              ),
+                                            ],
+                                          )
                                         ],
-                                      )
-                                    ],
-                                  ),
-                                ),]
-                              ));
+                                      ),
+                                    ),
+                                  ]));
                             }
-                            
                           });
                     },
                   ),
-          ),
-          ElevatedButton(
-  onPressed: () {
-    generateAndSavePDFReport(visitedLocations);
-  },
-  child: const Text('Generate Report'),
-)
-
-        ]));
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    generateAndSavePDFReport(visitedLocations);
+                  },
+                  child: const Text('Generate Report'),
+                )
+              ]));
   }
 
-Future<List<List<String>>> createTableData(List<VisitedLocation> visitedLocations) async {
-  final List<Future<List<String>>> dataFutures = visitedLocations.map((location) async {
-    var locationDetails = await _getLocationById(location.locationId);
-    return [
-      locationDetails!.name,
-      location.visitDate.toString(),
-      location.notes ?? 'N/A',
-    ];
-  }).toList();
+  Future<List<List<String>>> createTableData(
+      List<VisitedLocation> visitedLocations) async {
+    final List<Future<List<String>>> dataFutures =
+        visitedLocations.map((location) async {
+      var locationDetails = await _getLocationById(location.locationId);
+      return [
+        locationDetails!.name,
+        location.visitDate.toString(),
+        location.notes ?? 'N/A',
+      ];
+    }).toList();
 
-  final data = await Future.wait(dataFutures);
-  return data;
-}
-
-Future<void> generateAndSavePDFReport(List<VisitedLocation> visitedLocations) async {
-  final pdf = pw.Document();
-
-  List<List<String>> tableData = await createTableData(visitedLocations);
-
-  pdf.addPage(
-    pw.Page(
-      build: (pw.Context context) {
-        return pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Text(
-              'Visited Locations Report',
-              style: const pw.TextStyle(fontSize: 20),
-            ),
-            pw.SizedBox(height: 20),
-            pw.TableHelper.fromTextArray(
-              context: context,
-              headers: ['Name', 'Date', 'Notes'],
-              data: tableData,
-            ),
-          ],
-        );
-      },
-    ),
-  );
-  if(Platform.isAndroid){
-   var status = await Permission.storage.request();
-   if (status.isGranted ) {
-    final directory = await pp.getApplicationDocumentsDirectory();
-    final filePath = '${directory.path}/visited_locations_report.pdf';
-
-    final file = File(filePath);
-    await file.writeAsBytes(await pdf.save());
-
-    // ignore: avoid_print
-    print('PDF saved at: $filePath');
-  } else {
-    // ignore: avoid_print
-    print('Permission denied to save the PDF.');
+    final data = await Future.wait(dataFutures);
+    return data;
   }
-  } else{
+
+  Future<void> generateAndSavePDFReport(
+      List<VisitedLocation> visitedLocations) async {
+    final pdf = pw.Document();
+
+    List<List<String>> tableData = await createTableData(visitedLocations);
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(
+                'Visited Locations Report',
+                style: const pw.TextStyle(fontSize: 20),
+              ),
+              pw.SizedBox(height: 20),
+              pw.TableHelper.fromTextArray(
+                context: context,
+                headers: ['Name', 'Date', 'Notes'],
+                data: tableData,
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    if (Platform.isAndroid) {
+      var status = await Permission.manageExternalStorage.request();
+      if (status.isGranted) {
+        final documentsDirectory = await pp.getDownloadsDirectory();
+        final documentsPath = documentsDirectory!.path;
+
+        final filePath = '$documentsPath/visited_locations_report.pdf';
+        final file = File(filePath);
+        await file.writeAsBytes(await pdf.save());
+
+        // ignore: avoid_print
+        print('PDF saved at: $filePath');
+
+        // ignore: use_build_context_synchronously
+        Flushbar(
+          message: "PDF saved at: $filePath",
+          duration: const Duration(seconds: 5),
+          backgroundColor: Colors.green,
+        ).show(context);
+      } else {
+        // ignore: avoid_print
+        print('Permission denied to save the PDF.');
+        // ignore: use_build_context_synchronously
+        Flushbar(
+          message: "Permission denied to save the PDF.",
+          duration: const Duration(seconds: 3),
+          backgroundColor: Colors.red,
+        ).show(context);
+      }
+    } else {
       final result = await FilePicker.platform.saveFile(
-    dialogTitle: 'Save PDF Report',
-    initialDirectory: await getApplicationDocumentsDirectory(),
-    allowedExtensions: ['pdf'],
-    fileName: 'visited_locations_report.pdf',
-  );
+        dialogTitle: 'Save PDF Report',
+        initialDirectory: await getApplicationDocumentsDirectory(),
+        allowedExtensions: ['pdf'],
+        fileName: 'visited_locations_report.pdf',
+      );
 
-  if (result != null) {
-    final file = File(result);
-    await file.writeAsBytes(await pdf.save());
+      if (result != null) {
+        final file = File(result);
+        await file.writeAsBytes(await pdf.save());
+      }
+    }
   }
 
-
-  }
-  
- 
-  }
   Future<String> getApplicationDocumentsDirectory() async {
-  final directory = await pp.getApplicationDocumentsDirectory();
-  return directory.path;
+    final directory = await pp.getApplicationDocumentsDirectory();
+    return directory.path;
+  }
 }
-}
-
-

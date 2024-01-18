@@ -11,6 +11,7 @@ namespace DiscoverHSCountry.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class UserController : BaseCRUDController<Model.User, Model.SearchObjects.UserSearchObject, Model.Requests.UserCreateRequest, Model.Requests.UserUpdateRequest>
     {
         private readonly IUserService _userService;
@@ -45,6 +46,7 @@ namespace DiscoverHSCountry.API.Controllers
 
         // POST: api/users/login
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginRequest request)
         {
             var authenticationResponse = await _userService.AuthenticateUser(request.Email, request.Password);
@@ -150,6 +152,13 @@ namespace DiscoverHSCountry.API.Controllers
             }
         }
 
+        [AllowAnonymous]
+        [HttpGet("GetAllUsers")]
+        public async Task<PagedResult<User>> GetAllUsers()
+        {
+            var list = await _userService.Get();
+            return list;
+        }
 
     }
 }

@@ -16,7 +16,6 @@ import 'package:discoverhscountry_mobile/widgets/tourist_drawer.dart';
 import 'package:flutter_paypal/flutter_paypal.dart';
 import 'package:flutter/material.dart';
 
-
 // ignore: must_be_immutable
 class CartScreen extends StatefulWidget {
   User user;
@@ -45,10 +44,11 @@ class _CartScreenState extends State<CartScreen> with DataFetcher {
     totalPriceFuture = calculateTotalPriceAsync();
     getTouristId();
   }
+
   @override
-void dispose() {
-  super.dispose();
-}
+  void dispose() {
+    super.dispose();
+  }
 
   Future<void> getTouristId() async {
     touristId = await getTouristIdByUserId(widget.user.userId);
@@ -71,17 +71,25 @@ void dispose() {
         .firstWhere(
             (service) => service.serviceId == reservationService.serviceId)
         .unitPrice;
+    print(unitPrice);
     DateTime startDate = reservationService.startDate;
     DateTime endDate = reservationService.endDate;
     int numberOfDays = endDate.difference(startDate).inDays;
-    return numberOfPeople * unitPrice * numberOfDays.toDouble();
+    // ignore: prefer_typing_uninitialized_variables
+    var totalPrice;
+    if(numberOfDays==0){
+      totalPrice=numberOfPeople * unitPrice;
+    }
+    else{
+      totalPrice=numberOfPeople * unitPrice * numberOfDays.toDouble();
+    }
+    return totalPrice;
   }
 
   Service getServiceById(int serviceId) {
     return widget.addedToCartServices
         .firstWhere((service) => service.serviceId == serviceId);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +141,6 @@ void dispose() {
                               widget.cartItems[index];
                           double itemTotalPrice =
                               calculateTotalPrice(reservationService);
-
                           Service service =
                               getServiceById(reservationService.serviceId);
                           return ListTile(
@@ -173,12 +180,15 @@ void dispose() {
     Reservation newReservation = Reservation(
         touristId: touristId!,
         locationId: widget.location.locationId!,
-        price: totalPrice!);
-    
+        price: totalPrice!,
+        isConfirmed: false,
+        isPaid: false);
+
     final Uri url = Uri.parse('${ApiConstants.baseUrl}/Reservation');
     final Map<String, dynamic> requestBody = newReservation.toJson();
 
-    final response = await makeAuthenticatedRequest(url, 'POST', body: requestBody);
+    final response =
+        await makeAuthenticatedRequest(url, 'POST', body: requestBody);
     var user = await getUserById(widget.user.userId);
     var location = await getLocationById(widget.location.locationId!);
 
@@ -189,10 +199,10 @@ void dispose() {
         reservationService.reservationId = newReservationId;
         var url = Uri.parse('${ApiConstants.baseUrl}/ReservationService');
         var response = await makeAuthenticatedRequest(
-    url,
-    'POST',
-    body: jsonEncode(reservationService.toJson()),
-  );
+          url,
+          'POST',
+          body: reservationService.toJson(),
+        );
         if (response.statusCode != 200) {
           print(response.body);
         } else {
@@ -200,93 +210,93 @@ void dispose() {
           print('Saved');
         }
       }
-              var newContext= context;
+      var newContext = context;
 
-          final completer = Completer<bool>();
+      final completer = Completer<bool>();
 
-        // ignore: use_build_context_synchronously
-        await Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (BuildContext context) => UsePaypal(
-              sandboxMode: true,
-              clientId:
-                  "AZm31Q22LOFbOKAjxt86nZrQpk0zF8Rr3HFkcAPsh7HAZ_d8ED4leIldByNFyN4wV_UK0hCwzmTl_XDb",
-              secretKey:
-                  "EIW1EkL15cHAmDPYud7sttMEcOvUg_HPpuKmvX8wn7q3h-_zVVm4AHSeEhzuGExWDNer6c_SS2s2tgXK",
-              returnURL: "https://samplesite.com/return",
-              cancelURL: "https://samplesite.com/cancel",
-              transactions: [
-                {
-                  "amount": {
-                    "total": (totalPrice! * 0.5),
-                    "currency": "USD",
-                  },
-                  "description": "Payment for reservation #$newReservationId.",
-                  "item_list": {
-                    "items": [
-                      for (var reservationservice in widget.cartItems)
-                        {
-                          "name": reservationservice.additionalDescription,
-                          "quantity": reservationservice.numberOfPeople,
-                          "price": ((calculateTotalPrice(reservationservice) /
-                                  reservationservice.numberOfPeople) *
-                              0.5),
-                          "currency": "USD"
-                        }
-                    ],
-                  }
+      // ignore: use_build_context_synchronously
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (BuildContext context) => UsePaypal(
+            sandboxMode: true,
+            clientId:
+                "AZm31Q22LOFbOKAjxt86nZrQpk0zF8Rr3HFkcAPsh7HAZ_d8ED4leIldByNFyN4wV_UK0hCwzmTl_XDb",
+            secretKey:
+                "EIW1EkL15cHAmDPYud7sttMEcOvUg_HPpuKmvX8wn7q3h-_zVVm4AHSeEhzuGExWDNer6c_SS2s2tgXK",
+            returnURL: "https://samplesite.com/return",
+            cancelURL: "https://samplesite.com/cancel",
+            transactions: [
+              {
+                "amount": {
+                  "total": (totalPrice! * 0.5),
+                  "currency": "USD",
+                },
+                "description": "Payment for reservation #$newReservationId.",
+                "item_list": {
+                  "items": [
+                    for (var reservationservice in widget.cartItems)
+                      {
+                        "name": reservationservice.additionalDescription,
+                        "quantity": reservationservice.numberOfPeople,
+                        "price": ((calculateTotalPrice(reservationservice) /
+                                reservationservice.numberOfPeople) *
+                            0.5),
+                        "currency": "USD"
+                      }
+                  ],
                 }
-              ],
-              note: "Contact us for any questions on your order.",
-              onSuccess: (Map params) async {
-                print("onSuccess: $params");
-                print("sending email...");
-                _sendConfirmationEmail(user, location!);
-                            completer.complete(true); 
-  Navigator.of(newContext).pop();
-  Navigator.of(newContext).push(
-    MaterialPageRoute(
-      builder: (newContext) => PaymentSuccessPage(user: widget.user),
-    ),
-  );
-                
-              },
-              onError: (error) {
-                print("onError: $error");
-               
-                                        completer.complete(false); 
-              },
-              onCancel: (params) {
-                print('cancelled: $params');
-                 
-              },
-            ),
-          ),
-        );
-    final result = await completer.future;
+              }
+            ],
+            note: "Contact us for any questions on your order.",
+            onSuccess: (Map params) async {
+              print("onSuccess: $params");
+              print("sending email...");
+              _sendConfirmationEmail(user, location!);
+              completer.complete(true);
+              Navigator.of(newContext).pop();
+              Navigator.of(newContext).push(
+                MaterialPageRoute(
+                  builder: (newContext) =>
+                      PaymentSuccessPage(user: widget.user),
+                ),
+              );
+              await updateIsPaid(newReservationId, true);
+            },
+            onError: (error) {
+              print("onError: $error");
 
-    if (result) {
-      if (mounted) {
-        Navigator.of(newContext).push(
-          MaterialPageRoute(
-            builder: (newContext) => PaymentSuccessPage(user: widget.user),
+              completer.complete(false);
+            },
+            onCancel: (params) {
+              print('cancelled: $params');
+            },
           ),
-        );
+        ),
+      );
+      final result = await completer.future;
+
+      if (result) {
+        if (mounted) {
+          Navigator.of(newContext).push(
+            MaterialPageRoute(
+              builder: (newContext) => PaymentSuccessPage(user: widget.user),
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          Navigator.of(newContext).push(
+            MaterialPageRoute(
+              builder: (newContext) => PaymentCanceledPage(user: widget.user),
+            ),
+          );
+        }
       }
-    }
-    else{
-      if(mounted){
-         Navigator.of(newContext).push(
-          MaterialPageRoute(
-            builder: (newContext) => PaymentCanceledPage(user: widget.user),
-          ),
-        );
-      }
-    }
     }
     setState(() {
-      if(mounted){
-      widget.cartItems = [];}
+      if (mounted) {
+        widget.cartItems = [];
+      }
     });
   }
 
@@ -294,16 +304,18 @@ void dispose() {
     final emailData = {
       'sender': 'cdiscoverhs@gmail.com',
       'recipient': user.email,
-      'subject': 'Reservation confirmation for ${location.name}',
+      'subject': 'Reservation created for ${location.name}',
       'content':
-          "Dear ${user.firstName}, this email is confirmation of your reservation for ${location.name}. Thank you for using our app! (disclaimer: if you did not create reservation at ${location.name} be sure to reply to this email to report unusual activity)",
+          "Dear ${user.firstName}, this email is informing you that reservation for ${location.name} has been created. If you've made the payment, owner of location will soon confirm your reservation and you'll be informed in another email. Thank you for using our app! (disclaimer: if you did not create reservation at ${location.name} be sure to reply to this email to report unusual activity)",
     };
 
-     final response = await makeAuthenticatedRequest(
-    Uri.parse('${ApiConstants.baseUrl}/Reservation/SendConfirmationEmail'),
-    'POST',
-    body: emailData,
-  );
+    print(emailData);
+
+    final response = await makeAuthenticatedRequest(
+      Uri.parse('${ApiConstants.baseUrl}/Reservation/SendConfirmationEmail'),
+      'POST',
+      body: emailData,
+    );
     print(response.statusCode);
     print(response.body);
     if (response.statusCode == 200) {

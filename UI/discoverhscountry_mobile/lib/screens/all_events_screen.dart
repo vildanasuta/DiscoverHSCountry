@@ -1,11 +1,14 @@
 import 'dart:ui';
 
+import 'package:discoverhscountry_mobile/models/city_model.dart';
 import 'package:discoverhscountry_mobile/models/event_model.dart';
 import 'package:discoverhscountry_mobile/models/location_model.dart';
 import 'package:discoverhscountry_mobile/models/user_model.dart';
 import 'package:discoverhscountry_mobile/widgets/tourist_drawer.dart';
 import 'package:discoverhscountry_mobile/common/data_fetcher.dart';
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
+import 'package:intl/intl.dart';
 
 // ignore: must_be_immutable
 class AllEventsScreen extends StatefulWidget {
@@ -23,8 +26,13 @@ class _AllEventsScreenState extends State<AllEventsScreen> with DataFetcher {
   int currentPage = 1;
   bool isLoading = false;
   int pageSize = 6;
+  // ignore: avoid_init_to_null
+  DateTime? selectedDate = null;
+  List<int> selectedCityIds = [];
+  List<int> selectedCategoryIds = [];
 
-  Future<void> _fetchEvents(int page, int pageSize) async {
+  Future<void> _fetchEvents(int page, int pageSize, DateTime? selectedDate,
+      List<int> selectedCityIds, List<int> selectedCategoryIds) async {
     allEvents = await fetchEvents();
     if (isLoading) {
       return; // Prevent multiple simultaneous requests
@@ -35,19 +43,25 @@ class _AllEventsScreenState extends State<AllEventsScreen> with DataFetcher {
     });
 
     try {
-      final List<Event> newEvents = await fetchEvents(
+      List<Event> newEvents = await fetchEvents(
         page: page,
         pageSize: pageSize,
+        selectedDate: selectedDate,
       );
 
-      setState(() {
-        if (newEvents.isNotEmpty) {
-          newEvents.removeWhere((newEvent) {
-            return events.any((event) => newEvent.eventId == event.eventId);
-          });
+      if (selectedCityIds.isNotEmpty) {
+        newEvents = newEvents.where((event) {
+          return selectedCityIds.contains(event.cityId);
+        }).toList();
+      }
 
-          events = newEvents;
-        }
+      if (selectedCategoryIds.isNotEmpty) {
+        newEvents = newEvents.where((event) {
+          return selectedCategoryIds.contains(event.eventCategoryId);
+        }).toList();
+      }
+      setState(() {
+        events = newEvents;
       });
     } catch (e) {
       // ignore: avoid_print
@@ -62,7 +76,8 @@ class _AllEventsScreenState extends State<AllEventsScreen> with DataFetcher {
   @override
   void initState() {
     super.initState();
-    _fetchEvents(1, 6); // Load the initial page (page 1)
+    _fetchEvents(1, 6, selectedDate, selectedCityIds,
+        selectedCategoryIds); // Load the initial page (page 1)
   }
 
   @override
@@ -96,6 +111,90 @@ class _AllEventsScreenState extends State<AllEventsScreen> with DataFetcher {
       endDrawer: TouristDrawer(user: widget.user),
       body: Column(
         children: [
+          const SizedBox(
+            height: 5,
+          ),
+          buildDatePicker(),
+          const SizedBox(
+            height: 5,
+          ),
+          Container(
+            padding: const EdgeInsets.all(10),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color.fromARGB(255, 10, 45, 73)),
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: ElevatedButton(
+              onPressed: () async {
+                var cities = await fetchCities();
+                buildPickCitiesPopUp(cities);
+              },
+              style: ButtonStyle(
+                alignment: Alignment.centerLeft,
+                padding: MaterialStateProperty.all(EdgeInsets.zero),
+                backgroundColor: MaterialStateProperty.all(Colors.white),
+                overlayColor: MaterialStateProperty.resolveWith(
+                    (states) => Colors.transparent),
+                elevation: MaterialStateProperty.all(0.0),
+              ),
+              child: const Row(
+                children: [
+                  Icon(
+                    Icons.location_city,
+                    color: Color.fromARGB(255, 10, 45, 73),
+                  ),
+                  SizedBox(width: 8.0),
+                  Text(
+                    'Pick cities',
+                    style: TextStyle(
+                        color: Color.fromARGB(255, 10, 45, 73),
+                        fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+          Container(
+            padding: const EdgeInsets.all(10),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color.fromARGB(255, 10, 45, 73)),
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: ElevatedButton(
+              onPressed: () async {
+                var eventCategories = await fetchEventCategories();
+                buildPickCategoriesPopUp(eventCategories);
+              },
+              style: ButtonStyle(
+                alignment: Alignment.centerLeft,
+                padding: MaterialStateProperty.all(EdgeInsets.zero),
+                backgroundColor: MaterialStateProperty.all(Colors.white),
+                overlayColor: MaterialStateProperty.resolveWith(
+                    (states) => Colors.transparent),
+                elevation: MaterialStateProperty.all(0.0),
+              ),
+              child: const Row(
+                children: [
+                  Icon(
+                    Icons.category,
+                    color: Color.fromARGB(255, 10, 45, 73),
+                  ),
+                  SizedBox(width: 8.0),
+                  Text(
+                    'Pick categories',
+                    style: TextStyle(
+                        color: Color.fromARGB(255, 10, 45, 73),
+                        fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ),
           Expanded(
             child: ListView.builder(
               itemCount: events.length,
@@ -107,6 +206,115 @@ class _AllEventsScreenState extends State<AllEventsScreen> with DataFetcher {
           buildPaginationRow(),
         ],
       ),
+    );
+  }
+
+  Future<void> buildPickCitiesPopUp(List<City> cities) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text('Select Cities'),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    for (City city in cities)
+                      CheckboxListTile(
+                        title: Text(city.name),
+                        value: selectedCityIds.contains(city.cityId),
+                        onChanged: (bool? value) {
+                          setState(() {
+                            if (value != null) {
+                              if (value) {
+                                selectedCityIds.add(city.cityId);
+                              } else {
+                                selectedCityIds.remove(city.cityId);
+                              }
+                            }
+                          });
+                        },
+                      ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _fetchEvents(1, pageSize, selectedDate, selectedCityIds,
+                        selectedCategoryIds);
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> buildPickCategoriesPopUp(var categories) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text('Select categories'),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    for (var category in categories)
+                      CheckboxListTile(
+                        title: Text(category['categoryName'] as String),
+                        value: selectedCategoryIds
+                            .contains(category['eventCategoryId'] as int),
+                        onChanged: (bool? value) {
+                          setState(() {
+                            if (value != null) {
+                              if (value) {
+                                selectedCategoryIds
+                                    .add(category['eventCategoryId'] as int);
+                              } else {
+                                selectedCategoryIds
+                                    .remove(category['eventCategoryId'] as int);
+                              }
+                            }
+                          });
+                        },
+                      ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _fetchEvents(1, pageSize, selectedDate, selectedCityIds,
+                        selectedCategoryIds);
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -128,12 +336,18 @@ class _AllEventsScreenState extends State<AllEventsScreen> with DataFetcher {
                 return GestureDetector(
                     onTap: () async {
                       Location? location;
-                      var locationId=await getLocationIdByEventId(event.eventId);
-                      if(locationId!=null){
-                        location=await getLocationById(locationId);
+                      var locationId =
+                          await getLocationIdByEventId(event.eventId);
+                      if (locationId != null) {
+                        location = await getLocationById(locationId);
                       }
+
+                      var categoryName =
+                          await getEventCategoryById(event.eventCategoryId!);
+                      var city = await getCityById(event.cityId!);
                       // ignore: use_build_context_synchronously
-                      _showEventDetailsPopup(context, event, location);
+                      _showEventDetailsPopup(
+                          context, event, location, categoryName, city);
                     },
                     child: Container(
                       padding: const EdgeInsets.all(8.0),
@@ -194,7 +408,8 @@ class _AllEventsScreenState extends State<AllEventsScreen> with DataFetcher {
           IconButton(
             onPressed: hasPreviousPage
                 ? () {
-                    _fetchEvents(currentPage - 1, pageSize);
+                    _fetchEvents(currentPage - 1, pageSize, selectedDate,
+                        selectedCityIds, selectedCategoryIds);
                     setState(() {
                       currentPage -= 1;
                     });
@@ -211,7 +426,8 @@ class _AllEventsScreenState extends State<AllEventsScreen> with DataFetcher {
           IconButton(
             onPressed: currentPage < totalPages
                 ? () {
-                    _fetchEvents(currentPage + 1, pageSize);
+                    _fetchEvents(currentPage + 1, pageSize, selectedDate,
+                        selectedCityIds, selectedCategoryIds);
                     setState(() {
                       currentPage += 1;
                     });
@@ -224,8 +440,8 @@ class _AllEventsScreenState extends State<AllEventsScreen> with DataFetcher {
     );
   }
 
-  void _showEventDetailsPopup(
-      BuildContext context, Event event, Location? location) {
+  void _showEventDetailsPopup(BuildContext context, Event event,
+      Location? location, String? categoryName, City city) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -279,7 +495,7 @@ class _AllEventsScreenState extends State<AllEventsScreen> with DataFetcher {
               const SizedBox(
                 height: 15,
               ),
-              if (event.address != null)
+              if (event.address != null && event.address!.isNotEmpty)
                 Text(
                   'Address: ${event.address}',
                   style: Theme.of(context)
@@ -298,6 +514,29 @@ class _AllEventsScreenState extends State<AllEventsScreen> with DataFetcher {
                       .displayMedium
                       ?.copyWith(color: Colors.black),
                 ),
+              const SizedBox(
+                height: 15,
+              ),
+              if (categoryName != null)
+                Text(
+                  'Category: $categoryName',
+                  style: Theme.of(context)
+                      .textTheme
+                      .displayMedium
+                      ?.copyWith(color: Colors.black),
+                ),
+              const SizedBox(
+                height: 15,
+              ),
+              // ignore: unnecessary_null_comparison
+              if (city != null)
+                Text(
+                  'City: ${city.name}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .displayMedium
+                      ?.copyWith(color: Colors.black),
+                ),
             ],
           ),
           actions: [
@@ -310,6 +549,51 @@ class _AllEventsScreenState extends State<AllEventsScreen> with DataFetcher {
           ],
         );
       },
+    );
+  }
+
+  Widget buildDatePicker() {
+    return GestureDetector(
+      onTap: () async {
+        final DateTime? pickedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime.now(),
+          lastDate: DateTime(2101), // Some distant future year
+        );
+
+        if (pickedDate != null && pickedDate != selectedDate) {
+          setState(() {
+            selectedDate = pickedDate;
+            _fetchEvents(1, pageSize, selectedDate, selectedCityIds,
+                selectedCategoryIds);
+          });
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color.fromARGB(255, 10, 45, 73)),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.calendar_today,
+              color: Color.fromARGB(255, 10, 45, 73),
+            ),
+            const SizedBox(width: 8.0),
+            Text(
+              selectedDate != null
+                  ? DateFormat('yyyy-MM-dd').format(selectedDate!)
+                  : 'Select Date',
+              style: const TextStyle(
+                  color: Color.fromARGB(255, 10, 45, 73),
+                  fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

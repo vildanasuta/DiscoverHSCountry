@@ -198,7 +198,6 @@ class _LoginScreenState extends State<LoginScreen> with DataFetcher {
                                     }
                                   } else {
                                     // ignore: avoid_print
-                                    print(response.body);
                                     if (response.body == "User not found.") {
                                       // ignore: use_build_context_synchronously
                                       Flushbar(
@@ -212,6 +211,16 @@ class _LoginScreenState extends State<LoginScreen> with DataFetcher {
                                       Flushbar(
                                         message:
                                             "Netačna lozinka. Pokušajte ponovo!",
+                                        backgroundColor: Colors.red,
+                                        duration: const Duration(seconds: 3),
+                                      ).show(context);
+                                    }
+                                    else if (response.body ==
+                                        "Tourists cannot use the desktop app.") {
+                                      // ignore: use_build_context_synchronously
+                                      Flushbar(
+                                        message:
+                                            "Turist ne može koristiti desktop app namijenjenu za administrativnu stranu.",
                                         backgroundColor: Colors.red,
                                         duration: const Duration(seconds: 3),
                                       ).show(context);

@@ -13,5 +13,8 @@ namespace DiscoverHSCountry.Model.Requests
         public int? LocationId { get; set; }
 
         public decimal Price { get; set; }
+
+        public bool IsPaid { get; set; }=false;
+        public bool IsConfirmed { get; set; }=false;
     }
 }
