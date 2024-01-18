@@ -110,6 +110,10 @@ namespace DiscoverHSCountry.Services
             CreateMap<Database.Recommendation, Model.Recommendation>();
             CreateMap<Model.Requests.RecommendationCreateRequest, Database.Recommendation>();
             CreateMap<Model.Requests.RecommendationUpdateRequest, Database.Recommendation>();
+
+            CreateMap<Database.Country, Model.Country>();
+            CreateMap<Model.Requests.CountryCreateRequest, Database.Country>();
+            CreateMap<Model.Requests.CountryUpdateRequest, Database.Country>();
         }
     }
 } 

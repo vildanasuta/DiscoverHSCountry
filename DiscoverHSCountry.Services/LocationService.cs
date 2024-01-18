@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Http.Description;
 
 namespace DiscoverHSCountry.Services
 {
@@ -88,6 +89,7 @@ namespace DiscoverHSCountry.Services
                 return false;
             }
         }
+        
 
         public async Task<bool> DeleteLocationByIdAsync(int locationId)
         {
@@ -100,10 +102,69 @@ namespace DiscoverHSCountry.Services
                     return false; 
                 }
 
+                // Remove related records in the LocationTouristAttractionOwners table
                 var jointRecords = _context.LocationTouristAttractionOwners
                     .Where(ltao => ltao.LocationId == locationId);
 
                 _context.LocationTouristAttractionOwners.RemoveRange(jointRecords);
+
+                // Remove related records in the VisitedLocation table
+                var visitedLocations = _context.VisitedLocations
+                    .Where(vl => vl.LocationId == locationId);
+
+                // Remove related records in the VisitedLocationImage table
+                foreach (var visitedLocation in visitedLocations)
+                {
+                    var visitedLocationImages = _context.VisitedLocationImages
+                        .Where(vli => vli.VisitedLocationId == visitedLocation.VisitedLocationId);
+
+                    _context.VisitedLocationImages.RemoveRange(visitedLocationImages);
+                }
+
+                _context.VisitedLocations.RemoveRange(visitedLocations);
+
+                // Remove related records in the Review table
+                var reviews = _context.Reviews
+                    .Where(r => r.LocationId == locationId);
+
+                _context.Reviews.RemoveRange(reviews);
+
+                // Remove related records in the Reservation table
+                var reservations = _context.Reservations
+                    .Where(r => r.LocationId == locationId);
+
+                _context.Reservations.RemoveRange(reservations);
+
+                // Remove related records in the Service table
+                var services = _context.Services
+                    .Where(s => s.LocationId == locationId);
+
+                _context.Services.RemoveRange(services);
+
+                // Remove related records in the TechnicalIssueTourist table
+                var technicalIssues = _context.TechnicalIssueTourists
+                    .Where(t => t.LocationId == locationId);
+
+                _context.TechnicalIssueTourists.RemoveRange(technicalIssues);
+
+                // Remove related records in the LocationVisits table
+                var locationVisits = _context.LocationVisits
+                    .Where(lv => lv.LocationId == locationId);
+
+                _context.LocationVisits.RemoveRange(locationVisits);
+
+                // Remove related records in the Recommendation table
+                var recommendations = _context.Recommendation
+                    .Where(r => r.LocationId == locationId);
+
+                _context.Recommendation.RemoveRange(recommendations);
+
+                // Remove related records in the EventLocation table
+                var eventLocations = _context.EventLocations
+                    .Where(lv => lv.LocationId == locationId);
+
+                _context.EventLocations.RemoveRange(eventLocations);
+
 
                 _context.Locations.Remove(location);
 
@@ -116,6 +177,8 @@ namespace DiscoverHSCountry.Services
                 return false; 
             }
         }
+
+        
 
         public List<Database.Location> GetLocationsBySubcategoryId(int categoryId, int subcategoryId)
         {

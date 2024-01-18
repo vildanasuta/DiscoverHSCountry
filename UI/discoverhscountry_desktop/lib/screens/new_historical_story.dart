@@ -183,7 +183,13 @@ class _NewHistoricalStoryState extends State<NewHistoricalStory>
                                                       ),
                                                       const SizedBox(
                                                           height: 16),
-                                                      DropdownButton<String>(
+                                                      DropdownButtonFormField<String>(
+                                                        validator:  FormBuilderValidators
+                                                                .compose([
+                                                          FormBuilderValidators
+                                                              .required(
+                                                                  errorText:
+                                                                      'Ovo polje je obavezno!'),]),
                                                         value: selectedCity !=
                                                                 null
                                                             ? selectedCity!.name
@@ -213,7 +219,7 @@ class _NewHistoricalStoryState extends State<NewHistoricalStory>
                                                           );
                                                         }).toList(),
                                                         hint: const Text(
-                                                            'Izaberi grad'),
+                                                            'Izaberi grad *'),
                                                       ),
                                                       const SizedBox(
                                                         height: 20,
@@ -308,6 +314,7 @@ class _NewHistoricalStoryState extends State<NewHistoricalStory>
                                                           height: 32),
                                                       ElevatedButton(
                                                         onPressed: () async {
+                                                           
                                                           if (_formKey
                                                               .currentState!
                                                               .validate()) {

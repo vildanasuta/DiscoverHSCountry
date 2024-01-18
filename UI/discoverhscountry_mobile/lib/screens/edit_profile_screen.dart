@@ -411,6 +411,7 @@ class _EditProfileState extends State<EditProfile> with DataFetcher {
   }
 
   void _showEditPopup(BuildContext context) {
+        // ignore: no_leading_underscores_for_local_identifiers
         final _formKey = GlobalKey<FormBuilderState>();
     TextEditingController firstNameController =
         TextEditingController(text: widget.user.firstName);
@@ -418,13 +419,14 @@ class _EditProfileState extends State<EditProfile> with DataFetcher {
         TextEditingController(text: widget.user.lastName);
     TextEditingController emailController =
         TextEditingController(text: widget.user.email);
+    // ignore: unused_local_variable
     String profileImage = '';
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Edit your details'),
-          content: Container(
+          content: SizedBox(
               height: 300,
               child: FormBuilder(
                 autovalidateMode: AutovalidateMode.onUserInteraction,

@@ -225,7 +225,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                               child: (widget.user?.profileImage != '' &&
                                       widget.user?.profileImage != 'string')
                                   ? Image.memory(
-                                      base64Decode(widget.user!.profileImage),
+                                      base64Decode(widget.user!.profileImage!),
                                       width: 120,
                                       height: 120,
                                     )
@@ -292,12 +292,10 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                                     var userData =
                                         json.decode(getUserResponse.body);
 
-                                    // Update the user data on your edit user screen
                                     setState(() {
                                       widget.user?.profileImage =
                                           userData['profileImage'];
                                     });
-                                    // Show success message using Flushbar
                                     // ignore: use_build_context_synchronously
                                     Flushbar(
                                       message:
@@ -361,7 +359,9 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                         child: const Text('Promijeni lozinku'),
                       ),
                       const SizedBox(height: 32),
-                      TextButton(
+                      Visibility( 
+                        visible: widget.userType=="tourist",
+                        child: TextButton(
                         onPressed: () {
                           deleteProfile(context, widget.user!.userId);
                         },
@@ -377,7 +377,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                           ),
                         ),
                         child: const Text('Obriši profil'),
-                      )
+                      )),
                     ],
                   ),
                 ),
@@ -390,6 +390,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
   }
 
   void _showEditPopup(BuildContext context) {
+    // ignore: no_leading_underscores_for_local_identifiers
     final _formKey = GlobalKey<FormBuilderState>();
     TextEditingController firstNameController =
         TextEditingController(text: widget.user?.firstName);
@@ -397,13 +398,13 @@ class _UserProfileScreenState extends State<UserProfileScreen>
         TextEditingController(text: widget.user?.lastName);
     TextEditingController emailController =
         TextEditingController(text: widget.user?.email);
-    String profileImage = '';
+    String profileImage = widget.user!.profileImage!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Uredi detalje'),
-          content: Container(
+          content: SizedBox(
               height: 300,
               child: FormBuilder(
                 autovalidateMode: AutovalidateMode.onUserInteraction,

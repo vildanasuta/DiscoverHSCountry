@@ -1,4 +1,3 @@
-
 import 'package:discoverhscountry_desktop/api_constants.dart';
 import 'package:discoverhscountry_desktop/main.dart';
 import 'package:discoverhscountry_desktop/models/city_model.dart';
@@ -70,47 +69,25 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
     
     if(widget.userType=="touristattractionowner"){
     int taoId = 0;
-
-   getTouristAttractionOwnerIdByUserId(widget.user!.userId).then((id) async {
-      setState(() {
-        taoId = id!;
-        fetchLocationIdsByTouristAttractionOwnerId(taoId)
-            .then((fetchedIds) async {
-          setState(() {
-            locationIds = fetchedIds;
+    if (widget.userType == "touristattractionowner") {
+      getTouristAttractionOwnerIdByUserId(widget.user!.userId).then((id) async {
+        setState(() {
+          taoId = id!;
+          fetchLocationIdsByTouristAttractionOwnerId(taoId)
+              .then((fetchedIds) async {
+            setState(() {
+              locationIds = fetchedIds;
+            });
+            return await fetchLocationsByIds(locationIds);
+          }).then((fetchedLocations) {
+            setState(() {
+              locations = fetchedLocations;
+            });
+          }).catchError((error) {
+            // Handle error
           });
-          return await fetchLocationsByIds(locationIds);
-        }).then((fetchedLocations) {
-          setState(() {
-            locations = fetchedLocations;
-          });
-        }).catchError((error) {
-          // Handle error
         });
       });
-    });
-    }
-    else if(widget.userType=="administrator"){
-      int userId = 0;
-
-      getAdministratorIdByUserId(widget.user!.userId).then((id) async {
-      setState(() {
-        userId = id!;
-        fetchLocationIdsByTouristAttractionOwnerId(userId)
-            .then((fetchedIds) async {
-          setState(() {
-            locationIds = fetchedIds;
-          });
-          return await fetchLocationsByIds(locationIds);
-        }).then((fetchedLocations) {
-          setState(() {
-            locations = fetchedLocations;
-          });
-        }).catchError((error) {
-          // Handle error
-        });
-      });
-    });
     }
   }
 
@@ -125,6 +102,8 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
     "Nighlife": "Noćni život",
     "Special Events": "Posebni događaji"
   };
+
+  var initialDateNow = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -239,7 +218,10 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
                                                           labelText: 'Opis *',
                                                           border:
                                                               OutlineInputBorder(),
+                                                          counterText:
+                                                              "", // To hide the default character counter
                                                         ),
+                                                        maxLength: 200,
                                                         validator:
                                                             FormBuilderValidators
                                                                 .compose([
@@ -251,6 +233,14 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
                                                               .minLength(3,
                                                                   errorText:
                                                                       'Opis mora sadržavati minimalno 3 karaktera.'),
+                                                          (value) {
+                                                            if (value != null &&
+                                                                value.length >
+                                                                    200) {
+                                                              return 'Opis ne može sadržavati više od 200 karaktera.';
+                                                            }
+                                                            return null;
+                                                          },
                                                         ]),
                                                       ),
                                                       const SizedBox(
@@ -269,19 +259,28 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
                                                           border:
                                                               OutlineInputBorder(),
                                                         ),
+                                                        initialDate:
+                                                            initialDateNow,
                                                         validator:
-                                                             FormBuilderValidators
+                                                            FormBuilderValidators
                                                                 .compose([
                                                           FormBuilderValidators
                                                               .required(
                                                                   errorText:
                                                                       'Ovo polje je obavezno!'),
                                                         ]),
+                                                        firstDate: DateTime
+                                                                .now()
+                                                            .subtract(
+                                                                const Duration(
+                                                                    days: 0)),
                                                         onChanged: (value) {
-                                                          dateTime = DateTime(
-                                                              value!.year,
-                                                              value.month,
-                                                              value.day);
+                                                          if (value != null) {
+                                                            dateTime = DateTime(
+                                                                value.year,
+                                                                value.month,
+                                                                value.day);
+                                                          }
                                                         },
                                                       ),
                                                       const SizedBox(
@@ -362,7 +361,8 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
                                                       const SizedBox(
                                                         height: 16,
                                                       ),
-                                                      DropdownButton<String>(
+                                                      DropdownButtonFormField<
+                                                          String>(
                                                         value: selectedCity !=
                                                                 null
                                                             ? selectedCity!.name
@@ -392,12 +392,20 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
                                                           );
                                                         }).toList(),
                                                         hint: const Text(
-                                                            'Izaberi grad'),
+                                                            'Izaberi grad *'),
+                                                        validator:
+                                                            FormBuilderValidators
+                                                                .compose([
+                                                          FormBuilderValidators
+                                                              .required(
+                                                                  errorText:
+                                                                      'Ovo polje je obavezno!'),
+                                                        ]),
                                                       ),
                                                       const SizedBox(
                                                         height: 16,
                                                       ),
-                                                      DropdownButton<
+                                                      DropdownButtonFormField<
                                                           EventCategory>(
                                                         value: selectedCategory,
                                                         onChanged:
@@ -422,6 +430,14 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
                                                         }).toList(),
                                                         hint: const Text(
                                                             'Izaberi kategoriju *'),
+                                                        validator:
+                                                            FormBuilderValidators
+                                                                .compose([
+                                                          FormBuilderValidators
+                                                              .required(
+                                                                  errorText:
+                                                                      'Ovo polje je obavezno!'),
+                                                        ]),
                                                       ),
                                                       const SizedBox(
                                                         height: 16,
@@ -430,10 +446,19 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
                                                         visible: widget
                                                                 .userType ==
                                                             'touristattractionowner',
-                                                        child: DropdownButton<
-                                                            String>(
+                                                        child:
+                                                            DropdownButtonFormField<
+                                                                String>(
                                                           value:
                                                               selectedLocationName,
+                                                          validator:
+                                                              FormBuilderValidators
+                                                                  .compose([
+                                                            FormBuilderValidators
+                                                                .required(
+                                                                    errorText:
+                                                                        'Ovo polje je obavezno!'),
+                                                          ]),
                                                           onChanged:
                                                               (newValue) {
                                                             final selectedLocation =
@@ -489,9 +514,10 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
                                                                       .text,
                                                               address:
                                                                   addressController
-                                                                      .text,
+                                                                          .text,
                                                               ticketCost:
-                                                                  ticketCost,
+                                                                  ticketCost ??
+                                                                      0.0,
                                                               cityId:
                                                                   selectedCityId,
                                                               eventCategoryId:
@@ -512,7 +538,6 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
                                                               body: newEvent
                                                                   .toJson(),
                                                             );
-
                                                             if (response
                                                                     .statusCode ==
                                                                 200) {

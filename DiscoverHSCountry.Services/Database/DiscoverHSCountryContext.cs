@@ -62,6 +62,8 @@ public partial class DiscoverHSCountryContext : DbContext
     public virtual DbSet<LocationVisits> LocationVisits { get; set; }
     public virtual DbSet<Recommendation> Recommendation { get; set; }
 
+    public virtual DbSet<Country> Country { get; set; } 
+
 
 
     /*protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -95,6 +97,18 @@ public partial class DiscoverHSCountryContext : DbContext
 
             entity.Property(e => e.CityId).HasColumnName("city_id");
             entity.Property(e => e.CoverImage).HasColumnName("cover_image");
+            entity.Property(e => e.Name)
+                .HasMaxLength(20)
+                .HasColumnName("name");
+        });
+
+        modelBuilder.Entity<Country>(entity =>
+        {
+            entity.HasKey(e => e.CountryId).HasName("PK__Country__7E8CD055578D9B41");
+
+            entity.ToTable("Country");
+
+            entity.Property(e => e.CountryId).HasColumnName("country_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(20)
                 .HasColumnName("name");
@@ -496,6 +510,11 @@ public partial class DiscoverHSCountryContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Tourists)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK__Tourist__user_id__778AC167");
+
+            entity.Property(e => e.CountryId).HasColumnName("country_id");
+            entity.HasOne(d => d.Country).WithMany() 
+                .HasForeignKey(d => d.CountryId)
+                .HasConstraintName("FK_Tourist_Country"); 
         });
 
         modelBuilder.Entity<TouristAttractionOwner>(entity =>

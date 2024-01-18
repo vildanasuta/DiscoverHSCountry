@@ -12,7 +12,7 @@ class Location {
   final int cityId;
   final int locationCategoryId;
   final int locationSubcategoryId;
-  final int? touristAttractionOwnerId;
+  int? touristAttractionOwnerId;
   final String facebookUrl;
   final String instagramUrl;
   final String bookingUrl;

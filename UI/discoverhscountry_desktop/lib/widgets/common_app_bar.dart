@@ -24,7 +24,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String username = '${user?.firstName} ${user!.lastName}';
+    final String username = '${user?.firstName} ${user?.lastName}';
     return AppBar(
       leading: Builder(
         builder: (context) {
@@ -70,7 +70,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
                       child: Container(
                         child: (user?.profileImage != '' && user?.profileImage!='string')
                             ? Image.memory(
-                                base64Decode(user!.profileImage),
+                                base64Decode(user!.profileImage!),
                                 width: 120,
                                 height: 120,
                               )

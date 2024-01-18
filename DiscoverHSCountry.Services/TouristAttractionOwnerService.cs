@@ -92,7 +92,14 @@ namespace DiscoverHSCountry.Services
         public int GetTouristAttractionOwnerIdByUserId(int userId)
         {
             var tao = _context.TouristAttractionOwners.FirstOrDefault(t => t.UserId == userId);
-            return tao.TouristAttractionOwnerId;
+            if (tao != null)
+            {
+                return tao.TouristAttractionOwnerId;
+            }
+            else
+            {
+                return 0;
+            }
         }
     }
 }

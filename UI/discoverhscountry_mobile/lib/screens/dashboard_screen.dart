@@ -65,22 +65,22 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
 
   @override
   Widget build(BuildContext context) {
+   var image= widget.user.profileImage != ''
+                                      ? Image.memory(
+                                          base64Decode(
+                                              widget.user.profileImage!),
+                                          width: 120,
+                                          height: 120,
+                                        )
+                                      : Image.asset('assets/default-user.png',
+                                          width: 120, height: 120);
     return Scaffold(
       appBar: AppBar(
         title: Row(
           children: [
             CircleAvatar(
-              child: Container(
-                color: Colors.white,
-                child: widget.user.profileImage != ''
-                    ? Image.memory(
-                        base64Decode(widget.user.profileImage!),
-                        width: 120,
-                        height: 120,
-                      )
-                    : Image.asset('assets/default-user.png',
-                        width: 120, height: 120),
-              ),
+              backgroundImage: image.image,
+              radius: 20,
             ),
             const SizedBox(width: 8),
             Text(

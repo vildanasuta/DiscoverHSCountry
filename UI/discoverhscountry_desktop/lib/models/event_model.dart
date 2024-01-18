@@ -4,6 +4,7 @@ part 'event_model.g.dart';
 
 @JsonSerializable()
 class Event {
+  int? eventId;
   String title;
   String description;
   DateTime date;
@@ -15,6 +16,7 @@ class Event {
   int? locationId;
 
   Event({
+    this.eventId,
     required this.title,
     required this.description,
     required this.date,

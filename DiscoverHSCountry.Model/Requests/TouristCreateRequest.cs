@@ -22,5 +22,7 @@ namespace DiscoverHSCountry.Model.Requests
         [JsonIgnore]
         public int? UserId { get; set; }
 
+        public int CountryId { get; set; }
+
     }
 }

@@ -2,6 +2,7 @@
 using DiscoverHSCountry.Model.Requests;
 using DiscoverHSCountry.Model.SearchObjects;
 using DiscoverHSCountry.Services.Database;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace DiscoverHSCountry.Services
 {
     public class TouristService : BaseCRUDService<Model.Tourist, Database.Tourist, TouristSearchObject, TouristCreateRequest, TouristUpdateRequest>, ITouristService
     {
-        private readonly IUserService _userService; // Injects the user service to handle user creation
+        private readonly IUserService _userService;
         public TouristService(DiscoverHSCountryContext context, IMapper mapper, IUserService userService) : base(context, mapper)
         {
             _userService = userService;
@@ -40,7 +41,8 @@ namespace DiscoverHSCountry.Services
                     tourist = new Tourist
                     {
                         DateOfBirth = touristCreateRequest.DateOfBirth,
-                        UserId = createdUser.UserId
+                        UserId = createdUser.UserId,
+                        CountryId = touristCreateRequest.CountryId
                     };
 
                     _context.Tourists.Add(tourist);
@@ -75,6 +77,83 @@ namespace DiscoverHSCountry.Services
             {
                 try
                 {
+                    var reservations = await _context.Reservations
+                        .Where(r => r.TouristId == id)
+                        .ToListAsync();
+                    if (reservations.Count > 0)
+                    {
+                        foreach(var reservation in reservations)
+                        {
+                            _context.Reservations.Remove(reservation);
+                        }
+                    }
+
+                    var technicalIssues = await _context.TechnicalIssueTourists
+                        .Where(t => t.TouristId == id)
+                        .ToListAsync();
+                    if(technicalIssues.Count > 0)
+                    {
+                        foreach(var issue in technicalIssues)
+                        {
+                            _context.TechnicalIssueTourists.Remove(issue);
+                        }
+                    }
+
+                    var visitedLocations = await _context.VisitedLocations
+                        .Where(v => v.TouristId == id)
+                        .ToListAsync();
+                    if(visitedLocations.Count > 0)
+                    {
+                        foreach(var location in visitedLocations)
+                        {
+                            var visitedLocationImages = await _context.VisitedLocationImages
+                                .Where(v=> v.VisitedLocationId==location.VisitedLocationId)
+                                .ToListAsync();
+                            if(visitedLocationImages.Count > 0)
+                            {
+                                foreach(var image in visitedLocationImages)
+                                {
+                                    _context.VisitedLocationImages.Remove(image);
+                                }
+                            }
+                            _context.VisitedLocations.Remove(location);
+                        }
+                    }
+
+                    var locationVisits = await _context.LocationVisits
+                        .Where(v => v.TouristId == id)
+                        .ToListAsync();
+                    if(locationVisits.Count > 0)
+                    {
+                        foreach(var visit in locationVisits)
+                        {
+                            _context.LocationVisits.Remove(visit);
+                        }
+                    }
+
+                    var recommendations = await _context.Recommendation
+                        .Where(r => r.TouristId == id)
+                        .ToListAsync();
+                    if(recommendations.Count > 0)
+                    {
+                        foreach (var recommendation in recommendations)
+                        {
+                            _context.Recommendation.Remove(recommendation);
+                        }
+                    }
+
+                    var reviews = await _context.Reviews
+                        .Where(r => r.TouristId == id)
+                        .ToListAsync();
+                    if(reviews.Count > 0)
+                    {
+                        foreach (var review in reviews)
+                        {
+                            _context.Reviews.Remove(review);
+                        }
+                    }
+
+
                     var deletedTourist = await base.Delete(id);
                     await _userService.Delete(userId);
                     transaction.Commit();
@@ -93,5 +172,13 @@ namespace DiscoverHSCountry.Services
             return tourist.TouristId;
         }
 
+        public async Task<Country> GetCountryByTouristId(int touristId)
+        {
+            var tourist = await _context.Tourists
+                .Include(t => t.Country)
+                .FirstOrDefaultAsync(t => t.TouristId == touristId);
+
+            return tourist?.Country;
+        }
     }
 }

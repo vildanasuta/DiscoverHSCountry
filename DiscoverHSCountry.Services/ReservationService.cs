@@ -23,5 +23,44 @@ namespace DiscoverHSCountry.Services
                 .Where(r => r.LocationId == locationId)
                 .ToListAsync();
         }
+
+        public async Task<Model.Reservation> UpdateIsPaid(int id, bool isPaid)
+        {
+            var reservation = await base.GetById(id);
+
+            if (reservation != null)
+            {
+                var updateRequest = new ReservationUpdateRequest
+                {
+                    TouristId = reservation.TouristId,
+                    IsConfirmed = reservation.IsConfirmed,
+                    IsPaid = isPaid,
+                    Price = reservation.Price,
+                    LocationId = reservation.LocationId,
+                };
+                await base.Update(id, updateRequest);
+            }
+            return reservation;
+        }
+
+        public async Task<Model.Reservation> UpdateIsConfirmed(int id, bool isConfirmed)
+        {
+            var reservation = await base.GetById(id);
+
+            if (reservation != null)
+            {
+                var updateRequest = new ReservationUpdateRequest
+                {
+                    TouristId = reservation.TouristId,
+                    IsConfirmed = isConfirmed,
+                    IsPaid = reservation.IsPaid,
+                    Price = reservation.Price,
+                    LocationId = reservation.LocationId,
+                };
+                await base.Update(id, updateRequest);
+            }
+            return reservation;
+        }
+
     }
 }

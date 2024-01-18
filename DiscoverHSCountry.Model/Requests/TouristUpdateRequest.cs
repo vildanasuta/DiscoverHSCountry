@@ -12,5 +12,7 @@ namespace DiscoverHSCountry.Model.Requests
 
         public int? UserId { get; set; }
         public virtual User? User { get; set; }
+        public int? CountryId { get; set; }
+
     }
 }

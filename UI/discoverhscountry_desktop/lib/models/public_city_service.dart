@@ -4,6 +4,7 @@ part 'public_city_service.g.dart';
 
 @JsonSerializable()
 class PublicCityService {
+  int? publicCityServiceId;
   String name;
   String description;
   String? address;
@@ -11,6 +12,7 @@ class PublicCityService {
   String? coverImage;
 
   PublicCityService({
+    this.publicCityServiceId,
     required this.name,
     required this.description,
     this.address,

@@ -62,6 +62,32 @@ namespace DiscoverHSCountry.API.Controllers
             }
         }
 
+        [HttpPut("UpdateIsPaid/{id}/{isPaid}")]
+        public async Task<IActionResult> UpdateIsPaid(int id, bool isPaid)
+        {
+            try
+            {
+                var updatedReservation = await _reservationService.UpdateIsPaid(id, isPaid);
+                return Ok(updatedReservation);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
 
+        [HttpPut("UpdateIsConfirmed/{id}/{isConfirmed}")]
+        public async Task<IActionResult> UpdateIsConfirmed(int id, bool isConfirmed)
+        {
+            try
+            {
+                var updatedReservation = await _reservationService.UpdateIsConfirmed(id, isConfirmed);
+                return Ok(updatedReservation);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }

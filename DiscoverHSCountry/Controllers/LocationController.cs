@@ -62,6 +62,15 @@ namespace DiscoverHSCountry.API.Controllers
             }
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public override async Task<Model.Location> Delete(int id)
+        {
+            var location = await GetById(id);
+            var delete = await DeleteLocationByIdAsync(id);
+            return location;
+        }
+
+
         [HttpGet("GetLocationsBySubcategoryId/{categoryId}/{subcategoryId}")]
         public IActionResult GetLocationsBySubcategoryId(int categoryId, int subcategoryId)
         {

@@ -3,6 +3,7 @@ import 'package:discoverhscountry_mobile/common/font_settings.dart';
 import 'package:discoverhscountry_mobile/screens/start_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 void main() async {
   await dotenv.load();
   runApp(const MyApp());

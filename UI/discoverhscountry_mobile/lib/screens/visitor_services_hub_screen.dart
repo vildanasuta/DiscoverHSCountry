@@ -154,6 +154,15 @@ _getAllPublicCityServices() async {
                     itemCount: publicCityServicesList.length,
                     itemBuilder: (context, index) {
                       final publicCityService = publicCityServicesList[index];
+                      // ignore: unnecessary_null_comparison
+                      var image = publicCityService.coverImage=="null" || publicCityService.coverImage==null ?Image.network("https://cms.uitp.org/thumbor/fit-in/1024x/--/uploads/2022/07/Copyright-CCR-Metro-Bahia-3-scaled-e1658341124673.jpg",  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,):Image.memory(
+                                  base64.decode(publicCityService.coverImage),
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                );
                       return GestureDetector(
                         onTap: () {
                           Navigator.of(context).push(MaterialPageRoute(
@@ -172,12 +181,7 @@ _getAllPublicCityServices() async {
                             borderRadius: BorderRadius.circular(15),
                             child: Stack(
                               children: [
-                                Image.memory(
-                                  base64.decode(publicCityService.coverImage),
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                ),
+                                image,
                                 BackdropFilter(
                                   filter:
                                       ImageFilter.blur(sigmaX: 1, sigmaY: 1),

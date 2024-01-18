@@ -12,8 +12,9 @@ Tourist _$TouristFromJson(Map<String, dynamic> json) => Tourist(
       userId: json['userId'] as int,
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,
-      profileImage: json['profileImage'] as String,
+      profileImage: json['profileImage'] as String?,
       email: json['email'] as String,
+      countryId: json['countryId'] as int,
     );
 
 Map<String, dynamic> _$TouristToJson(Tourist instance) => <String, dynamic>{
@@ -24,4 +25,5 @@ Map<String, dynamic> _$TouristToJson(Tourist instance) => <String, dynamic>{
       'lastName': instance.lastName,
       'profileImage': instance.profileImage,
       'email': instance.email,
+      'countryId': instance.countryId,
     };
