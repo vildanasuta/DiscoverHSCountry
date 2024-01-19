@@ -216,7 +216,7 @@ class _TouristDrawerState extends State<TouristDrawer> {
             },
           ),
           const SizedBox(
-            height: 80,
+            height: 60,
           ),
           Padding(
             padding: const EdgeInsets.symmetric(

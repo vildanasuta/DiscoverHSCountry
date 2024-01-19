@@ -248,7 +248,7 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
                 ),
               if(isLoading)
               Container(
-                padding: EdgeInsets.fromLTRB(120, 80, 120, 0),
+                padding: const EdgeInsets.fromLTRB(120, 80, 120, 0),
                 child: const CircularProgressIndicator(),
                 )
             ],

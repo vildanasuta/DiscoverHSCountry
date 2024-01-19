@@ -170,6 +170,10 @@ class _ReportAnIssueScreenState extends State<ReportAnIssueScreen>
                                                                   ),
                                                                   DropdownButtonFormField<
                                                                       int>(
+                                                                    isDense:
+                                                                        true, 
+                                                                    isExpanded:
+                                                                        true, 
                                                                     style: Theme.of(
                                                                             context)
                                                                         .textTheme
@@ -221,7 +225,6 @@ class _ReportAnIssueScreenState extends State<ReportAnIssueScreen>
                                                                     value:
                                                                         selectedLocationId,
                                                                     items: [
-                                                                      
                                                                       ...locations.map(
                                                                           (Location
                                                                               location) {

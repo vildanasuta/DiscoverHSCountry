@@ -466,6 +466,7 @@ class _EditProfileState extends State<EditProfile> with DataFetcher {
                         ),
                       ]),
                     ),
+                const SizedBox(height:40),
                 ElevatedButton(
                   onPressed: () async {
                     FilePickerResult? result =

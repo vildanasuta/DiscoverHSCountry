@@ -238,8 +238,8 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                       padding: const EdgeInsets.all(16.0),
                       child: InkWell(
                         onTap: () {
-                          launchMaps(
-                              '${widget.location.address} ${city!.name}', context);
+                          launchMaps('${widget.location.address} ${city!.name}',
+                              context);
                         },
                         child: Row(
                           children: [
@@ -596,7 +596,8 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                             actions: <Widget>[
                               TextButton(
                                 onPressed: () {
-                                  Navigator.of(context).pop(); // Close the dialog
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
                                   Navigator.of(context).pushReplacement(
                                     MaterialPageRoute(
                                       builder: (context) =>
@@ -694,6 +695,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
   }
 
   void _makeReservation(int serviceId, Service service) async {
+    final _formKey = GlobalKey<FormBuilderState>();
     var startDateController = TextEditingController();
     var endDateController = TextEditingController();
     var numberOfPeopleController = TextEditingController();
@@ -708,21 +710,31 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                     color: Colors.black,
                   )),
           content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                TextFormField(
-                  controller: startDateController,
-                  decoration: InputDecoration(
-                    labelText: 'Start Date',
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.calendar_today),
-                      onPressed: () =>
-                          _selectDate(context, startDateController, true),
+            child: FormBuilder(
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  FormBuilderTextField(
+                    name: 'startDate',
+                    controller: startDateController,
+                    decoration: InputDecoration(
+                      labelText: 'Start Date',
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.calendar_today),
+                        onPressed: () =>
+                            _selectDate(context, startDateController, true),
+                      ),
                     ),
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(
+                        errorText: 'This field is required!',
+                      ),
+                    ]),
                   ),
-                ),
-                TextFormField(
+                  FormBuilderTextField(
+                    name: 'endDate',
                     controller: endDateController,
                     decoration: InputDecoration(
                       labelText: 'End Date',
@@ -731,19 +743,47 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                         onPressed: () =>
                             _selectDate(context, endDateController, true),
                       ),
-                    )),
-                TextField(
-                  controller: numberOfPeopleController,
-                  decoration: const InputDecoration(
-                      labelText: 'Amount (number of people)'),
-                  keyboardType: TextInputType.number,
-                ),
-                TextField(
-                  controller: additionalDescriptionController,
-                  decoration: const InputDecoration(
-                      labelText: 'Additional Description'),
-                ),
-              ],
+                    ),
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(
+                        errorText: 'This field is required!',
+                      ),
+                      (value) {
+                        if (startDateController.text.isNotEmpty &&
+                            endDateController.text.isNotEmpty) {
+                          DateTime startDate =
+                              DateTime.parse(startDateController.text);
+                          DateTime endDate =
+                              DateTime.parse(endDateController.text);
+
+                          if (endDate.isBefore(startDate)) {
+                            return 'End Date must be after Start Date';
+                          }
+                        }
+
+                        return null;
+                      },
+                    ]),
+                  ),
+                  FormBuilderTextField(
+                      name: 'numberOfPeople',
+                      controller: numberOfPeopleController,
+                      decoration: const InputDecoration(
+                          labelText: 'Amount (number of people)'),
+                      keyboardType: TextInputType.number,
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                          errorText: 'This field is required!',
+                        ),
+                      ])),
+                  FormBuilderTextField(
+                    name: 'additionalDescription',
+                    controller: additionalDescriptionController,
+                    decoration: const InputDecoration(
+                        labelText: 'Additional Description'),
+                  ),
+                ],
+              ),
             ),
           ),
           actions: <Widget>[
@@ -755,6 +795,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
             ),
             TextButton(
               onPressed: () async {
+                if (_formKey.currentState!.validate()) {
                 String startDate = startDateController.text;
                 String endDate = endDateController.text;
                 int numberOfPeople =
@@ -861,7 +902,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
                     duration: const Duration(seconds: 3),
                     backgroundColor: Colors.red,
                   ).show(context);
-                }
+                }}
               },
               child: const Text('Confirm'),
             ),
