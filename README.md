@@ -16,7 +16,7 @@ The process for making a reservation is as follows:
 8. After successful payment, you'll be redirected back to the app where you can continue using its features
 9. Your reservations can be found by clicking the "My Reservations" option in the right-sided drawer menu
 
-    NOTE: The PayPal package for Flutter needs to use web view so it will only work on connected mobile devices since there you have the option to be redirected from the app to your default browser when the PayPal screen is opened
+    NOTE: The PayPal package for Flutter needs to use web view so it will only work on connected mobile devices or mobile phone emulators since there you have the option to be redirected from the app to your default browser when the PayPal screen is opened.
 
 Desktop app admin credentials:
 - Email : admin@admin.com
