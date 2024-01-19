@@ -90,7 +90,7 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
       });
     }
   }
-
+  }
   Map<String, String> eventCategoriesTranslations = {
     "Concerts": "Koncerti",
     "Festivals": "Festivali",
@@ -107,7 +107,6 @@ class _NewEventState extends State<NewEvent> with DataFetcher {
 
   @override
   Widget build(BuildContext context) {
-        print(widget.userType);
     return Scaffold(
         appBar: CommonAppBar(
           isLoggedIn: true,
