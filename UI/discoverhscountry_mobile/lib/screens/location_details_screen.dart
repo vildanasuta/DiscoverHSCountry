@@ -695,6 +695,7 @@ class _LocationDetailsScreenState extends State<LocationDetailsScreen>
   }
 
   void _makeReservation(int serviceId, Service service) async {
+    // ignore: no_leading_underscores_for_local_identifiers
     final _formKey = GlobalKey<FormBuilderState>();
     var startDateController = TextEditingController();
     var endDateController = TextEditingController();

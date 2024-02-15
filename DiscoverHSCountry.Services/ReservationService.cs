@@ -37,6 +37,7 @@ namespace DiscoverHSCountry.Services
                     IsPaid = isPaid,
                     Price = reservation.Price,
                     LocationId = reservation.LocationId,
+                    PayPalPaymentId = reservation.PayPalPaymentId,
                 };
                 await base.Update(id, updateRequest);
             }
@@ -56,11 +57,31 @@ namespace DiscoverHSCountry.Services
                     IsPaid = reservation.IsPaid,
                     Price = reservation.Price,
                     LocationId = reservation.LocationId,
+                    PayPalPaymentId=reservation.PayPalPaymentId,
                 };
                 await base.Update(id, updateRequest);
             }
             return reservation;
         }
 
+        public async Task<Model.Reservation> AddPayPalPaymentId(int id, string payPalPaymentId)
+        {
+            var reservation = await base.GetById(id);
+
+            if (reservation != null)
+            {
+                var updateRequest = new ReservationUpdateRequest
+                {
+                    TouristId = reservation.TouristId,
+                    IsConfirmed = reservation.IsConfirmed,
+                    IsPaid = reservation.IsPaid,
+                    Price = reservation.Price,
+                    LocationId = reservation.LocationId,
+                    PayPalPaymentId = payPalPaymentId,
+                };
+                await base.Update(id, updateRequest);
+            }
+            return reservation;
+        }
     }
 }

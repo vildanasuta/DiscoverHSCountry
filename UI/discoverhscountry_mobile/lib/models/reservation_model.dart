@@ -10,6 +10,7 @@ class Reservation {
   final double price;
   final bool isPaid;
   final bool isConfirmed;
+  String? payPalPaymentId;
 
   Reservation({
     this.reservationId,
@@ -17,7 +18,8 @@ class Reservation {
     this.locationId,
     required this.price,
     required this.isPaid,
-    required this.isConfirmed
+    required this.isConfirmed,
+    this.payPalPaymentId
   });
    factory Reservation.fromJson(Map<String, dynamic> json) =>
       _$ReservationFromJson(json);

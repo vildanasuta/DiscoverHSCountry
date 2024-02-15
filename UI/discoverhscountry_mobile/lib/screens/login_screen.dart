@@ -234,6 +234,26 @@ class _LoginScreenState extends State<LoginScreen> with DataFetcher {
                         backgroundColor: Colors.red,
                         duration: const Duration(seconds: 3),
                       ).show(context);
+                    } else {
+                      // ignore: use_build_context_synchronously
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("Could not log you in."),
+                            content: const Text(
+                                "Could not log you in Discover HS Country app. Please make sure you've correctly specified API host and port to ensure proper communication."),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text("OK"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     }
                   }
                 }

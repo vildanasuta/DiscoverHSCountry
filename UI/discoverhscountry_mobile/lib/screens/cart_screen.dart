@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'dart:async';
 import 'dart:convert';
@@ -214,7 +214,6 @@ class _CartScreenState extends State<CartScreen> with DataFetcher {
 
       final completer = Completer<bool>();
 
-      // ignore: use_build_context_synchronously
       await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (BuildContext context) => UsePaypal(
@@ -250,6 +249,8 @@ class _CartScreenState extends State<CartScreen> with DataFetcher {
             note: "Contact us for any questions on your order.",
             onSuccess: (Map params) async {
               print("onSuccess: $params");
+              String paymentId = params['paymentId'];
+              await addPayPalPaymentId(newReservationId, paymentId);
               print("sending email...");
               _sendConfirmationEmail(user, location!);
               completer.complete(true);

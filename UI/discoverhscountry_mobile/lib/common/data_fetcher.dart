@@ -427,6 +427,34 @@ mixin DataFetcher {
     }
   }
 
+  Future<List<Service>> getServices() async {
+    final Uri uri = Uri.parse(
+        '${ApiConstants.baseUrl}/Service');
+
+    try {
+      final response = await makeAuthenticatedRequest(uri, 'GET');
+
+      if (response.statusCode == 200) {
+        final jsonData =
+            json.decode(response.body)['result']['\$values'] as List<dynamic>;
+        final services = jsonData.map((json) {
+          return Service(
+            serviceId: json['serviceId'],
+            serviceName: json['serviceName'],
+            serviceDescription: json['serviceDescription'],
+            unitPrice: json['unitPrice'],
+            locationId: json['locationId'],
+          );
+        }).toList();
+        return services;
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (error) {
+      throw Exception('Failed to make authenticated request: $error');
+    }
+  }
+
   Future<List<PublicCityService>> getAllPublicCityServices() async {
     final Uri uri = Uri.parse('${ApiConstants.baseUrl}/PublicCityService');
 
@@ -748,7 +776,6 @@ mixin DataFetcher {
   Future<List<ReservationService>> getReservationServicesByReservationId(
       int reservationId) async {
     final Uri uri = Uri.parse('${ApiConstants.baseUrl}/ReservationService');
-
     try {
       final response = await makeAuthenticatedRequest(uri, 'GET');
 
@@ -930,4 +957,27 @@ mixin DataFetcher {
       throw Exception('Failed to make authenticated request: $error');
     }
   }
+
+ Future<Reservation?> addPayPalPaymentId(int id, String paymentId) async {
+  final Uri uri = Uri.parse(
+      '${ApiConstants.baseUrl}/Reservation/AddPayPalPaymentId/$id/$paymentId');
+  try {
+    final response = await makeAuthenticatedRequest(
+      uri,
+      'PUT',
+      body: {
+        'id': id,
+        'payPalPaymentId': paymentId,
+      },
+    );
+    if (response.statusCode == 200) {
+      return Reservation.fromJson(jsonDecode(response.body));
+    } else {
+      return null;
+    }
+  } catch (error) {
+    throw Exception('Failed to make authenticated request: $error');
+  }
+}
+
 }

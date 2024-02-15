@@ -15,5 +15,7 @@ namespace DiscoverHSCountry.Model.Requests
         public decimal Price { get; set; }
         public bool IsPaid { get; set; } = false;
         public bool IsConfirmed { get; set; } = false;
+        public string? PayPalPaymentId { get; set; }
+
     }
 }

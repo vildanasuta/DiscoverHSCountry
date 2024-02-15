@@ -28,6 +28,7 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
   bool isLoading = true;
   bool _isSearching = false;
   List<Location> locations = [];
+  bool isHidden=false;
 
   @override
   void initState() {
@@ -65,6 +66,7 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
 
   @override
   Widget build(BuildContext context) {
+  isHidden=MediaQuery.of(context).viewInsets.bottom==0?true:false;
    var image= widget.user.profileImage != ''
                                       ? Image.memory(
                                           base64Decode(
@@ -135,7 +137,7 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
   }
 
   buildBody() {
-    if (_isCities) {
+    if (_isCities && isHidden) {
       return Stack(children: [
         if (!_isSearching)
           Column(
@@ -408,6 +410,24 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url));
     } else {
+      // ignore: use_build_context_synchronously
+      showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Unable to Launch Email"),
+          content: const Text("Could not launch default email app. You can still contact us manually at cdiscoverhs@gmail.com or directly report an issue for specific location."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
       throw 'Could not launch $url';
     }
   }

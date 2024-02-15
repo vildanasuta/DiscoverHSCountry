@@ -13,5 +13,8 @@ namespace DiscoverHSCountry.Services
         public Task<Model.Reservation> UpdateIsConfirmed(int id, bool isConfirmed);
         public Task<Model.Reservation> UpdateIsPaid(int id, bool isPaid);
 
+        public Task<Model.Reservation> AddPayPalPaymentId(int id, string payPalPaymentId);
+
+
     }
 }

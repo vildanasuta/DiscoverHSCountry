@@ -89,5 +89,19 @@ namespace DiscoverHSCountry.API.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpPut("AddPayPalPaymentId/{id}/{payPalPaymentId}")]
+        public async Task<IActionResult> AddPayPalPaymentId(int id, string payPalPaymentId)
+        {
+            try
+            {
+                var updatedReservation = await _reservationService.AddPayPalPaymentId(id, payPalPaymentId);
+                return Ok(updatedReservation);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }

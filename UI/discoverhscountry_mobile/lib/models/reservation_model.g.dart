@@ -13,6 +13,7 @@ Reservation _$ReservationFromJson(Map<String, dynamic> json) => Reservation(
       price: (json['price'] as num).toDouble(),
       isPaid: json['isPaid'] as bool,
       isConfirmed: json['isConfirmed'] as bool,
+      payPalPaymentId: json['payPalPaymentId'] as String?,
     );
 
 Map<String, dynamic> _$ReservationToJson(Reservation instance) =>
@@ -23,4 +24,5 @@ Map<String, dynamic> _$ReservationToJson(Reservation instance) =>
       'price': instance.price,
       'isPaid': instance.isPaid,
       'isConfirmed': instance.isConfirmed,
+      'payPalPaymentId': instance.payPalPaymentId,
     };
