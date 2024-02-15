@@ -451,6 +451,24 @@ class _ViewMyReservationsState extends State<ViewMyReservations>
     if (await launchUrl(mail, webOnlyWindowName: "_blank")) {
       print("opening email app...");
     } else {
+       // ignore: use_build_context_synchronously
+      showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Unable to Launch Email"),
+          content: const Text("Could not launch default email app. This usually happens when you are testing on emulator instead of connected phone since it doesn't have default email app (or logged in email account). You can still contact us manually at cdiscoverhs@gmail.com or directly report an issue for specific location."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
       print("email app opening failed...");
     }
   }

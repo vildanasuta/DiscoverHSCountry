@@ -416,7 +416,7 @@ class _DashboardScreenState extends State<DashboardScreen> with DataFetcher {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Unable to Launch Email"),
-          content: const Text("Could not launch default email app. You can still contact us manually at cdiscoverhs@gmail.com or directly report an issue for specific location."),
+          content: const Text("Could not launch default email app. This usually happens when you are testing on emulator instead of connected phone since it doesn't have default email app (or logged in email account). You can still contact us manually at cdiscoverhs@gmail.com or directly report an issue for specific location."),
           actions: <Widget>[
             TextButton(
               onPressed: () {
